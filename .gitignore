@@ -1,0 +1,30 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases and raw data
+*.db
+*.sqlite
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*.db
+data/processed/*.sqlite
+
+# IDE configuration files
+.vscode/
+.idea/
+*.swp
+*.swo
