@@ -28,9 +28,10 @@ div.block-container {{
     padding-bottom: 4rem;
 }}
 
-/* Card wrapper — Streamlit's real bordered container, since a manually-opened
-   <div> can't stay open across separate st.markdown/widget calls */
-div[data-testid="stVerticalBlockBorderWrapper"] {{
+/* Card wrapper — targets a stable, version-proof key instead of Streamlit's
+   internal testid (which changes between versions and also matches st.form's
+   own default border, causing a nested/mismatched box). */
+.st-key-auth_card {{
     background: rgba(15, 23, 42, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 1.25rem;
@@ -114,12 +115,36 @@ div[data-testid="stVerticalBlockBorderWrapper"] {{
 .promo-body {{ margin-top: 1rem; font-size: 0.95rem; color: rgba(255,255,255,0.85); max-width: 22rem; }}
 .promo-footer {{ font-size: 0.8rem; color: rgba(255,255,255,0.7); }}
 
-/* Google button */
-.google-btn button {{
+/* Google button — real multi-color "G" logo via background-image, since
+   st.button labels can't render inline colored SVG/HTML directly */
+.st-key-google_btn button {{
     background: white !important;
     color: #111827 !important;
     border: none !important;
     font-weight: 600 !important;
+    position: relative;
+    padding-left: 2.25rem !important;
+}}
+.st-key-google_btn button:hover {{
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}}
+.st-key-google_btn button:focus:not(:active) {{
+    border-color: transparent !important;
+    color: #111827 !important;
+    box-shadow: none !important;
+}}
+.st-key-google_btn button::before {{
+    content: "";
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.1rem;
+    height: 1.1rem;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzQyODVGNCIgZD0iTTIyLjU2IDEyLjI1YzAtLjc4LS4wNy0xLjUzLS4yLTIuMjVIMTJ2NC4yNmg1LjkyYy0uMjYgMS4zNy0xLjA0IDIuNTMtMi4yMSAzLjMxdjIuNzdoMy41N2MyLjA4LTEuOTIgMy4yOC00Ljc0IDMuMjgtOC4wOXoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNMTIgMjNjMi45NyAwIDUuNDYtLjk4IDcuMjgtMi42NmwtMy41Ny0yLjc3Yy0uOTkuNjYtMi4yNiAxLjA2LTMuNzEgMS4wNi0yLjg2IDAtNS4yOS0xLjkzLTYuMTYtNC41M0gyLjE4djIuODRDMy45OSAyMC41MyA3LjcgMjMgMTIgMjN6Ii8+PHBhdGggZmlsbD0iI0ZCQkMwNSIgZD0iTTUuODQgMTQuMDljLS4yMi0uNjYtLjM1LTEuMzYtLjM1LTIuMDlzLjEzLTEuNDMuMzUtMi4wOVY3LjA3SDIuMThDMS40MyA4LjU1IDEgMTAuMjIgMSAxMnMuNDMgMy40NSAxLjE4IDQuOTNsMi44NS0yLjIyLjgxLS42MnoiLz48cGF0aCBmaWxsPSIjRUE0MzM1IiBkPSJNMTIgNS4zOGMxLjYyIDAgMy4wNi41NiA0LjIxIDEuNjRsMy4xNS0zLjE1QzE3LjQ1IDIuMDkgMTQuOTcgMSAxMiAxIDcuNyAxIDMuOTkgMy40NyAyLjE4IDcuMDdsMy42NiAyLjg0Yy44Ny0yLjYgMy4zLTQuNTMgNi4xNi00LjUzeiIvPjwvc3ZnPg==");
+    background-size: contain;
+    background-repeat: no-repeat;
 }}
 
 /* Inputs */
@@ -129,24 +154,56 @@ div[data-testid="stVerticalBlockBorderWrapper"] {{
     color: white !important;
     border-radius: 0.6rem !important;
 }}
+.stTextInput input:focus {{
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 1px #38bdf8 !important;
+}}
 .stTextInput label {{ color: #d1d5db !important; font-size: 0.85rem !important; }}
+/* Password "show/hide" eye icon defaults to the theme's primaryColor on hover/focus */
+.stTextInput button svg {{ fill: #9ca3af !important; }}
+.stTextInput button:hover svg {{ fill: white !important; }}
 
-/* Tabs */
+/* Tabs — hardcode every BaseWeb tab part (pill container, active highlight bar,
+   bottom border, focus ring) so none of them can fall back to Streamlit's
+   default theme primaryColor (red). */
 .stTabs [data-baseweb="tab-list"] {{
     gap: 0;
     background: rgba(255,255,255,0.04);
     border-radius: 0.6rem;
     padding: 0.2rem;
 }}
-.stTabs [data-baseweb="tab"] {{
-    color: #9ca3af;
+.stTabs [data-baseweb="tab-highlight"] {{
+    background-color: transparent !important;
+}}
+.stTabs [data-baseweb="tab-border"] {{
+    background-color: transparent !important;
+}}
+.stTabs button[data-baseweb="tab"] {{
+    color: #9ca3af !important;
+    background-color: transparent !important;
+    border: none !important;
     border-radius: 0.5rem !important;
     flex: 1;
     justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }}
-.stTabs [aria-selected="true"] {{
-    background: rgba(255,255,255,0.08) !important;
+.stTabs button[data-baseweb="tab"] p {{
+    color: inherit !important;
+}}
+.stTabs button[data-baseweb="tab"]:hover {{
     color: white !important;
+    background-color: rgba(255,255,255,0.04) !important;
+}}
+.stTabs button[data-baseweb="tab"]:focus {{
+    outline: none !important;
+    box-shadow: none !important;
+}}
+.stTabs button[aria-selected="true"] {{
+    background-color: rgba(255,255,255,0.08) !important;
+    color: white !important;
+}}
+.stTabs button[aria-selected="true"]:hover {{
+    background-color: rgba(255,255,255,0.08) !important;
 }}
 
 /* Primary submit button */
@@ -157,6 +214,14 @@ div[data-testid="stFormSubmitButton"] button {{
     font-weight: 600 !important;
     border-radius: 0.6rem !important;
     box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}}
+div[data-testid="stFormSubmitButton"] button:hover {{
+    filter: brightness(1.08);
+}}
+div[data-testid="stFormSubmitButton"] button:focus:not(:active) {{
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.3) !important;
+    color: white !important;
+    border-color: transparent !important;
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -181,7 +246,7 @@ with col_promo:
     """, unsafe_allow_html=True)
 
 with col_form:
-    card = st.container(border=True)
+    card = st.container(key="auth_card")
     with card:
         st.markdown(f"""
         <div class="auth-logo">
@@ -192,17 +257,17 @@ with col_form:
         <p class="auth-subtitle">Sign in to your analytics workspace.</p>
         """, unsafe_allow_html=True)
 
-        st.markdown('<div class="google-btn">', unsafe_allow_html=True)
-        if st.button("🔵  Continue with Google", use_container_width=True):
-            st.info("Hook this up to your OAuth provider (e.g. Supabase `signInWithOAuth`).")
-        st.markdown('</div>', unsafe_allow_html=True)
+        google_wrap = st.container(key="google_btn")
+        with google_wrap:
+            if st.button("Continue with Google", use_container_width=True):
+                st.info("Hook this up to your OAuth provider (e.g. Supabase `signInWithOAuth`).")
 
         st.markdown('<div class="auth-divider">or</div>', unsafe_allow_html=True)
 
         tab_signin, tab_signup, tab_reset = st.tabs(["Sign in", "Sign up", "Reset"])
 
         with tab_signin:
-            with st.form("signin_form"):
+            with st.form("signin_form", border=False):
                 email = st.text_input("Email", key="signin_email")
                 password = st.text_input("Password", type="password", key="signin_password")
                 submitted = st.form_submit_button("Sign in", use_container_width=True)
@@ -213,7 +278,7 @@ with col_form:
                         st.success("Welcome back — hook this up to your auth backend to actually log in.")
 
         with tab_signup:
-            with st.form("signup_form"):
+            with st.form("signup_form", border=False):
                 name = st.text_input("Full name", key="signup_name")
                 email_up = st.text_input("Email", key="signup_email")
                 password_up = st.text_input("Password", type="password", key="signup_password")
@@ -225,7 +290,7 @@ with col_form:
                         st.success("Account created — hook this up to your auth backend to persist it.")
 
         with tab_reset:
-            with st.form("reset_form"):
+            with st.form("reset_form", border=False):
                 email_reset = st.text_input("Email", key="reset_email")
                 submitted_reset = st.form_submit_button("Send reset link", use_container_width=True)
                 if submitted_reset:
