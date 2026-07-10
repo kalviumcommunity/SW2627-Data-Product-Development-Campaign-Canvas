@@ -1,0 +1,212 @@
+/* ============================================================
+   CampaignIQ — Streamlit theme
+   Design tokens mirrored 1:1 from src/styles.css (Lovable/tsx app)
+   so both apps stay visually in sync. Only the *values* below are
+   the source of truth to change — everything else references them.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap');
+
+:root {
+  --radius: 0.875rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Dark palette — this is the app's only mode for now (mirrors the
+     `.dark` block in the tsx styles.css). Bring the `:root` light
+     values over from that file later if you add a theme toggle. */
+  --background: oklch(0.16 0.025 260);
+  --foreground: oklch(0.97 0.01 250);
+
+  --card: oklch(0.21 0.03 260);
+  --card-foreground: oklch(0.97 0.01 250);
+  --popover: oklch(0.2 0.03 260);
+  --popover-foreground: oklch(0.97 0.01 250);
+
+  --primary: oklch(0.72 0.16 245);
+  --primary-foreground: oklch(0.15 0.03 260);
+  --primary-glow: oklch(0.78 0.14 235);
+
+  --secondary: oklch(0.26 0.03 260);
+  --secondary-foreground: oklch(0.97 0.01 250);
+
+  --muted: oklch(0.24 0.025 260);
+  --muted-foreground: oklch(0.7 0.03 250);
+
+  --accent: oklch(0.3 0.05 260);
+  --accent-foreground: oklch(0.97 0.01 250);
+
+  --destructive: oklch(0.68 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.72 0.16 155);
+  --success-foreground: oklch(0.15 0.03 260);
+  --warning: oklch(0.8 0.15 75);
+  --warning-foreground: oklch(0.15 0.03 260);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.72 0.16 245);
+
+  --chart-1: oklch(0.55 0.18 255);
+  --chart-2: oklch(0.68 0.15 200);
+  --chart-3: oklch(0.72 0.16 155);
+  --chart-4: oklch(0.75 0.16 60);
+  --chart-5: oklch(0.65 0.2 320);
+  --chart-6: oklch(0.6 0.2 20);
+
+  --sidebar: oklch(0.19 0.03 260);
+  --sidebar-foreground: oklch(0.95 0.01 250);
+  --sidebar-accent: oklch(0.26 0.03 260);
+  --sidebar-border: oklch(1 0 0 / 10%);
+
+  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--primary) 45%, transparent);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.2), 0 8px 24px -12px rgba(15, 23, 42, 0.35);
+}
+
+/* ---------- base ---------- */
+html, body, [class*="css"] { font-family: var(--font-sans); }
+
+.stApp {
+  background-color: var(--background) !important;
+  background-image:
+    radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%),
+    radial-gradient(900px 500px at 100% 10%, color-mix(in oklab, var(--primary-glow) 12%, transparent), transparent 60%);
+  background-attachment: fixed;
+  color: var(--foreground);
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; color: var(--foreground); }
+
+header[data-testid="stHeader"] { background: transparent !important; }
+#MainMenu, footer { visibility: hidden; }
+
+div.block-container { padding-top: 2.5rem; padding-bottom: 3rem; }
+
+/* ---------- reusable HTML utility classes (use inside st.markdown blocks) ---------- */
+.glass-card {
+  background: color-mix(in oklab, var(--card) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+}
+.gradient-primary { background-image: linear-gradient(135deg, var(--primary), var(--primary-glow)); }
+.gradient-text {
+  background-image: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- sidebar ---------- */
+section[data-testid="stSidebar"] {
+  background-color: var(--sidebar) !important;
+  border-right: 1px solid var(--sidebar-border);
+}
+section[data-testid="stSidebar"] * { color: var(--sidebar-foreground); }
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] a {
+  border-radius: var(--radius-md);
+}
+
+/* ---------- buttons ---------- */
+.stButton button, div[data-testid="stFormSubmitButton"] button {
+  background: color-mix(in oklab, var(--secondary) 100%, transparent) !important;
+  color: var(--secondary-foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 600 !important;
+}
+.stButton button:hover, div[data-testid="stFormSubmitButton"] button:hover {
+  filter: brightness(1.1);
+}
+/* mark a button primary by wrapping it: st.container(key="primary_btn") */
+.st-key-primary_btn button {
+  background-image: linear-gradient(135deg, var(--primary), var(--primary-glow)) !important;
+  color: var(--primary-foreground) !important;
+  border: none !important;
+  box-shadow: var(--shadow-glow);
+}
+
+/* ---------- inputs / select / textarea ---------- */
+.stTextInput input, .stTextArea textarea, .stNumberInput input,
+.stSelectbox [data-baseweb="select"] > div, .stMultiSelect [data-baseweb="select"] > div,
+.stDateInput input {
+  background: var(--input) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+  border-radius: var(--radius-md) !important;
+}
+.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus {
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 1px var(--ring) !important;
+}
+.stTextInput label, .stSelectbox label, .stMultiSelect label, .stTextArea label,
+.stNumberInput label, .stDateInput label, .stSlider label {
+  color: var(--muted-foreground) !important;
+  font-size: 0.85rem !important;
+}
+
+/* ---------- tabs ---------- */
+.stTabs [data-baseweb="tab-list"] {
+  gap: 0;
+  background: var(--secondary);
+  border-radius: var(--radius-md);
+  padding: 0.2rem;
+}
+.stTabs [data-baseweb="tab-highlight"],
+.stTabs [data-baseweb="tab-border"] { background-color: transparent !important; }
+.stTabs button[data-baseweb="tab"] {
+  color: var(--muted-foreground) !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  flex: 1;
+  justify-content: center;
+}
+.stTabs button[data-baseweb="tab"] p { color: inherit !important; }
+.stTabs button[data-baseweb="tab"]:focus { outline: none !important; box-shadow: none !important; }
+.stTabs button[aria-selected="true"] {
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+}
+
+/* ---------- cards / metrics ---------- */
+div[data-testid="stMetric"] {
+  background: color-mix(in oklab, var(--card) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border-radius: var(--radius-xl);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-card);
+}
+div[data-testid="stMetricLabel"] { color: var(--muted-foreground) !important; }
+div[data-testid="stMetricValue"] { color: var(--foreground) !important; font-family: var(--font-display); }
+div[data-testid="stMetricDelta"] svg { color: var(--success) !important; }
+
+/* ---------- dataframe / table ---------- */
+[data-testid="stDataFrame"], .stDataFrame {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden;
+}
+
+/* ---------- expander ---------- */
+details[data-testid="stExpander"] {
+  background: var(--card);
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* ---------- alerts (st.error / st.success / st.info / st.warning) ---------- */
+div[data-testid="stAlert"] { border-radius: var(--radius-md) !important; }
+
+/* ---------- misc ---------- */
+hr { border-color: var(--border) !important; }
+::selection { background: color-mix(in oklab, var(--primary) 35%, transparent); }
