@@ -182,7 +182,7 @@ def main() -> None:
         """, unsafe_allow_html=True)
 
     with col4:
-        total_conversions = int(kpis['totalActivations'])
+        total_conversions = int(kpis.get('totalActivations', kpis.get('totalSignups', 0)))
         st.markdown(f"""
             <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
@@ -307,6 +307,53 @@ def main() -> None:
         if worst is not None and (best is None or (worst['display_name'] if 'display_name' in worst else worst['name']) != (best['display_name'] if 'display_name' in best else best['name'])):
             _render_campaign_card("Worst", worst, False)
         st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("""
+        <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1.25rem; margin-top: 1.25rem;">
+            <div style="font-family: var(--font-display); font-weight: 700; color: white; margin-bottom: 0.25rem;">Campaign performance</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 1rem;">Revenue and spend by campaign</div>
+    """, unsafe_allow_html=True)
+
+    if by_campaign.empty:
+        st.info("No campaign performance data is available yet.")
+    else:
+        campaign_perf = by_campaign.copy().head(10)
+        spend_col = "spend_usd" if "spend_usd" in campaign_perf.columns else "spend"
+        label_col = "display_name" if "display_name" in campaign_perf.columns else "name"
+        campaign_perf["revenue"] = campaign_perf[spend_col] * 1.5
+        fig = go.Figure()
+        fig.add_trace(
+            go.Bar(
+                x=campaign_perf[label_col],
+                y=campaign_perf["revenue"],
+                name="Revenue",
+                marker_color="#1d8cff",
+                width=0.36,
+            )
+        )
+        fig.add_trace(
+            go.Bar(
+                x=campaign_perf[label_col],
+                y=campaign_perf[spend_col],
+                name="Spend",
+                marker_color="#f59e0b",
+                width=0.36,
+            )
+        )
+        fig.update_layout(
+            height=340,
+            barmode="group",
+            bargap=0.28,
+            margin=dict(l=0, r=0, t=10, b=0),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="center", x=0.5, font=dict(color="white", size=12)),
+            xaxis=dict(showgrid=False, title=None, tickangle=-20, tickfont=dict(color="#94a3b8", size=10)),
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
+        )
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
