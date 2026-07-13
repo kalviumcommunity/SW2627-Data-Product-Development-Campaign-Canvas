@@ -1,7 +1,14 @@
 from __future__ import annotations
 
-from datetime import datetime
+import sys
+from pathlib import Path
 
+# Add project root to sys.path
+root_dir = str(Path(__file__).resolve().parents[2])
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
+
+from datetime import datetime
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -9,195 +16,195 @@ import streamlit as st
 from src.utils.campaigns import aggregate_by, compute_kpis, fmt_currency, fmt_num, fmt_pct, load_campaign_data
 from src.utils.load_css import load_css
 
-
 st.set_page_config(page_title="Dashboard — CampaignIQ", page_icon="📊", layout="wide")
 load_css()
 
-
-def _trend_revenue_delta(frame: pd.DataFrame) -> float:
-    if frame.empty:
-        return 0.0
-
-    ordered = frame.sort_values("date")
-    midpoint = len(ordered) // 2
-    first_half = float(ordered.iloc[:midpoint]["revenue"].sum())
-    second_half = float(ordered.iloc[midpoint:]["revenue"].sum())
-    return ((second_half - first_half) / first_half) * 100 if first_half else 0.0
-
-
 def _format_banner(is_demo: bool) -> str:
     if is_demo:
-        return "Demo dataset loaded. Add a processed or raw CSV to replace it."
-    return "Live dataset loaded from your workspace data directory."
-
-
-def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
-    if frame.empty:
-        return pd.DataFrame(columns=["date", "spend", "revenue", "conversions"])
-
-    dated = frame.copy()
-    dated["date"] = pd.to_datetime(dated["date"], errors="coerce")
-    dated = dated.dropna(subset=["date"])
-    dated["date"] = dated["date"].dt.strftime("%Y-%m-%d")
-
-    return (
-        dated.groupby("date", as_index=False)
-        .agg(spend=("spend", "sum"), revenue=("revenue", "sum"), conversions=("conversions", "sum"))
-        .sort_values("date")
-        .reset_index(drop=True)
-    )
-
-
-def _render_campaign_card(title: str, campaign: pd.Series | None, positive: bool) -> None:
-    if campaign is None or campaign.empty:
-        return
-
-    icon = "▲" if positive else "▼"
-    accent = "#16a34a" if positive else "#dc2626"
-    st.markdown(
-        f"""
-        <div class="glass-card" style="padding: 1rem 1.1rem; margin-bottom: 0.75rem;">
-            <div style="font-size: 0.75rem; font-weight: 700; color: {accent};">{icon} {title}</div>
-            <div style="font-weight: 600; margin-top: 0.25rem;">{campaign['name']}</div>
-            <div style="font-size: 0.85rem; color: var(--muted-foreground); margin-top: 0.25rem;">
-                Revenue: {fmt_currency(float(campaign['totalRevenue']))} · ROAS {float(campaign['roas']):.2f}x
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
+        return "Demo dataset loaded. Run the ETL pipeline with your raw datasets to update."
+    return "Live dataset loaded from your workspace processed data directory."
 
 def main() -> None:
     frame, is_demo = load_campaign_data()
-    by_date = _build_date_series(frame)
-    by_campaign = aggregate_by(frame, "campaign")
-    kpis = compute_kpis(frame)
-    growth = _trend_revenue_delta(by_date)
-
-    best = by_campaign.iloc[0] if not by_campaign.empty else None
-    worst = by_campaign.iloc[-1] if len(by_campaign) > 1 else None
-
+    
+    # Page Header
     st.markdown(
         f"""
-        <div class="glass-card" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;">
+        <div class="glass-card" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;">
             <div>
-                <div style="font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted-foreground);">CampaignIQ dashboard</div>
-                <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;">Daily campaign performance and activation signals</div>
+                <div style="font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted-foreground);">CampaignIQ Dashboard</div>
+                <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;">Campaign-to-Activation Analytics Canvas</div>
                 <div style="font-size:0.9rem;color:var(--muted-foreground);margin-top:0.3rem;">{_format_banner(is_demo)}</div>
             </div>
-            <div style="text-align:right;font-size:0.8rem;color:var(--muted-foreground);">Updated {datetime.now().strftime('%b %d, %Y')}</div>
+            <div style="text-align:right;font-size:0.8rem;color:var(--muted-foreground);">Last Ingested: {datetime.now().strftime('%b %d, %H:%M UTC')}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    if is_demo:
-        st.info("Demo data is being used because no campaign dataset was found in data/raw or data/processed.")
+    if frame.empty:
+        st.info("No data available. Please place CSVs under data/raw/ and run the ETL pipeline.")
+        return
 
-    metric_rows = [
-        [("Total campaigns", fmt_num(kpis["totalCampaigns"]), None), ("Total spend", fmt_currency(kpis["totalSpend"]), None), ("Revenue", fmt_currency(kpis["totalRevenue"]), f"{growth:+.1f}% vs. prior period"), ("Conversions", fmt_num(kpis["totalConversions"]), None)],
-        [("CTR", fmt_pct(kpis["ctr"]), None), ("CPA", fmt_currency(kpis["cpa"]), None), ("ROAS", f"{kpis['roas']:.2f}x", None), ("Conversion rate", fmt_pct(kpis["cvr"]), None)],
-    ]
+    # Filters Section
+    st.markdown('<div class="glass-card" style="padding: 1.25rem; margin-bottom: 1.5rem;">', unsafe_allow_html=True)
+    st.markdown('<div style="font-family:var(--font-display);font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;">Global Filters</div>', unsafe_allow_html=True)
+    
+    col_f1, col_f2, col_f3 = st.columns(3)
+    with col_f1:
+        platforms = ["All Platforms"] + list(frame["ad_platform"].unique())
+        selected_platform = st.selectbox("Ad Platform", platforms)
+    with col_f2:
+        dates = pd.to_datetime(frame["date"])
+        min_date, max_date = dates.min(), dates.max()
+        selected_date_range = st.date_input("Date Range", [min_date, max_date], min_value=min_date, max_value=max_date)
+    with col_f3:
+        campaign_search = st.text_input("Campaign Search", "")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    for row in metric_rows:
-        cols = st.columns(4)
-        for column, (label, value, delta) in zip(cols, row):
-            with column:
-                st.metric(label=label, value=value, delta=delta)
+    # Filter implementation
+    filtered_df = frame.copy()
+    if selected_platform != "All Platforms":
+        filtered_df = filtered_df[filtered_df["ad_platform"] == selected_platform]
+    
+    if len(selected_date_range) == 2:
+        start_date, end_date = selected_date_range
+        filtered_df = filtered_df[
+            (pd.to_datetime(filtered_df["date"]) >= pd.to_datetime(start_date)) & 
+            (pd.to_datetime(filtered_df["date"]) <= pd.to_datetime(end_date))
+        ]
+        
+    if campaign_search:
+        filtered_df = filtered_df[
+            filtered_df["campaign_name"].str.contains(campaign_search, case=False) |
+            filtered_df["campaign_id"].str.contains(campaign_search, case=False)
+        ]
 
+    # Compute KPIs
+    kpis = compute_kpis(filtered_df)
+
+    # Display KPI Cards
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric(label="TOTAL AD SPEND", value=fmt_currency(kpis["totalSpend"]))
+    with col2:
+        st.metric(label="SIGNUPS", value=fmt_num(kpis["totalSignups"]))
+    with col3:
+        activation_rate_str = fmt_pct(kpis["activationRate"])
+        st.metric(label="ACTIVATIONS (7D)", value=fmt_num(kpis["totalActivations"]), delta=f"{activation_rate_str} Activation Rate", delta_color="normal")
+    with col4:
+        # Highlighting Wasted Spend in red/inverse delta if it exists
+        wasted_delta = f"CPAU: {fmt_currency(kpis['cpau'])}" if kpis['totalActivations'] > 0 else None
+        st.metric(label="EST. WASTED SPEND", value=fmt_currency(kpis["wastedSpend"]), delta=wasted_delta, delta_color="inverse")
+
+    # Middle Section: Funnel Chart and Performance Summary
     left, right = st.columns([2, 1], gap="large")
 
     with left:
-        st.markdown('<div class="glass-card" style="padding:1.25rem;">', unsafe_allow_html=True)
-        st.markdown('<div style="font-family:var(--font-display);font-weight:700;margin-bottom:0.25rem;">Revenue vs. Spend</div>', unsafe_allow_html=True)
-        st.caption("Daily trend")
+        st.markdown('<div class="glass-card" style="padding:1.25rem; height: 100%;">', unsafe_allow_html=True)
+        st.markdown('<div style="font-family:var(--font-display);font-weight:700;margin-bottom:0.25rem;">Conversion Funnel</div>', unsafe_allow_html=True)
+        st.caption("Impressions to Downstream Activation Conversion")
 
-        if by_date.empty:
-            st.info("No trend data is available yet.")
+        total_imp = filtered_df["impressions"].sum()
+        total_clicks = filtered_df["clicks"].sum()
+        total_signups = filtered_df["signups"].sum()
+        total_acts = filtered_df["activations_7d"].sum()
+
+        if total_imp == 0:
+            st.info("No impressions recorded in this time range.")
         else:
-            fig = go.Figure()
-            fig.add_trace(
-                go.Scatter(
-                    x=by_date["date"],
-                    y=by_date["revenue"],
-                    name="Revenue",
-                    mode="lines",
-                    line=dict(color="#38bdf8", width=3),
-                    fill="tozeroy",
-                    fillcolor="rgba(56, 189, 248, 0.16)",
-                )
-            )
-            fig.add_trace(
-                go.Scatter(
-                    x=by_date["date"],
-                    y=by_date["spend"],
-                    name="Spend",
-                    mode="lines",
-                    line=dict(color="#f59e0b", width=3),
-                    fill="tozeroy",
-                    fillcolor="rgba(245, 158, 11, 0.14)",
-                )
-            )
+            fig = go.Figure(go.Funnel(
+                y=["Impressions", "Clicks", "Signups", "Activations (7D)"],
+                x=[total_imp, total_clicks, total_signups, total_acts],
+                textinfo="value+percent initial",
+                connector=dict(fillcolor="rgba(99, 102, 241, 0.2)"),
+                marker=dict(color=["#6366f1", "#818cf8", "#0284c7", "#10b981"])
+            ))
             fig.update_layout(
-                height=300,
-                margin=dict(l=0, r=0, t=10, b=0),
+                height=260,
+                margin=dict(l=20, r=20, t=10, b=10),
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                xaxis=dict(showgrid=False, title=None),
-                yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None),
+                font=dict(color="#f3f4f6", family="Inter")
             )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-
         st.markdown("</div>", unsafe_allow_html=True)
 
     with right:
-        st.markdown('<div class="glass-card" style="padding:1.25rem;">', unsafe_allow_html=True)
-        st.markdown('<div style="font-family:var(--font-display);font-weight:700;margin-bottom:0.25rem;">Top / Worst Campaign</div>', unsafe_allow_html=True)
-        st.caption("By total revenue")
-        _render_campaign_card("Best", best, True)
-        if worst is not None and (best is None or worst["name"] != best["name"]):
-            _render_campaign_card("Worst", worst, False)
+        st.markdown('<div class="glass-card" style="padding:1.25rem; height: 100%;">', unsafe_allow_html=True)
+        st.markdown('<div style="font-family:var(--font-display);font-weight:700;margin-bottom:0.25rem;">Campaign Performance Summary</div>', unsafe_allow_html=True)
+        st.caption("Top platforms by conversion volume")
+
+        by_platform = aggregate_by(filtered_df, "ad_platform")
+        if by_platform.empty:
+            st.info("No data available.")
+        else:
+            for _, row in by_platform.iterrows():
+                p_name = str(row["name"]).replace("_", " ").title()
+                p_spend = fmt_currency(row["spend_usd"])
+                p_acts = int(row["activations_7d"])
+                p_rate = fmt_pct(row["activation_rate"])
+                
+                st.markdown(
+                    f"""
+                    <div style="padding: 0.6rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                        <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.875rem;">
+                            <span>{p_name}</span>
+                            <span>{p_acts} Activations</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted-foreground); margin-top:0.2rem;">
+                            <span>Spend: {p_spend}</span>
+                            <span>Activation Rate: {p_rate}</span>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
         st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown('<div class="glass-card" style="padding:1.25rem; margin-top: 1rem;">', unsafe_allow_html=True)
-    st.markdown('<div style="font-family:var(--font-display);font-weight:700;margin-bottom:0.25rem;">Campaign performance</div>', unsafe_allow_html=True)
-    st.caption("Top 10 campaigns by revenue")
+    # Bottom Section: Audit Table
+    st.markdown('<div class="glass-card" style="padding:1.25rem; margin-top:1.5rem;">', unsafe_allow_html=True)
+    st.markdown('<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">'
+                '<div style="font-family:var(--font-display);font-weight:700;">Campaign Performance Audit Table</div>'
+                '</div>', unsafe_allow_html=True)
+    st.caption("All active marketing campaigns and their activation rates")
 
-    top_campaigns = by_campaign.head(10)
-    if top_campaigns.empty:
-        st.info("No campaign data to display.")
+    by_campaign = aggregate_by(filtered_df, "campaign_id")
+    if by_campaign.empty:
+        st.info("No campaign data matching filters.")
     else:
-        bar = go.Figure()
-        bar.add_trace(go.Bar(x=top_campaigns["name"], y=top_campaigns["totalRevenue"], name="Revenue", marker_color="#38bdf8"))
-        bar.add_trace(go.Bar(x=top_campaigns["name"], y=top_campaigns["totalSpend"], name="Spend", marker_color="#f59e0b"))
-        bar.update_layout(
-            height=360,
-            barmode="group",
-            margin=dict(l=0, r=0, t=10, b=0),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            xaxis=dict(tickangle=-15, title=None),
-            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None),
+        table_df = by_campaign.copy()
+        
+        # Flags poor performing campaigns (<10% activation rate)
+        table_df["Status"] = table_df["activation_rate"].apply(lambda rate: "⚠️ Low Yield" if rate < 0.10 else "🟢 Active")
+        table_df["spend_usd"] = table_df["spend_usd"].map(fmt_currency)
+        table_df["signups"] = table_df["signups"].map(fmt_num)
+        table_df["activations_7d"] = table_df["activations_7d"].map(fmt_num)
+        table_df["activation_rate"] = table_df["activation_rate"].map(fmt_pct)
+        table_df["cpau"] = table_df["cpau"].map(fmt_currency)
+        table_df["ad_platform"] = table_df["ad_platform"].str.replace("_", " ").str.title()
+
+        table_display = table_df.rename(columns={
+            "display_name": "Campaign Name",
+            "ad_platform": "Platform",
+            "spend_usd": "Spend ($)",
+            "signups": "Signups",
+            "activations_7d": "Activations",
+            "activation_rate": "Activation Rate",
+            "cpau": "CPAU ($/Act)"
+        })
+        
+        cols_to_show = ["Campaign Name", "Platform", "Spend ($)", "Signups", "Activations", "Activation Rate", "CPAU ($/Act)", "Status"]
+        st.dataframe(table_display[cols_to_show], use_container_width=True, hide_index=True)
+        
+        # CSV download button
+        csv_data = by_campaign.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Export Audit Table to CSV",
+            data=csv_data,
+            file_name="campaign_performance_audit.csv",
+            mime="text/csv"
         )
-        st.plotly_chart(bar, use_container_width=True, config={"displayModeBar": False})
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="glass-card" style="padding:1.25rem; margin-top: 1rem;">', unsafe_allow_html=True)
-    st.markdown('<div style="font-family:var(--font-display);font-weight:700;margin-bottom:0.25rem;">Campaign data</div>', unsafe_allow_html=True)
-    st.caption("Aggregated by campaign")
-
-    table = by_campaign.loc[:, ["name", "totalRevenue", "totalSpend", "totalConversions", "roas", "ctr", "cvr"]].copy()
-    table["totalRevenue"] = table["totalRevenue"].map(fmt_currency)
-    table["totalSpend"] = table["totalSpend"].map(fmt_currency)
-    table["totalConversions"] = table["totalConversions"].map(fmt_num)
-    table["roas"] = table["roas"].map(lambda value: f"{value:.2f}x")
-    table["ctr"] = table["ctr"].map(fmt_pct)
-    table["cvr"] = table["cvr"].map(fmt_pct)
-    st.dataframe(table, use_container_width=True, hide_index=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
 
