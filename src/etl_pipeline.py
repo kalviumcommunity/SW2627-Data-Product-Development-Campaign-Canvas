@@ -24,6 +24,10 @@ def generate_mock_data():
         {"id": "c_meta_retarget", "name": "Paid Social - Retargeting", "platform": "meta_ads", "quality_coef": 1.4, "cost_coef": 0.9},
         {"id": "c_youtube_awareness", "name": "YouTube - Awareness", "platform": "google_ads", "quality_coef": 0.08, "cost_coef": 1.5},
         {"id": "c_display_remarketing", "name": "Display - Remarketing", "platform": "google_ads", "quality_coef": 0.05, "cost_coef": 1.2},
+        {"id": "c_linkedin_leadgen", "name": "LinkedIn - Lead Gen", "platform": "linkedin_ads", "quality_coef": 0.6, "cost_coef": 1.4},
+        {"id": "c_tiktok_awareness", "name": "TikTok - Awareness", "platform": "tiktok_ads", "quality_coef": 0.3, "cost_coef": 0.8},
+        {"id": "c_instagram_shoppable", "name": "Instagram - Shoppable", "platform": "meta_ads", "quality_coef": 0.7, "cost_coef": 1.0},
+        {"id": "c_pinterest_pins", "name": "Pinterest - Pins", "platform": "pinterest_ads", "quality_coef": 0.4, "cost_coef": 0.9}
     ]
 
     dates = pd.date_range("2026-06-01", "2026-06-30", freq="D")
