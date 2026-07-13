@@ -283,7 +283,10 @@ with col_form:
                     if not email or not password:
                         st.error("Please enter both email and password.")
                     else:
-                        st.success("Welcome back — hook this up to your auth backend to actually log in.")
+                        st.session_state.logged_in = True
+                        st.session_state.email = email
+                        st.success("Welcome back! Redirecting to dashboard...")
+                        st.switch_page("pages/dashboard.py")
 
         with tab_signup:
             with st.form("signup_form", border=False):
@@ -295,7 +298,10 @@ with col_form:
                     if not name or not email_up or len(password_up) < 6:
                         st.error("Fill in all fields — password needs at least 6 characters.")
                     else:
-                        st.success("Account created — hook this up to your auth backend to persist it.")
+                        st.session_state.logged_in = True
+                        st.session_state.email = email_up
+                        st.success("Account created! Redirecting to dashboard...")
+                        st.switch_page("pages/dashboard.py")
 
         with tab_reset:
             with st.form("reset_form", border=False):

@@ -14,6 +14,10 @@ import streamlit.components.v1 as components
 # Configure the Streamlit page
 st.set_page_config(page_title="CampaignIQ", page_icon="📊", layout="wide")
 
+# Check if user is logged in
+if st.session_state.get("logged_in", False):
+    st.switch_page("pages/dashboard.py")
+
 # Custom HTML and CSS landing page — direct port of the React/Tailwind Landing component
 landing_html = f"""
 <style>

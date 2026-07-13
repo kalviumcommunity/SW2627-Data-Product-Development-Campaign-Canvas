@@ -115,6 +115,16 @@ section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] a {
   border-radius: var(--radius-md);
 }
 
+/* Hide default Streamlit page navigation in sidebar */
+section[data-testid="stSidebarNav"] {
+  display: none !important;
+}
+
+/* Hide sidebar collapse button */
+button[kind="header"] {
+  display: none !important;
+}
+
 /* ---------- buttons ---------- */
 .stButton button, div[data-testid="stFormSubmitButton"] button {
   background: color-mix(in oklab, var(--secondary) 100%, transparent) !important;

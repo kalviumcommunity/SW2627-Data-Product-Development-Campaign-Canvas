@@ -20,7 +20,7 @@ def init_db():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS ad_campaign_metrics (
         campaign_id VARCHAR PRIMARY KEY,
-        ad_platform VARCHAR CHECK(ad_platform IN ('google_ads', 'meta_ads')),
+        ad_platform VARCHAR CHECK(ad_platform IN ('google_ads', 'meta_ads', 'linkedin_ads', 'tiktok_ads', 'pinterest_ads')),
         spend_usd DECIMAL(10, 2) NOT NULL CHECK(spend_usd >= 0),
         clicks INTEGER NOT NULL CHECK(clicks >= 0),
         impressions INTEGER NOT NULL CHECK(impressions >= 0),

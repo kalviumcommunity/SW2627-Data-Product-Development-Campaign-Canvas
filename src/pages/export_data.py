@@ -10,11 +10,19 @@ if root_dir not in sys.path:
 
 from src.utils.campaigns import load_campaign_data, fmt_num
 from src.utils.load_css import load_css
+from src.components.sidebar import render_sidebar
 
 st.set_page_config(page_title="Export Data — CampaignIQ", page_icon="📊", layout="wide")
 load_css()
 
+# Check if user is logged in
+if not st.session_state.get("logged_in", False):
+    st.switch_page("pages/auth.py")
+
 def main():
+    # Sidebar
+    render_sidebar("export_data")
+
     st.markdown(
         """
         <div class="glass-card" style="margin-bottom: 1rem;">
