@@ -8,8 +8,12 @@ if root_dir not in sys.path:
 
 from datetime import datetime
 import streamlit as st
+from src.utils.clerk_auth import handle_clerk_callback, get_clerk_credentials, get_clerk_endpoints
 
 st.set_page_config(page_title="Sign in — CampaignIQ", page_icon="📊", layout="wide")
+
+# Process any Clerk authentication callback parameters
+handle_clerk_callback()
 
 # ---------- Styling: reskin default Streamlit widgets to match the dark CampaignIQ theme ----------
 st.markdown(f"""
@@ -123,26 +127,36 @@ div.block-container {{
 .promo-body {{ margin-top: 1rem; font-size: 0.95rem; color: rgba(255,255,255,0.85); max-width: 22rem; }}
 .promo-footer {{ font-size: 0.8rem; color: rgba(255,255,255,0.7); }}
 
-/* Google button — real multi-color "G" logo via background-image, since
-   st.button labels can't render inline colored SVG/HTML directly */
-.st-key-google_btn button {{
-    background: white !important;
-    color: #111827 !important;
+/* Clerk button — purple themed login button/link with a key icon */
+.st-key-clerk_btn button, .clerk-btn {{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #6c47ff !important;
+    color: white !important;
     border: none !important;
     font-weight: 600 !important;
-    position: relative;
+    text-decoration: none !important;
+    border-radius: 0.6rem !important;
+    height: 2.5rem !important;
+    width: 100% !important;
+    position: relative !important;
     padding-left: 2.25rem !important;
+    box-shadow: 0 0 15px rgba(108, 71, 255, 0.4) !important;
+    cursor: pointer !important;
 }}
-.st-key-google_btn button:hover {{
-    background: #f3f4f6 !important;
-    color: #111827 !important;
+.st-key-clerk_btn button:hover, .clerk-btn:hover {{
+    background: #5b3ae0 !important;
+    color: white !important;
+    box-shadow: 0 0 20px rgba(108, 71, 255, 0.6) !important;
+    text-decoration: none !important;
 }}
-.st-key-google_btn button:focus:not(:active) {{
+.st-key-clerk_btn button:focus:not(:active), .clerk-btn:focus {{
     border-color: transparent !important;
-    color: #111827 !important;
-    box-shadow: none !important;
+    color: white !important;
+    box-shadow: 0 0 15px rgba(108, 71, 255, 0.4) !important;
 }}
-.st-key-google_btn button::before {{
+.st-key-clerk_btn button::before, .clerk-btn::before {{
     content: "";
     position: absolute;
     left: 1rem;
@@ -150,7 +164,7 @@ div.block-container {{
     transform: translateY(-50%);
     width: 1.1rem;
     height: 1.1rem;
-    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzQyODVGNCIgZD0iTTIyLjU2IDEyLjI1YzAtLjc4LS4wNy0xLjUzLS4yLTIuMjVIMTJ2NC4yNmg1LjkyYy0uMjYgMS4zNy0xLjA0IDIuNTMtMi4yMSAzLjMxdjIuNzdoMy41N2MyLjA4LTEuOTIgMy4yOC00Ljc0IDMuMjgtOC4wOXoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNMTIgMjNjMi45NyAwIDUuNDYtLjk4IDcuMjgtMi42NmwtMy41Ny0yLjc3Yy0uOTkuNjYtMi4yNiAxLjA2LTMuNzEgMS4wNi0yLjg2IDAtNS4yOS0xLjkzLTYuMTYtNC41M0gyLjE4djIuODRDMy45OSAyMC41MyA3LjcgMjMgMTIgMjN6Ii8+PHBhdGggZmlsbD0iI0ZCQkMwNSIgZD0iTTUuODQgMTQuMDljLS4yMi0uNjYtLjM1LTEuMzYtLjM1LTIuMDlzLjEzLTEuNDMuMzUtMi4wOVY3LjA3SDIuMThDMS40MyA4LjU1IDEgMTAuMjIgMSAxMnMuNDMgMy40NSAxLjE4IDQuOTNsMi44NS0yLjIyLjgxLS42MnoiLz48cGF0aCBmaWxsPSIjRUE0MzM1IiBkPSJNMTIgNS4zOGMxLjYyIDAgMy4wNi41NiA0LjIxIDEuNjRsMy4xNS0zLjE1QzE3LjQ1IDIuMDkgMTQuOTcgMSAxMiAxIDcuNyAxIDMuOTkgMy40NyAyLjE4IDcuMDdsMy42NiAyLjg0Yy44Ny0yLjYgMy4zLTQuNTMgNi4xNi00LjUzeiIvPjwvc3ZnPg==");
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMSAybC0yIDJtLTcuNjEgNy42MWE1LjUgNS41IDAgMSAxLTcuNzc4IDcuNzc4IDUuNSA1LjUgMCAxIDEgNy43NzctNy43Nzd6bSAwbDE1LjUgNy41bTAgMGwzIDNMMjIgN2wtMy0zbS0zLjUgMy41TDE5IDQiLz48L3N2Zz4=");
     background-size: contain;
     background-repeat: no-repeat;
 }}
@@ -265,10 +279,57 @@ with col_form:
         <p class="auth-subtitle">Sign in to your analytics workspace.</p>
         """, unsafe_allow_html=True)
 
-        google_wrap = st.container(key="google_btn")
-        with google_wrap:
-            if st.button("Continue with Google", use_container_width=True):
-                st.info("Hook this up to your OAuth provider (e.g. Supabase `signInWithOAuth`).")
+        client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
+        clerk_wrap = st.container(key="clerk_btn")
+        with clerk_wrap:
+            if client_id and client_secret and domain:
+                st.session_state["clerk_redirect_uri"] = redirect_uri
+                endpoints = get_clerk_endpoints(domain)
+                
+                import uuid
+                state = st.session_state.get("clerk_oauth_state")
+                if not state:
+                    state = str(uuid.uuid4())
+                    st.session_state["clerk_oauth_state"] = state
+                
+                auth_url = (
+                    f"{endpoints['authorization_endpoint']}"
+                    f"?client_id={client_id}"
+                    f"&redirect_uri={redirect_uri}"
+                    "&response_type=code"
+                    "&scope=openid%20profile%20email"
+                    f"&state={state}"
+                )
+                # Render direct HTML link to navigate parent frame without SecurityError
+                st.markdown(f'<a href="{auth_url}" target="_self" class="clerk-btn">Continue with Clerk</a>', unsafe_allow_html=True)
+            else:
+                if st.button("Continue with Clerk", use_container_width=True):
+                    st.session_state["show_clerk_setup"] = True
+
+        if st.session_state.get("show_clerk_setup", False):
+            st.markdown("""
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 0.75rem; padding: 1rem; margin-top: 1rem; margin-bottom: 1rem;">
+                <h4 style="color: #f87171; margin-top: 0; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">Clerk Setup Required</h4>
+                <p style="color: #d1d5db; font-size: 0.85rem; line-height: 1.4; margin: 0 0 0.75rem 0;">
+                    Clerk credentials are not configured. To enable live login, please configure your Clerk API keys in your environment variables or Streamlit secrets:
+                </p>
+                <code style="background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; color: #38bdf8; display: block; margin-bottom: 0.5rem; white-space: pre-wrap;">
+CLERK_CLIENT_ID=your-client-id
+CLERK_CLIENT_SECRET=your-client-secret
+CLERK_DOMAIN=your-clerk-domain
+CLERK_REDIRECT_URI=http://localhost:8501/
+                </code>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button("Proceed with Mock Clerk Login", key="mock_clerk_login_btn", use_container_width=True):
+                with st.spinner("Redirecting to Clerk mock login screen..."):
+                    import time
+                    time.sleep(1.0)
+                st.session_state.logged_in = True
+                st.session_state.email = "demo.clerk.user@gmail.com"
+                st.success("Welcome back! Redirecting to dashboard...")
+                st.switch_page("pages/dashboard.py")
 
         st.markdown('<div class="auth-divider">or</div>', unsafe_allow_html=True)
 
