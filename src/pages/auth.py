@@ -127,27 +127,36 @@ div.block-container {{
 .promo-body {{ margin-top: 1rem; font-size: 0.95rem; color: rgba(255,255,255,0.85); max-width: 22rem; }}
 .promo-footer {{ font-size: 0.8rem; color: rgba(255,255,255,0.7); }}
 
-/* Clerk button — purple themed login button with a key icon */
-.st-key-clerk_btn button {{
+/* Clerk button — purple themed login button/link with a key icon */
+.st-key-clerk_btn button, .clerk-btn {{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     background: #6c47ff !important;
     color: white !important;
     border: none !important;
     font-weight: 600 !important;
-    position: relative;
+    text-decoration: none !important;
+    border-radius: 0.6rem !important;
+    height: 2.5rem !important;
+    width: 100% !important;
+    position: relative !important;
     padding-left: 2.25rem !important;
     box-shadow: 0 0 15px rgba(108, 71, 255, 0.4) !important;
+    cursor: pointer !important;
 }}
-.st-key-clerk_btn button:hover {{
+.st-key-clerk_btn button:hover, .clerk-btn:hover {{
     background: #5b3ae0 !important;
     color: white !important;
     box-shadow: 0 0 20px rgba(108, 71, 255, 0.6) !important;
+    text-decoration: none !important;
 }}
-.st-key-clerk_btn button:focus:not(:active) {{
+.st-key-clerk_btn button:focus:not(:active), .clerk-btn:focus {{
     border-color: transparent !important;
     color: white !important;
     box-shadow: 0 0 15px rgba(108, 71, 255, 0.4) !important;
 }}
-.st-key-clerk_btn button::before {{
+.st-key-clerk_btn button::before, .clerk-btn::before {{
     content: "";
     position: absolute;
     left: 1rem;
@@ -270,29 +279,31 @@ with col_form:
         <p class="auth-subtitle">Sign in to your analytics workspace.</p>
         """, unsafe_allow_html=True)
 
+        client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
         clerk_wrap = st.container(key="clerk_btn")
         with clerk_wrap:
-            if st.button("Continue with Clerk", use_container_width=True):
-                client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
-                if client_id and client_secret and domain:
-                    st.session_state["clerk_redirect_uri"] = redirect_uri
-                    endpoints = get_clerk_endpoints(domain)
-                    
-                    import uuid
+            if client_id and client_secret and domain:
+                st.session_state["clerk_redirect_uri"] = redirect_uri
+                endpoints = get_clerk_endpoints(domain)
+                
+                import uuid
+                state = st.session_state.get("clerk_oauth_state")
+                if not state:
                     state = str(uuid.uuid4())
                     st.session_state["clerk_oauth_state"] = state
-                    
-                    auth_url = (
-                        f"{endpoints['authorization_endpoint']}"
-                        f"?client_id={client_id}"
-                        f"&redirect_uri={redirect_uri}"
-                        "&response_type=code"
-                        "&scope=openid%20profile%20email"
-                        f"&state={state}"
-                    )
-                    redirect_js = f"<script>window.top.location.href = '{auth_url}';</script>"
-                    st.components.v1.html(redirect_js, height=0)
-                else:
+                
+                auth_url = (
+                    f"{endpoints['authorization_endpoint']}"
+                    f"?client_id={client_id}"
+                    f"&redirect_uri={redirect_uri}"
+                    "&response_type=code"
+                    "&scope=openid%20profile%20email"
+                    f"&state={state}"
+                )
+                # Render direct HTML link to navigate parent frame without SecurityError
+                st.markdown(f'<a href="{auth_url}" target="_self" class="clerk-btn">Continue with Clerk</a>', unsafe_allow_html=True)
+            else:
+                if st.button("Continue with Clerk", use_container_width=True):
                     st.session_state["show_clerk_setup"] = True
 
         if st.session_state.get("show_clerk_setup", False):
