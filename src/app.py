@@ -348,4 +348,4 @@ html, body {{
 </div>
 """
 
-components.html(landing_html, height=1350, scrolling=True)
+st.html(landing_html)
