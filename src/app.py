@@ -259,15 +259,15 @@ html, body {{
 <div class="landing-container">
     <!-- Header -->
     <header class="header">
-        <a href="/dashboard" target="_self" class="logo-container">
+        <a href="/dashboard" target="_top" class="logo-container">
             <div class="logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
             </div>
             <span class="logo-text">CampaignCanvas</span>
         </a>
         <div class="header-actions">
-            <a href="/auth" target="_self" class="btn-ghost">Sign in</a>
-            <a href="/auth" target="_self" class="btn-primary">Get started</a>
+            <a href="/auth" target="_top" class="btn-ghost">Sign in</a>
+            <a href="/auth" target="_top" class="btn-primary">Get started</a>
         </div>
     </header>
 
@@ -285,8 +285,8 @@ html, body {{
             executive-ready reports — all in one workspace.
         </p>
         <div class="hero-actions">
-            <a href="/auth" target="_self" class="btn-primary btn-lg">Launch workspace</a>
-            <a href="/dashboard" target="_self" class="btn-outline btn-lg">Try the demo</a>
+            <a href="/auth" target="_top" class="btn-primary btn-lg">Launch workspace</a>
+            <a href="/dashboard" target="_top" class="btn-outline btn-lg">Try the demo</a>
         </div>
     </section>
 
