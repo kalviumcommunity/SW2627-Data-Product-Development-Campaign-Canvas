@@ -11,11 +11,15 @@ from datetime import datetime
 import streamlit as st
 import streamlit.components.v1 as components
 
+from src.utils.clerk_auth import handle_clerk_callback
 from src.utils.load_css import load_css
 
 # Configure the Streamlit page
 st.set_page_config(page_title="CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
+
+# Process any Clerk authentication callback parameters
+handle_clerk_callback()
 
 # Check if user is logged in
 if st.session_state.get("logged_in", False):
