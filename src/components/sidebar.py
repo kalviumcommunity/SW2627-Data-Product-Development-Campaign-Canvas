@@ -37,14 +37,48 @@ def render_sidebar(current_page: str):
             </div>
         """, unsafe_allow_html=True)
 
+        # Overview Section
+        st.markdown("""
+            <div style="padding: 0.75rem 0; font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em;">
+                Overview
+            </div>
+        """, unsafe_allow_html=True)
         _render_nav_link("Dashboard", "📊", "pages/dashboard.py", "dashboard", current_page)
+
+        # Data Section
+        st.markdown("""
+            <div style="padding: 1rem 0 0.75rem 0; font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em;">
+                Data
+            </div>
+        """, unsafe_allow_html=True)
+        _render_nav_link("Upload", "📤", "pages/export_data.py", "upload", current_page)
+        _render_nav_link("Profiling", "🔍", "pages/export_data.py", "profiling", current_page)
+        _render_nav_link("Cleaning", "🧹", "pages/export_data.py", "cleaning", current_page)
+        _render_nav_link("Database", "🗄️", "pages/export_data.py", "database", current_page)
+
+        # Insights Section
+        st.markdown("""
+            <div style="padding: 1rem 0 0.75rem 0; font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em;">
+                Insights
+            </div>
+        """, unsafe_allow_html=True)
         _render_nav_link("Analytics", "📈", "pages/campaign_analysis.py", "campaign_analysis", current_page)
         _render_nav_link("Funnel", "📊", "pages/activation_funnel.py", "activation_funnel", current_page)
+        _render_nav_link("KPI Engine", "⚙️", "pages/export_data.py", "kpi_engine", current_page)
+        _render_nav_link("Visualizations", "📉", "pages/export_data.py", "visualizations", current_page)
+        _render_nav_link("SQL Workspace", "💻", "pages/export_data.py", "sql_workspace", current_page)
+
+        # Actions Section
+        st.markdown("""
+            <div style="margin-top: 1.5rem; padding: 1rem 0 0.75rem 0; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em;">
+                Actions
+            </div>
+        """, unsafe_allow_html=True)
         _render_nav_link("Reports", "📄", "pages/export_data.py", "export_data", current_page)
 
         st.markdown(
             """
-            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 0.25rem;">
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 0.25rem;">
             """,
             unsafe_allow_html=True,
         )
