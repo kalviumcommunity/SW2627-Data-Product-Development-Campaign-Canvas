@@ -11,8 +11,13 @@ from datetime import datetime
 import streamlit as st
 import streamlit.components.v1 as components
 
+from src.utils.clerk_auth import handle_clerk_callback
+
 # Configure the Streamlit page
 st.set_page_config(page_title="CampaignIQ", page_icon="📊", layout="wide")
+
+# Process any Clerk authentication callback parameters
+handle_clerk_callback()
 
 # Check if user is logged in
 if st.session_state.get("logged_in", False):
