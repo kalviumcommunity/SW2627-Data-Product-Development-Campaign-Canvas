@@ -12,9 +12,11 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from src.utils.clerk_auth import handle_clerk_callback
+from src.utils.load_css import load_css
 
 # Configure the Streamlit page
-st.set_page_config(page_title="CampaignIQ", page_icon="📊", layout="wide")
+st.set_page_config(page_title="CampaignCanvas", page_icon="📊", layout="wide")
+load_css()
 
 # Process any Clerk authentication callback parameters
 handle_clerk_callback()
@@ -261,7 +263,7 @@ html, body {{
             <div class="logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
             </div>
-            <span class="logo-text">CampaignIQ</span>
+            <span class="logo-text">CampaignCanvas</span>
         </a>
         <div class="header-actions">
             <a href="/auth" target="_self" class="btn-ghost">Sign in</a>

@@ -116,7 +116,15 @@ section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] a {
 }
 
 /* Hide default Streamlit page navigation in sidebar */
-section[data-testid="stSidebarNav"] {
+section[data-testid="stSidebarNav"],
+div[data-testid="stSidebarNav"],
+nav[data-testid="stSidebarNav"],
+section[data-testid="stSidebar"] [data-testid="stSidebarNav"],
+section[data-testid="stSidebar"] [data-testid="stSidebarNav"] *,
+section[data-testid="stSidebar"] ul[data-testid="stSidebarNavItems"],
+section[data-testid="stSidebar"] ul[data-testid="stSidebarNavItems"] *,
+section[data-testid="stSidebar"] nav,
+section[data-testid="stSidebar"] nav * {
   display: none !important;
 }
 
