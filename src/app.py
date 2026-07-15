@@ -341,7 +341,7 @@ html, body {{
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <span>© {datetime.now().year} CampaignIQ</span>
+            <span>© {datetime.now().year} CampaignCanvas</span>
             <span>Built with love ✨</span>
         </div>
     </footer>

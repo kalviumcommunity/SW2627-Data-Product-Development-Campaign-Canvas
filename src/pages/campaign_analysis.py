@@ -13,7 +13,7 @@ from src.utils.campaigns import load_campaign_data, fmt_currency, fmt_num, fmt_p
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 
-st.set_page_config(page_title="Campaign Performance Analysis — CampaignIQ", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Campaign Performance Analysis — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -26,7 +26,7 @@ def main():
     st.markdown(
         """
         <div class="glass-card" style="margin-bottom: 1rem;">
-            <div style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">CampaignIQ</div>
+            <div style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">CampaignCanvas</div>
             <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;">Campaign Performance & Wasted Spend Audit</div>
             <div style="font-size: 0.9rem; color: var(--muted-foreground); margin-top: 0.3rem;">
                 Audit ad campaigns, track CPAU (Cost per Activated User), and flag low-yield budget items.

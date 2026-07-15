@@ -13,7 +13,7 @@ from src.utils.campaigns import load_campaign_data, fmt_num, fmt_pct
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 
-st.set_page_config(page_title="Activation Funnel — CampaignIQ", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Activation Funnel — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -26,7 +26,7 @@ def main():
     st.markdown(
         """
         <div class="glass-card" style="margin-bottom: 1rem;">
-            <div style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">CampaignIQ</div>
+            <div style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">CampaignCanvas</div>
             <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;">Conversion Funnel Analysis</div>
             <div style="font-size: 0.9rem; color: var(--muted-foreground); margin-top: 0.3rem;">
                 Track the user journey from impressions to downstream activation milestones.

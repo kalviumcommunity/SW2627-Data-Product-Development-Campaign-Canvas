@@ -4,12 +4,13 @@ import streamlit as st
 from dotenv import load_dotenv
 
 # Load environment variables from .env if present
-load_dotenv()
+load_dotenv(override=True)
 
 def get_clerk_credentials():
     """
     Resolves Clerk credentials from streamlit secrets or environment variables.
     """
+    load_dotenv(override=True)
     client_id = None
     client_secret = None
     domain = None
@@ -47,6 +48,7 @@ def get_clerk_credentials():
     return client_id, client_secret, domain, redirect_uri
 
 
+@st.cache_data(show_spinner=False)
 def get_clerk_endpoints(domain: str):
     """
     Queries Clerk's well-known OpenID configuration endpoint to resolve standard OIDC endpoints.

@@ -17,7 +17,7 @@ from src.utils.campaigns import aggregate_by, compute_kpis, fmt_currency, fmt_nu
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 
-st.set_page_config(page_title="CampaignIQ", page_icon="📊", layout="wide")
+st.set_page_config(page_title="CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 # Check if user is logged in
