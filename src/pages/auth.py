@@ -80,31 +80,20 @@ div[data-testid="stHorizontalBlock"] {{
 div[data-testid="stHorizontalBlock"] > div:first-child,
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
 .stColumn:first-child {{
-    background: #38bdf8 !important;
-    background-color: #38bdf8 !important;
-    color: #090d16 !important;
+    background: linear-gradient(180deg, #38bdf8 0%, #7dd3fc 100%) !important;
+    background-color: linear-gradient(180deg, #38bdf8 0%, #7dd3fc 100%) !important;
+    color: #030712 !important;
     padding: 4rem 3.5rem !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
+    align-items: flex-start !important;
     min-height: 100vh !important;
     height: 100vh !important;
+    border-radius: 1rem 0 0 1rem !important;
 }}
 
-/* Right panel column wrapper */
-div[data-testid="stHorizontalBlock"] > div:last-child,
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child,
-.stColumn:last-child {{
-    background: #090d16 !important;
-    background-color: #090d16 !important;
-    padding: 4rem 3.5rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    min-height: 100vh !important;
-    height: 100vh !important;
-}}
+
 
 /* Hide standard Streamlit gap/margin/padding inside the columns */
 div[data-testid="column"] > div {{
@@ -118,16 +107,20 @@ div[data-testid="column"] > div {{
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
+    align-items: flex-start !important;
     height: 100% !important;
     color: #090d16 !important;
+    text-align: left !important;
 }}
 .promo-headline {{
     font-size: 2.5rem !important;
     font-weight: 800 !important;
     line-height: 1.2 !important;
-    margin-top: 3rem !important;
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
     color: #090d16 !important;
     letter-spacing: -0.03em !important;
+    text-align: left !important;
 }}
 .promo-body {{
     margin-top: 1rem !important;
@@ -135,29 +128,48 @@ div[data-testid="column"] > div {{
     color: rgba(9, 13, 22, 0.8) !important;
     line-height: 1.6 !important;
     max-width: 28rem !important;
+    text-align: left !important;
 }}
 .promo-footer {{
     font-size: 0.85rem !important;
     color: rgba(9, 13, 22, 0.6) !important;
     font-weight: 500 !important;
+    margin-top: 0 !important;
+    text-align: left !important;
+}}
+
+/* Right panel column wrapper */
+div[data-testid="stHorizontalBlock"] > div:last-child,
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child,
+.stColumn:last-child {{
+    background: radial-gradient(circle at top, rgba(15, 23, 42, 0.8) 0%, #030712 100%) !important;
+    padding: 3rem 3.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 100vh !important;
+    height: 100vh !important;
 }}
 
 /* Card wrapper - Auth Form Card */
 .st-key-auth_card {{
-    background: rgba(15, 23, 42, 0.45) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(148, 163, 184, 0.1) !important;
     border-radius: 1.25rem !important;
-    padding: 2.5rem 2.5rem 2rem !important;
-    backdrop-filter: blur(12px) !important;
-    max-width: 440px !important;
+    padding: 2.5rem 2.75rem 2rem !important;
+    backdrop-filter: blur(20px) !important;
+    max-width: 450px !important;
     width: 100% !important;
     margin: 0 auto !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
 }}
 
 .auth-logo {{
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: flex-start;
+    gap: 0.75rem;
     margin-bottom: 1.75rem;
 }}
 .auth-logo-icon {{
@@ -185,6 +197,7 @@ div[data-testid="column"]:first-child .auth-logo-icon svg {{
 }}
 div[data-testid="column"]:first-child .auth-logo-text {{
     color: #090d16 !important;
+    font-weight: 700 !important;
 }}
 
 .auth-title {{ color: white; font-size: 1.75rem; font-weight: 700; margin: 0 0 0.35rem 0; }}
@@ -315,9 +328,9 @@ div[data-testid="stTextInput"] button:hover svg,
 /* Tabs override to dark themed pill container */
 [role="tablist"] {{
     gap: 4px !important;
-    background: #090d16 !important;
+    background: rgba(15, 23, 42, 0.7) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 0.6rem !important;
+    border-radius: 9999px !important;
     padding: 0.25rem !important;
 }}
 
@@ -426,25 +439,26 @@ div[data-testid="stTabs"] [role="tablist"] [role="tab"][aria-selected="true"] sp
 /* Submit Form Button styling */
 div[data-testid="stFormSubmitButton"] button,
 .stButton button {{
-    background: #38bdf8 !important;
-    color: #090d16 !important;
+    background: linear-gradient(135deg, #38bdf8 0%, #7dd3fc 100%) !important;
+    color: #030712 !important;
     border: none !important;
-    font-weight: 600 !important;
-    border-radius: 0.6rem !important;
-    box-shadow: none !important;
+    font-weight: 700 !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25) !important;
     width: 100% !important;
-    height: 2.5rem !important;
+    min-height: 3rem !important;
     transition: all 0.2s ease !important;
 }}
 div[data-testid="stFormSubmitButton"] button:hover,
 .stButton button:hover {{
-    background: #4ab3ff !important;
-    color: #090d16 !important;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4) !important;
+    background: linear-gradient(135deg, #4ab3ff 0%, #8de4ff 100%) !important;
+    color: #030712 !important;
+    box-shadow: 0 15px 35px rgba(56, 189, 248, 0.35) !important;
+    transform: translateY(-1px) !important;
 }}
 div[data-testid="stFormSubmitButton"] button:focus:not(:active),
 .stButton button:focus:not(:active) {{
-    color: #090d16 !important;
+    color: #030712 !important;
     border-color: transparent !important;
 }}
 </style>

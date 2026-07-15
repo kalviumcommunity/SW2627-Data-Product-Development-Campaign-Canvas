@@ -9,7 +9,6 @@ if root_dir not in sys.path:
 from datetime import datetime
 # pyrefly: ignore [missing-import]
 import streamlit as st
-import streamlit.components.v1 as components
 
 from src.utils.clerk_auth import handle_clerk_callback
 from src.utils.load_css import load_css
@@ -25,6 +24,53 @@ handle_clerk_callback()
 if st.session_state.get("logged_in", False):
     st.switch_page("pages/dashboard.py")
 
+# ---------------------------------------------------------------------------
+# IMPORTANT: this page used to be rendered with `components.html(...)`, which
+# puts the markup inside a **sandboxed iframe** (`about:srcdoc`). Links with
+# target="_top" can't escape that sandbox unless `allow-top-navigation` is
+# explicitly granted, which Streamlit's components iframe does not do. That
+# is exactly the "Unsafe attempt to initiate navigation..." error you saw in
+# devtools, and why Sign in / Get started / Launch workspace / Try the demo
+# did nothing.
+#
+# Fix: render with st.markdown(unsafe_allow_html=True) instead. That injects
+# the HTML straight into the real page DOM (no iframe), so plain <a href>
+# links navigate normally.
+# ---------------------------------------------------------------------------
+
+# Chrome/layout reset so the custom landing page can go full-bleed, same
+# pattern used on pages/auth.py
+st.markdown(
+    """
+    <style>
+    .stApp,
+    .stMain,
+    [data-testid="stMain"],
+    div.block-container,
+    [data-testid="stAppHeader"],
+    header[data-testid="stHeader"] {
+        padding: 0 !important;
+        margin: 0 !important;
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        top: 0 !important;
+    }
+    div.block-container {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    header[data-testid="stHeader"],
+    div[data-testid="stAppHeader"] {
+        display: none !important;
+        height: 0px !important;
+    }
+    section[data-testid="stSidebar"] { display: none !important; }
+    #MainMenu, footer { visibility: hidden; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Custom HTML and CSS landing page — direct port of the React/Tailwind Landing component
 landing_html = f"""
 <style>
@@ -32,18 +78,15 @@ landing_html = f"""
 
 * {{ box-sizing: border-box; }}
 
-html, body {{
-    margin: 0;
-    padding: 0;
+.landing-container {{
+    display: block;
     background: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
                 #030712;
     color: #f3f4f6;
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}}
-
-.landing-container {{
-    display: block;
+    min-height: 100vh;
+    width: 100%;
 }}
 
 /* ---------- Header ---------- */
@@ -243,31 +286,103 @@ html, body {{
 .card-desc {{ font-size: 0.875rem; color: #9ca3af; line-height: 1.5; }}
 
 /* ---------- Footer ---------- */
-.footer {{ border-top: 1px solid rgba(255, 255, 255, 0.05); width: 100%; }}
+.footer {{
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100%;
+    background: rgba(15, 23, 42, 0.3);
+}}
+
 .footer-content {{
     max-width: 80rem;
     margin: 0 auto;
-    padding: 1.5rem;
+    padding: 3rem 1.5rem 2rem;
+}}
+
+.footer-top {{
+    display: grid;
+    grid-template-columns: 2fr repeat(3, 1fr);
+    gap: 2rem;
+    padding-bottom: 2.5rem;
+}}
+@media (max-width: 768px) {{
+    .footer-top {{ grid-template-columns: 1fr; gap: 2rem; }}
+}}
+
+.footer-brand-desc {{
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.6;
+    margin-top: 0.75rem;
+    max-width: 20rem;
+}}
+
+.footer-col-title {{
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    margin-bottom: 0.9rem;
+}}
+
+.footer-links {{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }}
+
+.footer-link {{
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}}
+.footer-link:hover {{ color: #f3f4f6; }}
+
+.footer-social {{ display: flex; align-items: center; gap: 0.6rem; margin-top: 1.25rem; }}
+
+.footer-social-icon {{
+    height: 2.25rem;
+    width: 2.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    display: grid;
+    place-items: center;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: all 0.2s;
+}}
+.footer-social-icon:hover {{
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.3);
+    background: rgba(56, 189, 248, 0.08);
+}}
+.footer-social-icon svg {{ width: 1rem; height: 1rem; }}
+
+.footer-bottom {{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.875rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 0.8125rem;
     color: #6b7280;
 }}
+
+.footer-bottom-links {{ display: flex; gap: 1.25rem; }}
 </style>
 
 <div class="landing-container">
     <!-- Header -->
     <header class="header">
-        <a href="/dashboard" target="_top" class="logo-container">
+        <a href="/dashboard" class="logo-container">
             <div class="logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
             </div>
             <span class="logo-text">CampaignCanvas</span>
         </a>
         <div class="header-actions">
-            <a href="/auth" target="_top" class="btn-ghost">Sign in</a>
-            <a href="/auth" target="_top" class="btn-primary">Get started</a>
+            <a href="/auth" class="btn-ghost">Sign in</a>
+            <a href="/auth" class="btn-primary">Get started</a>
         </div>
     </header>
 
@@ -285,8 +400,8 @@ html, body {{
             executive-ready reports — all in one workspace.
         </p>
         <div class="hero-actions">
-            <a href="/auth" target="_top" class="btn-primary btn-lg">Launch workspace</a>
-            <a href="/dashboard" target="_top" class="btn-outline btn-lg">Try the demo</a>
+            <a href="/auth" class="btn-primary btn-lg">Launch workspace</a>
+            <a href="/dashboard" class="btn-outline btn-lg">Try the demo</a>
         </div>
     </section>
 
@@ -341,11 +456,77 @@ html, body {{
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <span>© {datetime.now().year} CampaignCanvas</span>
-            <span>Built with love ✨</span>
+            <div class="footer-top">
+                <div>
+                    <a href="/dashboard" class="logo-container">
+                        <div class="logo-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+                        </div>
+                        <span class="logo-text">CampaignCanvas</span>
+                    </a>
+                    <p class="footer-brand-desc">
+                        Enterprise marketing analytics for teams who need clean data,
+                        live KPIs, and reports they can ship to leadership.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="footer-social-icon" aria-label="Twitter / X">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22H16.6l-5.2-6.8L5.4 22H2.3l8.1-9.3L1.4 2h6.9l4.7 6.2L18.9 2Zm-1.2 18h1.7L7.4 4h-1.8l12.1 16Z"></path></svg>
+                        </a>
+                        <a href="#" class="footer-social-icon" aria-label="LinkedIn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V21h-4V9Z"></path></svg>
+                        </a>
+                        <a href="#" class="footer-social-icon" aria-label="GitHub">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.62-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.64.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.57 2.34 1.11 2.91.85.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.24 9.24 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"></path></svg>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-col-title">Product</div>
+                    <ul class="footer-links">
+                        <li><a href="/dashboard" class="footer-link">Dashboard</a></li>
+                        <li><a href="#" class="footer-link">Features</a></li>
+                        <li><a href="#" class="footer-link">Pricing</a></li>
+                        <li><a href="#" class="footer-link">Changelog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">Resources</div>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">Documentation</a></li>
+                        <li><a href="#" class="footer-link">API reference</a></li>
+                        <li><a href="#" class="footer-link">Support</a></li>
+                        <li><a href="#" class="footer-link">Status</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">Company</div>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">About</a></li>
+                        <li><a href="#" class="footer-link">Blog</a></li>
+                        <li><a href="#" class="footer-link">Careers</a></li>
+                        <li><a href="#" class="footer-link">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© {datetime.now().year} CampaignCanvas. All rights reserved.</span>
+                <div class="footer-bottom-links">
+                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link">Terms</a>
+                    <span>Built with love ✨</span>
+                </div>
+            </div>
         </div>
     </footer>
 </div>
 """
 
-st.html(landing_html)
+# Streamlit's markdown parser follows standard Markdown rules, where any
+# line indented 4+ spaces is rendered as a literal code block. Our HTML is
+# deeply nested (8/12+ spaces per line), which was causing chunks of it to
+# show up as raw text instead of being parsed as markup. Stripping leading
+# whitespace from each line avoids that while leaving the rendered HTML
+# unaffected (HTML doesn't care about indentation).
+landing_html_flat = "\n".join(line.lstrip() for line in landing_html.split("\n"))
+
+st.markdown(landing_html_flat, unsafe_allow_html=True)
