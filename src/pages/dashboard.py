@@ -60,6 +60,37 @@ def _trend_revenue_delta(frame: pd.DataFrame) -> float:
     second_half = float(ordered.iloc[midpoint:]["revenue"].sum())
     return ((second_half - first_half) / first_half) * 100 if first_half else 0.0
 
+def _campaign_name(campaign: pd.Series) -> str:
+    return str(campaign["display_name"] if "display_name" in campaign else campaign["name"])
+
+def _render_card_shell(label: str, value: str, icon_svg: str, accent_class: str, delta_html: str = "") -> None:
+    st.markdown(
+        f"""
+        <div class="dashboard-stat-card {accent_class}">
+            <div class="dashboard-stat-card__header">
+                <div class="dashboard-stat-card__label">{label}</div>
+                <div class="dashboard-stat-card__icon">{icon_svg}</div>
+            </div>
+            <div class="dashboard-stat-card__value">{value}</div>
+            {delta_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def _render_panel_start(title: str, subtitle: str, panel_class: str = "dashboard-panel") -> None:
+    st.markdown(
+        f"""
+        <div class="{panel_class}">
+            <div class="dashboard-section__title">{title}</div>
+            <div class="dashboard-section__subtitle">{subtitle}</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def _render_panel_end() -> None:
+    st.markdown("</div>", unsafe_allow_html=True)
+
 def _render_campaign_card(title: str, campaign: pd.Series | None, positive: bool) -> None:
     if campaign is None or campaign.empty:
         return
@@ -68,13 +99,13 @@ def _render_campaign_card(title: str, campaign: pd.Series | None, positive: bool
     accent = "#10b981" if positive else "#ef4444"
     st.markdown(
         f"""
-        <div style="padding: 1rem 1.1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.08); background: rgba(15,23,42,0.5); margin-bottom: 0.75rem;">
-            <div style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 700; color: {accent}; margin-bottom: 0.25rem;">
+        <div class="campaign-card">
+            <div class="campaign-card__label" style="color: {accent};">
                 <span>{icon}</span>
                 <span>{title}</span>
             </div>
-            <div style="font-weight: 600; color: white;">{campaign['display_name'] if 'display_name' in campaign else campaign['name']}</div>
-            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">
+            <div class="campaign-card__name">{_campaign_name(campaign)}</div>
+            <div class="campaign-card__meta">
                 Revenue: {fmt_currency(campaign['totalRevenue'])} · ROAS {campaign['roas']:.2f}x
             </div>
         </div>
@@ -96,37 +127,32 @@ def main() -> None:
     best = by_campaign.iloc[0] if not by_campaign.empty else None
     worst = by_campaign.iloc[-1] if len(by_campaign) > 1 else None
 
-    # Header Section
-    st.markdown("""
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <div style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
-                </div>
-                <div style="font-size: 0.875rem; font-weight: 500; color: white;">Dashboard</div>
+    st.markdown(
+        f"""
+        <div class="dashboard-hero">
+            <div>
+                <div class="dashboard-hero__eyebrow">Workspace overview</div>
+                <h1 class="dashboard-hero__title">Campaign dashboard</h1>
+                <div class="dashboard-hero__subtitle">A refined view of spend, revenue, and activation outcomes across the active dataset.</div>
             </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-    """, unsafe_allow_html=True)
-    
-    # User Email
-    st.markdown(f"""
-                <div style="font-size: 0.875rem; color: #cbd5e1;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right: 0.25rem; vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    {st.session_state.email}
-                </div>
+            <div style="padding: 0.8rem 1rem; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: #dbe4f0; font-size: 0.88rem; display: flex; align-items: center; gap: 0.45rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>
+                <span>{st.session_state.get('email', 'Signed in')}</span>
             </div>
         </div>
-    """, unsafe_allow_html=True)
-    
-    # Banner with Upload Button
-    st.markdown(f"""
-        <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <div style="color: #cbd5e1; font-size: 0.875rem;">{_format_banner(is_demo)}</div>
-            <button style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
-                Upload data
-            </button>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f"""
+        <div class="dashboard-banner">
+            <div class="dashboard-banner__text">{_format_banner(is_demo)}</div>
+            <a class="dashboard-cta" href="/export_data">Upload data</a>
         </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
     if is_demo:
         pass
@@ -135,128 +161,81 @@ def main() -> None:
     # Metric Cards
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.markdown(f"""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;">Total Campaigns</div>
-                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: rgba(139,92,246,0.15); display: grid; place-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: white;">{int(kpis['totalCampaigns'])}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        _render_card_shell(
+            "Total campaigns",
+            f"{int(kpis['totalCampaigns'])}",
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>',
+            "accent-violet",
+        )
 
     with col2:
         total_spend = kpis['totalSpend']
-        st.markdown(f"""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;">Total Spend</div>
-                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: rgba(245,158,11,0.15); display: grid; place-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: white;">{fmt_currency(total_spend)}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        _render_card_shell(
+            "Total spend",
+            fmt_currency(total_spend),
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+            "accent-amber",
+        )
 
     with col3:
         total_revenue = kpis['totalSpend'] * 1.5
         delta_color = "#10b981" if growth >= 0 else "#ef4444"
         delta_icon = "▲" if growth >=0 else "▼"
-        st.markdown(f"""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;">Revenue</div>
-                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: rgba(16,185,129,0.15); display: grid; place-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: white;">{fmt_currency(total_revenue)}</div>
-                <div style="display: flex; align-items: center; gap: 0.25rem; color: {delta_color}; font-size: 0.75rem; font-weight: 500; margin-top: 0.25rem;">
-                    <span>{delta_icon}</span>
-                    <span>{abs(growth):.1f}% vs. prior period</span>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+        _render_card_shell(
+            "Revenue",
+            fmt_currency(total_revenue),
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+            "accent-emerald",
+            f'<div class="dashboard-stat-card__delta" style="color: {delta_color};"><span>{delta_icon}</span><span>{abs(growth):.1f}% vs. prior period</span></div>',
+        )
 
     with col4:
         total_conversions = int(kpis.get('totalActivations', kpis.get('totalSignups', 0)))
-        st.markdown(f"""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;">Conversions</div>
-                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: rgba(56,189,248,0.15); display: grid; place-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: white;">{total_conversions:,}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        _render_card_shell(
+            "Conversions",
+            f"{total_conversions:,}",
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>',
+            "accent-sky",
+        )
 
     # Second Row of Metric Cards
     col5, col6, col7, col8 = st.columns(4)
     with col5:
-        st.markdown(f"""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;">CTR</div>
-                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: rgba(139,92,246,0.15); display: grid; place-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: white;">{kpis['ctr']*100:.2f}%</div>
-            </div>
-        """, unsafe_allow_html=True)
+        _render_card_shell(
+            "CTR",
+            f"{kpis['ctr']*100:.2f}%",
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+            "accent-violet",
+        )
 
     with col6:
-        st.markdown(f"""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;">CPA</div>
-                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: rgba(236,72,153,0.15); display: grid; place-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: white;">{fmt_currency(kpis['cpa'])}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        _render_card_shell(
+            "CPA",
+            fmt_currency(kpis['cpa']),
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>',
+            "accent-rose",
+        )
 
     with col7:
         roas = 1.5
-        st.markdown(f"""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;">ROAS</div>
-                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: rgba(34,197,94,0.15); display: grid; place-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: white;">{roas:.2f}x</div>
-            </div>
-        """, unsafe_allow_html=True)
+        _render_card_shell(
+            "ROAS",
+            f"{roas:.2f}x",
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+            "accent-emerald",
+        )
 
     with col8:
-        st.markdown(f"""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem 1.25rem; position: relative; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;">Conversion Rate</div>
-                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: rgba(6,182,212,0.15); display: grid; place-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: white;">{kpis['cvr']*100:.2f}%</div>
-            </div>
-        """, unsafe_allow_html=True)
+        _render_card_shell(
+            "Conversion rate",
+            f"{kpis['cvr']*100:.2f}%",
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+            "accent-cyan",
+        )
 
     left, right = st.columns([2, 1], gap="large")
     with left:
-        st.markdown("""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1.25rem;">
-                <div style="font-family: var(--font-display); font-weight: 700; color: white; margin-bottom: 0.25rem;">Revenue vs. Spend</div>
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 1rem;">Daily trend</div>
-        """, unsafe_allow_html=True)
+        _render_panel_start("Revenue vs. Spend", "Daily trend")
 
         if by_date.empty:
             st.info("No trend data is available yet.")
@@ -295,24 +274,16 @@ def main() -> None:
             )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        _render_panel_end()
 
     with right:
-        st.markdown("""
-            <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1.25rem;">
-                <div style="font-family: var(--font-display); font-weight: 700; color: white; margin-bottom: 0.25rem;">Top / Worst Campaign</div>
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 1rem;">By total revenue</div>
-        """, unsafe_allow_html=True)
+        _render_panel_start("Top / Worst Campaign", "By total revenue")
         _render_campaign_card("Best", best, True)
-        if worst is not None and (best is None or (worst['display_name'] if 'display_name' in worst else worst['name']) != (best['display_name'] if 'display_name' in best else best['name'])):
+        if worst is not None and (best is None or _campaign_name(worst) != _campaign_name(best)):
             _render_campaign_card("Worst", worst, False)
-        st.markdown("</div>", unsafe_allow_html=True)
+        _render_panel_end()
 
-    st.markdown("""
-        <div style="background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1.25rem; margin-top: 1.25rem;">
-            <div style="font-family: var(--font-display); font-weight: 700; color: white; margin-bottom: 0.25rem;">Campaign performance</div>
-            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 1rem;">Revenue and spend by campaign</div>
-    """, unsafe_allow_html=True)
+    _render_panel_start("Campaign performance", "Revenue and spend by campaign", panel_class="dashboard-table-panel")
 
     if by_campaign.empty:
         st.info("No campaign performance data is available yet.")
@@ -353,7 +324,7 @@ def main() -> None:
         )
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    _render_panel_end()
 
 if __name__ == "__main__":
     main()
