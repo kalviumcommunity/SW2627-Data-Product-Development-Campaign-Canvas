@@ -48,7 +48,6 @@ def get_clerk_credentials():
     return client_id, client_secret, domain, redirect_uri
 
 
-@st.cache_data(show_spinner=False)
 def get_clerk_endpoints(domain: str):
     """
     Queries Clerk's well-known OpenID configuration endpoint to resolve standard OIDC endpoints.
