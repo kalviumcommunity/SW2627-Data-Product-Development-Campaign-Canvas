@@ -77,7 +77,7 @@ def _render_nav_link(label: str, icon_key: str, href: str, page_key: str, curren
 
 def render_sidebar(current_page: str):
     """
-    Render the CampaignIQ sidebar.
+    Render the CampaignCanvas sidebar.
 
     Args:
         current_page: The name of the current active page to highlight
@@ -91,7 +91,7 @@ def render_sidebar(current_page: str):
                 <div style="width: 36px; height: 36px; border-radius: 0.75rem; background: linear-gradient(135deg, #38bdf8, #0ea5e9); display: grid; place-items: center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
                 </div>
-                <span style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: white;">CampaignIQ</span>
+                <span style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: white;">CampaignCanvas</span>
             </div>
         """, unsafe_allow_html=True)
 

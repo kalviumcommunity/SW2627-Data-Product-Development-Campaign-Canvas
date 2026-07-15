@@ -12,7 +12,7 @@ from src.utils.campaigns import load_campaign_data, fmt_num
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 
-st.set_page_config(page_title="Export Data — CampaignIQ", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Export Data — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -26,7 +26,7 @@ def main():
     st.markdown(
         """
         <div class="glass-card" style="margin-bottom: 1rem;">
-            <div style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">CampaignIQ</div>
+            <div style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">CampaignCanvas</div>
             <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;">Data Export Workspace</div>
             <div style="font-size: 0.9rem; color: var(--muted-foreground); margin-top: 0.3rem;">
                 Review, filter, and export the unified campaign performance and activation datasets for auditing.
