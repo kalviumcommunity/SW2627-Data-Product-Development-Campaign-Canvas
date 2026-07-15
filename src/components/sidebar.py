@@ -21,40 +21,41 @@ _ICONS = {
 _SIDEBAR_CSS = """
 <style>
 section[data-testid="stSidebar"] {
-    background: #0b1220;
-    border-right: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, #0a1018 0%, #0d1521 100%);
+    border-right: 1px solid rgba(255,255,255,0.08);
 }
 .nav-section-label {
-    padding: 0.75rem 0.75rem 0.5rem;
-    font-size: 0.7rem;
+    padding: 0.8rem 0.75rem 0.45rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    color: rgba(255,255,255,0.4);
+    color: rgba(226,232,240,0.48);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
 }
 .nav-link, .nav-link-active {
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    padding: 0.55rem 0.75rem;
-    border-radius: 0.5rem;
+    padding: 0.64rem 0.75rem;
+    border-radius: 0.75rem;
     font-size: 0.875rem;
     font-weight: 500;
     text-decoration: none;
-    margin-bottom: 0.15rem;
+    margin-bottom: 0.2rem;
     border: 1px solid transparent;
-    transition: background 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 .nav-link {
-    color: rgba(255,255,255,0.65);
+    color: rgba(226,232,240,0.72);
 }
 .nav-link:hover {
     background: rgba(255,255,255,0.05);
     color: white;
+    transform: translateX(2px);
 }
 .nav-link-active {
-    background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(99,102,246,0.2));
-    border: 1px solid rgba(56,189,248,0.3);
+    background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(129,140,248,0.12));
+    border: 1px solid rgba(56,189,248,0.24);
     color: white;
     font-weight: 600;
 }
@@ -87,11 +88,11 @@ def render_sidebar(current_page: str):
 
         # Logo at top
         st.markdown("""
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
-                <div style="width: 36px; height: 36px; border-radius: 0.75rem; background: linear-gradient(135deg, #38bdf8, #0ea5e9); display: grid; place-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.15rem 0;">
+                <div style="width: 36px; height: 36px; border-radius: 0.9rem; background: linear-gradient(135deg, #7dd3fc, #0f172a); border: 1px solid rgba(255,255,255,0.08); display: grid; place-items: center; box-shadow: 0 16px 30px -20px rgba(56,189,248,0.6);">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
                 </div>
-                <span style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: white;">CampaignCanvas</span>
+                <span style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: white; letter-spacing: -0.02em;">CampaignCanvas</span>
             </div>
         """, unsafe_allow_html=True)
 

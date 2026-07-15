@@ -21,26 +21,26 @@
   /* Dark palette — this is the app's only mode for now (mirrors the
      `.dark` block in the tsx styles.css). Bring the `:root` light
      values over from that file later if you add a theme toggle. */
-  --background: oklch(0.16 0.025 260);
-  --foreground: oklch(0.97 0.01 250);
+  --background: oklch(0.12 0.02 255);
+  --foreground: oklch(0.98 0.005 250);
 
-  --card: oklch(0.21 0.03 260);
-  --card-foreground: oklch(0.97 0.01 250);
-  --popover: oklch(0.2 0.03 260);
-  --popover-foreground: oklch(0.97 0.01 250);
+  --card: oklch(0.18 0.02 255);
+  --card-foreground: oklch(0.98 0.005 250);
+  --popover: oklch(0.16 0.02 255);
+  --popover-foreground: oklch(0.98 0.005 250);
 
-  --primary: oklch(0.72 0.16 245);
-  --primary-foreground: oklch(0.15 0.03 260);
-  --primary-glow: oklch(0.78 0.14 235);
+  --primary: oklch(0.76 0.12 228);
+  --primary-foreground: oklch(0.13 0.02 255);
+  --primary-glow: oklch(0.82 0.1 200);
 
-  --secondary: oklch(0.26 0.03 260);
-  --secondary-foreground: oklch(0.97 0.01 250);
+  --secondary: oklch(0.23 0.02 255);
+  --secondary-foreground: oklch(0.98 0.005 250);
 
-  --muted: oklch(0.24 0.025 260);
-  --muted-foreground: oklch(0.7 0.03 250);
+  --muted: oklch(0.2 0.015 255);
+  --muted-foreground: oklch(0.74 0.02 250);
 
-  --accent: oklch(0.3 0.05 260);
-  --accent-foreground: oklch(0.97 0.01 250);
+  --accent: oklch(0.26 0.03 228);
+  --accent-foreground: oklch(0.98 0.005 250);
 
   --destructive: oklch(0.68 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
@@ -49,8 +49,8 @@
   --warning: oklch(0.8 0.15 75);
   --warning-foreground: oklch(0.15 0.03 260);
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 11%);
   --ring: oklch(0.72 0.16 245);
 
   --chart-1: oklch(0.55 0.18 255);
@@ -60,13 +60,13 @@
   --chart-5: oklch(0.65 0.2 320);
   --chart-6: oklch(0.6 0.2 20);
 
-  --sidebar: oklch(0.19 0.03 260);
-  --sidebar-foreground: oklch(0.95 0.01 250);
-  --sidebar-accent: oklch(0.26 0.03 260);
+  --sidebar: oklch(0.14 0.02 255);
+  --sidebar-foreground: oklch(0.96 0.01 250);
+  --sidebar-accent: oklch(0.22 0.025 255);
   --sidebar-border: oklch(1 0 0 / 10%);
 
-  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--primary) 45%, transparent);
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.2), 0 8px 24px -12px rgba(15, 23, 42, 0.35);
+  --shadow-glow: 0 24px 60px -24px color-mix(in oklab, var(--primary) 44%, transparent);
+  --shadow-card: 0 1px 1px rgba(15, 23, 42, 0.18), 0 16px 42px -26px rgba(2, 6, 23, 0.7);
 }
 
 /* ---------- base ---------- */
@@ -75,8 +75,9 @@ html, body, [class*="css"] { font-family: var(--font-sans); }
 .stApp {
   background-color: var(--background) !important;
   background-image:
-    radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%),
-    radial-gradient(900px 500px at 100% 10%, color-mix(in oklab, var(--primary-glow) 12%, transparent), transparent 60%);
+    radial-gradient(1000px 560px at 10% -10%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 58%),
+    radial-gradient(850px 460px at 100% 12%, color-mix(in oklab, var(--primary-glow) 10%, transparent), transparent 60%),
+    linear-gradient(180deg, color-mix(in oklab, var(--background) 96%, white 4%), var(--background));
   background-attachment: fixed;
   color: var(--foreground);
 }
@@ -86,13 +87,13 @@ h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; colo
 header[data-testid="stHeader"] { background: transparent !important; }
 #MainMenu, footer { visibility: hidden; }
 
-div.block-container { padding-top: 2.5rem; padding-bottom: 3rem; }
+div.block-container { padding-top: 2rem; padding-bottom: 3rem; }
 
 /* ---------- reusable HTML utility classes (use inside st.markdown blocks) ---------- */
 .glass-card {
-  background: color-mix(in oklab, var(--card) 78%, transparent);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--card) 86%, transparent), color-mix(in oklab, var(--card) 74%, transparent));
   backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 84%, transparent);
   box-shadow: var(--shadow-card);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
@@ -197,9 +198,9 @@ button[kind="header"] {
 
 /* ---------- cards / metrics ---------- */
 div[data-testid="stMetric"] {
-  background: color-mix(in oklab, var(--card) 78%, transparent);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, transparent), color-mix(in oklab, var(--card) 72%, transparent));
   backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 86%, transparent);
   border-radius: var(--radius-xl);
   padding: 1rem 1.25rem;
   box-shadow: var(--shadow-card);
@@ -207,6 +208,244 @@ div[data-testid="stMetric"] {
 div[data-testid="stMetricLabel"] { color: var(--muted-foreground) !important; }
 div[data-testid="stMetricValue"] { color: var(--foreground) !important; font-family: var(--font-display); }
 div[data-testid="stMetricDelta"] svg { color: var(--success) !important; }
+
+/* ---------- dashboard layout ---------- */
+.dashboard-hero,
+.dashboard-panel,
+.dashboard-banner,
+.dashboard-table-panel {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, transparent), color-mix(in oklab, var(--card) 76%, transparent));
+  border: 1px solid color-mix(in oklab, var(--border) 84%, transparent);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-card);
+}
+
+.dashboard-hero {
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dashboard-hero__eyebrow {
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  margin-bottom: 0.35rem;
+}
+
+.dashboard-hero__title {
+  font-size: clamp(1.8rem, 2.6vw, 2.35rem);
+  margin: 0;
+}
+
+.dashboard-hero__subtitle {
+  color: var(--muted-foreground);
+  margin-top: 0.4rem;
+  line-height: 1.55;
+}
+
+.dashboard-banner,
+.dashboard-table-panel,
+.dashboard-panel {
+  padding: 1.25rem 1.35rem;
+}
+
+.dashboard-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.35rem;
+}
+
+.dashboard-banner__text,
+.dashboard-section__subtitle {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+
+.dashboard-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  color: var(--primary-foreground);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow-glow);
+}
+
+.dashboard-cta:hover { filter: brightness(1.03); }
+
+.dashboard-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-stat-card {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, transparent), color-mix(in oklab, var(--card) 74%, transparent));
+  border: 1px solid color-mix(in oklab, var(--border) 84%, transparent);
+  border-radius: var(--radius-xl);
+  padding: 1rem 1.05rem;
+  box-shadow: var(--shadow-card);
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.dashboard-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--primary) 24%, var(--border));
+  box-shadow: 0 18px 40px -28px rgba(2, 6, 23, 0.82);
+}
+
+.dashboard-stat-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+}
+
+.dashboard-stat-card__label {
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dashboard-stat-card__icon {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+}
+
+.dashboard-stat-card__value {
+  font-family: var(--font-display);
+  font-size: 1.95rem;
+  line-height: 1.05;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.dashboard-stat-card__delta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--muted-foreground);
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.accent-sky .dashboard-stat-card__icon { background: color-mix(in oklab, #38bdf8 16%, transparent); color: #7dd3fc; }
+.accent-amber .dashboard-stat-card__icon { background: color-mix(in oklab, #f59e0b 16%, transparent); color: #fbbf24; }
+.accent-emerald .dashboard-stat-card__icon { background: color-mix(in oklab, #10b981 16%, transparent); color: #34d399; }
+.accent-cyan .dashboard-stat-card__icon { background: color-mix(in oklab, #06b6d4 16%, transparent); color: #22d3ee; }
+.accent-violet .dashboard-stat-card__icon { background: color-mix(in oklab, #8b5cf6 16%, transparent); color: #a78bfa; }
+.accent-rose .dashboard-stat-card__icon { background: color-mix(in oklab, #ec4899 16%, transparent); color: #f472b6; }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.dashboard-grid__stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-section__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.dashboard-section__subtitle {
+  margin-bottom: 1rem;
+}
+
+.dashboard-chart-shell {
+  min-height: 320px;
+}
+
+.campaign-card {
+  padding: 1rem 1.05rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in oklab, var(--border) 84%, transparent);
+  background: color-mix(in oklab, var(--secondary) 78%, transparent);
+  margin-bottom: 0.8rem;
+}
+
+.campaign-card__label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.campaign-card__name {
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.campaign-card__meta {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  margin-top: 0.35rem;
+}
+
+.dashboard-table-panel {
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-hero,
+  .dashboard-banner,
+  .dashboard-panel,
+  .dashboard-table-panel {
+    padding: 1rem;
+  }
+
+  .dashboard-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-hero,
+  .dashboard-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 
 /* ---------- dataframe / table ---------- */
 [data-testid="stDataFrame"], .stDataFrame {
