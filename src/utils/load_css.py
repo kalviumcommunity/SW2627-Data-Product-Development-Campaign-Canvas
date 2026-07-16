@@ -6,7 +6,7 @@ _STYLE_PATH = Path(__file__).resolve().parents[1] / "assets" / "styles" / "style
 
 
 def load_css(path: Path = _STYLE_PATH) -> None:
-    """Inject the shared CampaignIQ stylesheet into the current page.
+    """Inject the shared CampaignCanvas stylesheet into the current page.
 
     Call this once near the top of every page script (app.py and each
     file in src/pages/), or once inside a shared layout component

@@ -16,6 +16,7 @@ import streamlit as st
 from src.utils.campaigns import aggregate_by, compute_kpis, fmt_currency, fmt_num, fmt_pct, load_campaign_data
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
+from src.components.navbar import render_navbar
 
 st.set_page_config(page_title="CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
@@ -24,10 +25,6 @@ load_css()
 if not st.session_state.get("logged_in", False):
     st.switch_page("pages/auth.py")
 
-def _format_banner(is_demo: bool) -> str:
-    if is_demo:
-        return "Demo dataset loaded. Upload your own to unlock the pipeline."
-    return "Live dataset loaded from your workspace data directory."
 
 def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
     if frame.empty:
@@ -44,7 +41,7 @@ def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
     grouped = (
         dated.groupby("date", as_index=False)
         .agg(
-            spend=(spend_col, "sum"), 
+            spend=(spend_col, "sum"),
             conversions=(activation_col, "sum"),
             revenue=("revenue", "sum")
         )
@@ -52,6 +49,7 @@ def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
         .reset_index(drop=True)
     )
     return grouped
+
 
 def _trend_revenue_delta(frame: pd.DataFrame) -> float:
     if frame.empty:
@@ -63,8 +61,10 @@ def _trend_revenue_delta(frame: pd.DataFrame) -> float:
     second_half = float(ordered.iloc[midpoint:]["revenue"].sum())
     return ((second_half - first_half) / first_half) * 100 if first_half else 0.0
 
+
 def _campaign_name(campaign: pd.Series) -> str:
     return str(campaign["display_name"] if "display_name" in campaign else campaign["name"])
+
 
 def _render_card_shell(label: str, value: str, icon_svg: str, accent_class: str, delta_html: str = "") -> None:
     st.markdown(
@@ -81,6 +81,7 @@ def _render_card_shell(label: str, value: str, icon_svg: str, accent_class: str,
         unsafe_allow_html=True,
     )
 
+
 def _render_panel_start(title: str, subtitle: str, panel_class: str = "dashboard-panel") -> None:
     st.markdown(
         f"""
@@ -91,8 +92,10 @@ def _render_panel_start(title: str, subtitle: str, panel_class: str = "dashboard
         unsafe_allow_html=True,
     )
 
+
 def _render_panel_end() -> None:
     st.markdown("</div>", unsafe_allow_html=True)
+
 
 def _render_campaign_card(title: str, campaign: pd.Series | None, positive: bool) -> None:
     if campaign is None or campaign.empty:
@@ -116,9 +119,13 @@ def _render_campaign_card(title: str, campaign: pd.Series | None, positive: bool
         unsafe_allow_html=True,
     )
 
+
 def main() -> None:
     # Sidebar
     render_sidebar("dashboard")
+    
+    # Navbar
+    render_navbar("Dashboard")
 
     frame, is_demo = load_campaign_data()
     by_date = _build_date_series(frame)
@@ -130,41 +137,24 @@ def main() -> None:
     best = by_campaign.iloc[0] if not by_campaign.empty else None
     worst = by_campaign.iloc[-1] if len(by_campaign) > 1 else None
 
-    st.markdown(
-        f"""
-        <div class="dashboard-hero">
-            <div>
-                <div class="dashboard-hero__eyebrow">Workspace overview</div>
-                <h1 class="dashboard-hero__title">Campaign dashboard</h1>
-                <div class="dashboard-hero__subtitle">A refined view of spend, revenue, and activation outcomes across the active dataset.</div>
-            </div>
-            <div style="padding: 0.8rem 1rem; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: #dbe4f0; font-size: 0.88rem; display: flex; align-items: center; gap: 0.45rem;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>
-                <span>{st.session_state.get('email', 'Signed in')}</span>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
+    # Banner
     with st.container(key="dashboard-banner"):
         col_text, col_btn = st.columns([5, 1], vertical_alignment="center")
         with col_text:
-            st.markdown(f'<div class="dashboard-banner__text">{_format_banner(is_demo)}</div>', unsafe_allow_html=True)
+            st.markdown('<div class="dashboard-banner__text">Demo dataset loaded. Upload your own to unlock the pipeline.</div>', unsafe_allow_html=True)
         with col_btn:
-            st.page_link("pages/export_data.py", label="Upload data", icon=":material/upload:")
+            st.page_link("pages/upload.py", label="Upload data", icon=":material/upload:")
 
     if is_demo:
         pass
-        # st.info("Demo data is being used because no campaign dataset was found in data/raw or data/processed.")
 
-    # Metric Cards
+    # First row of metric cards
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         _render_card_shell(
             "Total campaigns",
             f"{int(kpis['totalCampaigns'])}",
-            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>',
             "accent-violet",
         )
 
@@ -173,7 +163,7 @@ def main() -> None:
         _render_card_shell(
             "Total spend",
             fmt_currency(total_spend),
-            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
             "accent-amber",
         )
 
@@ -184,7 +174,7 @@ def main() -> None:
         _render_card_shell(
             "Revenue",
             fmt_currency(total_revenue),
-            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
             "accent-emerald",
             f'<div class="dashboard-stat-card__delta" style="color: {delta_color};"><span>{delta_icon}</span><span>{abs(growth):.2f}% vs. prior period</span></div>',
         )
@@ -194,17 +184,17 @@ def main() -> None:
         _render_card_shell(
             "Conversions",
             f"{total_conversions:,}",
-            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
             "accent-sky",
         )
 
-    # Second Row of Metric Cards
+    # Second row of metric cards
     col5, col6, col7, col8 = st.columns(4)
     with col5:
         _render_card_shell(
             "CTR",
             f"{kpis['ctr']*100:.2f}%",
-            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></polygon>',
             "accent-violet",
         )
 
@@ -212,7 +202,7 @@ def main() -> None:
         _render_card_shell(
             "CPA",
             fmt_currency(kpis['cpa']),
-            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></polyline>',
             "accent-rose",
         )
 
@@ -221,7 +211,7 @@ def main() -> None:
         _render_card_shell(
             "ROAS",
             f"{roas:.2f}x",
-            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></polyline>',
             "accent-emerald",
         )
 
@@ -229,7 +219,7 @@ def main() -> None:
         _render_card_shell(
             "Conversion rate",
             f"{kpis['cvr']*100:.2f}%",
-            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></path>',
             "accent-cyan",
         )
 
@@ -324,6 +314,7 @@ def main() -> None:
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
     _render_panel_end()
+
 
 if __name__ == "__main__":
     main()
