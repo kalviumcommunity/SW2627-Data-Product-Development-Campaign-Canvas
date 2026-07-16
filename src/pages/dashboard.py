@@ -43,11 +43,14 @@ def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
 
     grouped = (
         dated.groupby("date", as_index=False)
-        .agg(spend=(spend_col, "sum"), conversions=(activation_col, "sum"))
+        .agg(
+            spend=(spend_col, "sum"), 
+            conversions=(activation_col, "sum"),
+            revenue=("revenue", "sum")
+        )
         .sort_values("date")
         .reset_index(drop=True)
     )
-    grouped["revenue"] = grouped["spend"] * 1.5  # Demo revenue calculation
     return grouped
 
 def _trend_revenue_delta(frame: pd.DataFrame) -> float:
@@ -144,15 +147,12 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        f"""
-        <div class="dashboard-banner">
-            <div class="dashboard-banner__text">{_format_banner(is_demo)}</div>
-            <a class="dashboard-cta" href="/export_data">Upload data</a>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    with st.container(key="dashboard-banner"):
+        col_text, col_btn = st.columns([5, 1], vertical_alignment="center")
+        with col_text:
+            st.markdown(f'<div class="dashboard-banner__text">{_format_banner(is_demo)}</div>', unsafe_allow_html=True)
+        with col_btn:
+            st.page_link("pages/export_data.py", label="Upload data", icon=":material/upload:")
 
     if is_demo:
         pass
@@ -178,7 +178,7 @@ def main() -> None:
         )
 
     with col3:
-        total_revenue = kpis['totalSpend'] * 1.5
+        total_revenue = float(frame["revenue"].sum()) if not frame.empty else 0.0
         delta_color = "#10b981" if growth >= 0 else "#ef4444"
         delta_icon = "▲" if growth >=0 else "▼"
         _render_card_shell(
@@ -186,7 +186,7 @@ def main() -> None:
             fmt_currency(total_revenue),
             '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
             "accent-emerald",
-            f'<div class="dashboard-stat-card__delta" style="color: {delta_color};"><span>{delta_icon}</span><span>{abs(growth):.1f}% vs. prior period</span></div>',
+            f'<div class="dashboard-stat-card__delta" style="color: {delta_color};"><span>{delta_icon}</span><span>{abs(growth):.2f}% vs. prior period</span></div>',
         )
 
     with col4:
@@ -217,7 +217,7 @@ def main() -> None:
         )
 
     with col7:
-        roas = 1.5
+        roas = total_revenue / total_spend if total_spend else 0.0
         _render_card_shell(
             "ROAS",
             f"{roas:.2f}x",
@@ -291,7 +291,6 @@ def main() -> None:
         campaign_perf = by_campaign.copy().head(10)
         spend_col = "spend_usd" if "spend_usd" in campaign_perf.columns else "spend"
         label_col = "display_name" if "display_name" in campaign_perf.columns else "name"
-        campaign_perf["revenue"] = campaign_perf[spend_col] * 1.5
         fig = go.Figure()
         fig.add_trace(
             go.Bar(

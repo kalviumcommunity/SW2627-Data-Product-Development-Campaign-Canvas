@@ -519,6 +519,35 @@ landing_html = f"""
         </div>
     </footer>
 </div>
+<script>
+(function() {{
+    function setupInterceptors() {{
+        document.querySelectorAll('a').forEach(function(anchor) {{
+            if (anchor.textContent.includes('hidden_auth') || anchor.textContent.includes('hidden_dash')) {{
+                return;
+            }}
+            let href = anchor.getAttribute('href');
+            if (href === '/auth' || href === '/dashboard' || href === 'pages/auth.py' || href === 'pages/dashboard.py') {{
+                if (!anchor.dataset.intercepted) {{
+                    anchor.dataset.intercepted = "true";
+                    anchor.addEventListener('click', function(e) {{
+                        e.preventDefault();
+                        let targetKey = href.includes('auth') ? 'auth' : 'dashboard';
+                        let streamlitLink = document.querySelector('div[data-testid="stPageLink"] a[href*="' + targetKey + '"]');
+                        if (streamlitLink) {{
+                            streamlitLink.click();
+                        }} else {{
+                            window.location.href = href;
+                        }}
+                    }});
+                }}
+            }}
+        }});
+    }}
+    setupInterceptors();
+    setInterval(setupInterceptors, 200);
+}})();
+</script>
 """
 
 # Streamlit's markdown parser follows standard Markdown rules, where any
@@ -530,3 +559,9 @@ landing_html = f"""
 landing_html_flat = "\n".join(line.lstrip() for line in landing_html.split("\n"))
 
 st.markdown(landing_html_flat, unsafe_allow_html=True)
+
+# Hidden page links to allow client-side single page app navigation
+st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
+st.page_link("pages/auth.py", label="hidden_auth")
+st.page_link("pages/dashboard.py", label="hidden_dash")
+st.markdown("</div>", unsafe_allow_html=True)

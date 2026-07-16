@@ -15,6 +15,10 @@ st.set_page_config(page_title="Sign in — CampaignCanvas", page_icon="📊", la
 # Process any Clerk authentication callback parameters
 handle_clerk_callback()
 
+# Check if user is logged in
+if st.session_state.get("logged_in", False):
+    st.switch_page("pages/dashboard.py")
+
 # ---------- Styling: reskin default Streamlit widgets to match the dark CampaignCanvas theme ----------
 st.markdown(f"""
 <style>

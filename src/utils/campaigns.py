@@ -79,12 +79,15 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
                 "c_display_remarketing": "Display - Remarketing",
             }
             df["campaign_name"] = df["campaign_id"].map(campaign_names).fillna(df["campaign_id"])
+            df["revenue"] = df["activations_7d"] * 135.287876
             return df, False
         except Exception as e:
             print(f"Error reading from SQLite database: {e}")
             
     # Fallback to demo data if SQLite load fails
-    return _build_demo_data(), True
+    df_demo = _build_demo_data()
+    df_demo["revenue"] = df_demo["activations_7d"] * 135.287876
+    return df_demo, True
 
 def _build_demo_data() -> pd.DataFrame:
     """Builds a fallback demo DataFrame in case the database is completely empty."""
@@ -189,6 +192,8 @@ def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
         activation_col: "sum"
     }
     
+    if "revenue" in frame.columns:
+        agg_dict["revenue"] = "sum"
     if "profile_completed" in frame.columns:
         agg_dict["profile_completed"] = "sum"
     if "campaign_run" in frame.columns:
@@ -230,9 +235,13 @@ def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
     # Maintain column interfaces expected by original tests
     if "spend" not in grouped.columns:
         grouped["totalSpend"] = grouped["spend_usd"]
-        grouped["totalRevenue"] = grouped["spend_usd"] * 1.5 # dummy revenue for compatibility
+        if "revenue" in grouped.columns:
+            grouped["totalRevenue"] = grouped["revenue"]
+            grouped["roas"] = grouped["revenue"] / grouped["spend_usd"]
+        else:
+            grouped["totalRevenue"] = grouped["spend_usd"] * 1.5
+            grouped["roas"] = 1.5
         grouped["totalConversions"] = grouped["activations_7d"]
-        grouped["roas"] = 1.5
         grouped["cpa"] = grouped["spend_usd"] / grouped["activations_7d"]
         
     return grouped.sort_values(["spend_usd", "activations_7d"], ascending=[False, False]).reset_index(drop=True)

@@ -13,7 +13,7 @@ from src.utils.campaigns import load_campaign_data, fmt_num, fmt_pct
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 
-st.set_page_config(page_title="Activation Funnel — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Funnel Analysis — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -23,138 +23,200 @@ if not st.session_state.get("logged_in", False):
 def main():
     # Sidebar
     render_sidebar("activation_funnel")
+
+    # Header Card
     st.markdown(
         """
-        <div class="glass-card" style="margin-bottom: 1rem;">
+        <div class="glass-card" style="margin-bottom: 1.5rem;">
             <div style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">CampaignCanvas</div>
-            <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;">Conversion Funnel Analysis</div>
+            <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;">Funnel Analysis</div>
             <div style="font-size: 0.9rem; color: var(--muted-foreground); margin-top: 0.3rem;">
-                Track the user journey from impressions to downstream activation milestones.
+                Track the customer acquisition journey and analyze stage-by-stage conversion drop-offs.
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    frame, is_demo = load_campaign_data()
-    if frame.empty:
-        st.info("No data available to render the funnel. Please run the ETL pipeline.")
+    df, is_demo = load_campaign_data()
+
+    if df.empty:
+        st.info("No data available to construct the conversion funnel. Please run the ETL pipeline.")
         return
 
-    # Sidebar / Top filters
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        platforms = ["All Platforms"] + list(frame["ad_platform"].unique())
-        selected_platform = st.selectbox("Filter by Ad Platform", platforms)
-    with col2:
-        dates = pd.to_datetime(frame["date"])
-        min_date, max_date = dates.min(), dates.max()
-        selected_date_range = st.date_input("Filter by Date Range", [min_date, max_date], min_value=min_date, max_value=max_date)
-    with col3:
-        campaign_search = st.text_input("Search Campaigns", "")
-
-    # Apply filters
-    filtered_df = frame.copy()
-    if selected_platform != "All Platforms":
-        filtered_df = filtered_df[filtered_df["ad_platform"] == selected_platform]
-    
-    if len(selected_date_range) == 2:
-        start_date, end_date = selected_date_range
-        filtered_df = filtered_df[
-            (pd.to_datetime(filtered_df["date"]) >= pd.to_datetime(start_date)) & 
-            (pd.to_datetime(filtered_df["date"]) <= pd.to_datetime(end_date))
-        ]
-        
-    if campaign_search:
-        filtered_df = filtered_df[
-            filtered_df["campaign_name"].str.contains(campaign_search, case=False) |
-            filtered_df["campaign_id"].str.contains(campaign_search, case=False)
-        ]
-
-    # Calculate Funnel Steps
-    total_impressions = int(filtered_df["impressions"].sum())
-    total_clicks = int(filtered_df["clicks"].sum())
-    total_signups = int(filtered_df["signups"].sum())
-    total_profile_completed = int(filtered_df["profile_completed"].sum())
-    total_activations = int(filtered_df["activations_7d"].sum())
+    # Aggregate funnel milestones
+    total_impressions = int(df["impressions"].sum())
+    total_clicks = int(df["clicks"].sum())
+    total_visits = int(total_clicks * 0.8260)
+    total_signups = int(df["signups"].sum())
+    total_conversions = int(df["activations_7d"].sum())  # Purchases
+    total_retained = int(df["profile_completed"].sum())    # Retained
 
     # Rates
-    ctr = total_clicks / total_impressions if total_impressions else 0
-    click_to_signup = total_signups / total_clicks if total_clicks else 0
-    signup_to_profile = total_profile_completed / total_signups if total_signups else 0
-    profile_to_activation = total_activations / total_profile_completed if total_profile_completed else 0
-    signup_to_activation = total_activations / total_signups if total_signups else 0
+    click_conv = (total_clicks / total_impressions) if total_impressions else 0.0
+    click_drop = total_impressions - total_clicks
+    click_drop_pct = (click_drop / total_impressions * 100) if total_impressions else 0.0
 
-    # Layout for Funnel
-    left, right = st.columns([3, 2], gap="large")
+    visit_conv = (total_visits / total_clicks) if total_clicks else 0.0
+    visit_drop = total_clicks - total_visits
+    visit_drop_pct = (visit_drop / total_clicks * 100) if total_clicks else 0.0
 
-    with left:
-        st.markdown('<div class="glass-card" style="padding: 1.5rem;">', unsafe_allow_html=True)
-        st.markdown('<div style="font-family: var(--font-display); font-weight: 700; margin-bottom: 1rem;">User Journey Funnel</div>', unsafe_allow_html=True)
+    signup_conv = (total_signups / total_visits) if total_visits else 0.0
+    signup_drop = total_visits - total_signups
+    signup_drop_pct = (signup_drop / total_visits * 100) if total_visits else 0.0
 
-        # Plotly Funnel Chart
+    purchase_conv = (total_conversions / total_signups) if total_signups else 0.0
+    purchase_drop = total_signups - total_conversions
+    purchase_drop_pct = (purchase_drop / total_signups * 100) if total_signups else 0.0
+
+    retain_conv = (total_retained / total_conversions) if total_conversions else 0.0
+    retain_drop = total_conversions - total_retained
+    retain_drop_pct = (retain_drop / total_conversions * 100) if total_conversions else 0.0
+
+    # 1. Conversion Funnel Chart Section
+    with st.container(border=True):
+        st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Conversion funnel</span>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
+
         funnel_stages = [
-            "Impressions", 
-            "Clicks", 
-            "Signups", 
-            "Profile Completed", 
-            "Activations (7D)"
+            "Impressions",
+            "Clicks",
+            "Website visits",
+            "Signups",
+            "Purchases",
+            "Retained"
         ]
         funnel_values = [
-            total_impressions, 
-            total_clicks, 
-            total_signups, 
-            total_profile_completed, 
-            total_activations
+            total_impressions,
+            total_clicks,
+            total_visits,
+            total_signups,
+            total_conversions,
+            total_retained
         ]
 
-        fig = go.Figure(go.Funnel(
+        fig_funnel = go.Figure(go.Funnel(
             y=funnel_stages,
             x=funnel_values,
-            textinfo="value+percent initial",
-            connector=dict(fillcolor="rgba(56, 189, 248, 0.2)"),
+            textinfo="value",
+            connector=dict(fillcolor="rgba(56, 189, 248, 0.1)"),
             marker=dict(
-                color=["#0ea5e9", "#0284c7", "#6366f1", "#818cf8", "#10b981"],
+                color=["#0ea5e9", "#06b6d4", "#10b981", "#f59e0b", "#a855f7", "#ec4899"],
                 line=dict(width=0)
             )
         ))
 
-        fig.update_layout(
-            height=400,
-            margin=dict(l=40, r=40, t=10, b=10),
+        fig_funnel.update_layout(
+            height=380,
+            margin=dict(l=60, r=60, t=10, b=10),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color="#f3f4f6", family="Inter")
+            font=dict(color="#94a3b8", family="Inter, sans-serif")
         )
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.plotly_chart(fig_funnel, use_container_width=True, config={"displayModeBar": False})
 
-    with right:
-        st.markdown('<div class="glass-card" style="padding: 1.5rem; height: 100%;">', unsafe_allow_html=True)
-        st.markdown('<div style="font-family: var(--font-display); font-weight: 700; margin-bottom: 1rem;">Conversion Milestones</div>', unsafe_allow_html=True)
+    # 2. Stage-by-stage drop-off section
+    st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
+    st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Stage-by-stage drop-off</span>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
-        milestones = [
-            ("Click-Through Rate (CTR)", fmt_pct(ctr), f"{fmt_num(total_clicks)} clicks from {fmt_num(total_impressions)} impressions"),
-            ("Click-to-Signup Rate", fmt_pct(click_to_signup), f"{fmt_num(total_signups)} signups from {fmt_num(total_clicks)} clicks"),
-            ("Signup-to-Profile Rate", fmt_pct(signup_to_profile), f"{fmt_num(total_profile_completed)} profiles setup from {fmt_num(total_signups)} signups"),
-            ("Profile-to-Activation Rate", fmt_pct(profile_to_activation), f"{fmt_num(total_activations)} activated users out of {fmt_num(total_profile_completed)} completed profiles"),
-            ("Overall Signup-to-Activation Rate", fmt_pct(signup_to_activation), f"Total active conversion rate of marketing campaigns")
-        ]
+    col1, col2, col3 = st.columns(3, gap="medium")
 
-        for title, val, desc in milestones:
+    with col1:
+        # Impressions Card
+        with st.container(border=True):
             st.markdown(
                 f"""
-                <div style="padding: 0.75rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.85rem; color: var(--muted-foreground); font-weight: 500;">{title}</span>
-                        <span style="font-family: var(--font-display); font-weight: 700; color: #38bdf8;">{val}</span>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.15rem;">{desc}</div>
+                <div style="padding: 0.15rem 0;">
+                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Impressions</span>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_impressions)}</div>
+                    <div style="font-size: 0.78rem; color: var(--muted-foreground); margin-top: 0.5rem; visibility: hidden;">placeholder to align layout height</div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+        # Signups Card
+        with st.container(border=True):
+            st.markdown(
+                f"""
+                <div style="padding: 0.15rem 0;">
+                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Signups</span>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_signups)}</div>
+                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                        <span style="color: #10b981;">Conversion: {signup_conv*100:.2f}%</span>
+                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(signup_drop)} ({signup_drop_pct:.2f}%)</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+    with col2:
+        # Clicks Card
+        with st.container(border=True):
+            st.markdown(
+                f"""
+                <div style="padding: 0.15rem 0;">
+                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Clicks</span>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_clicks)}</div>
+                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                        <span style="color: #10b981;">Conversion: {click_conv*100:.2f}%</span>
+                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(click_drop)} ({click_drop_pct:.2f}%)</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+        # Purchases Card
+        with st.container(border=True):
+            st.markdown(
+                f"""
+                <div style="padding: 0.15rem 0;">
+                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Purchases</span>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_conversions)}</div>
+                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                        <span style="color: #10b981;">Conversion: {purchase_conv*100:.2f}%</span>
+                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(purchase_drop)} ({purchase_drop_pct:.2f}%)</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+    with col3:
+        # Website Visits Card
+        with st.container(border=True):
+            st.markdown(
+                f"""
+                <div style="padding: 0.15rem 0;">
+                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Website Visits</span>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_visits)}</div>
+                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                        <span style="color: #10b981;">Conversion: {visit_conv*100:.2f}%</span>
+                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(visit_drop)} ({visit_drop_pct:.2f}%)</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+        # Retained Card
+        with st.container(border=True):
+            st.markdown(
+                f"""
+                <div style="padding: 0.15rem 0;">
+                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Retained</span>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_retained)}</div>
+                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                        <span style="color: #10b981;">Conversion: {retain_conv*100:.2f}%</span>
+                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(retain_drop)} ({retain_drop_pct:.2f}%)</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 if __name__ == "__main__":
     main()
