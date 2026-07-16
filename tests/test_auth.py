@@ -27,7 +27,7 @@ def test_get_clerk_credentials_env():
         "CLERK_DOMAIN": "env.clerk.accounts.dev",
         "CLERK_REDIRECT_URI": "http://localhost:8501/auth"
     }
-    with patch.dict(os.environ, env_mock), patch.object(st, "secrets", {}):
+    with patch("src.utils.clerk_auth.load_dotenv"), patch.dict(os.environ, env_mock), patch.object(st, "secrets", {}):
         client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
         assert client_id == "env_id"
         assert client_secret == "env_secret"
@@ -44,7 +44,7 @@ def test_get_clerk_credentials_secrets():
             "redirect_uri": "http://localhost:8501/"
         }
     }
-    with patch.object(st, "secrets", secrets_mock), patch.dict(os.environ, {}, clear=True):
+    with patch("src.utils.clerk_auth.load_dotenv"), patch.object(st, "secrets", secrets_mock), patch.dict(os.environ, {}, clear=True):
         client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
         assert client_id == "secret_id"
         assert client_secret == "secret_secret"
@@ -66,7 +66,7 @@ def test_get_clerk_credentials_secrets_missing():
     mock_secrets = MagicMock()
     mock_secrets.__contains__.side_effect = StreamlitSecretNotFoundError("Missing secrets file")
     
-    with patch.dict(os.environ, env_mock), patch.object(st, "secrets", mock_secrets):
+    with patch("src.utils.clerk_auth.load_dotenv"), patch.dict(os.environ, env_mock), patch.object(st, "secrets", mock_secrets):
         client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
         assert client_id == "fallback_id"
         assert client_secret == "fallback_secret"

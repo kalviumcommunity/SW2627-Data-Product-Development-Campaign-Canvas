@@ -467,3 +467,64 @@ div[data-testid="stAlert"] { border-radius: var(--radius-md) !important; }
 /* ---------- misc ---------- */
 hr { border-color: var(--border) !important; }
 ::selection { background: color-mix(in oklab, var(--primary) 35%, transparent); }
+
+/* ---------- Custom st.container styling for dashboard banner ---------- */
+.st-key-dashboard-banner {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, transparent), color-mix(in oklab, var(--card) 76%, transparent)) !important;
+  border: 1px solid color-mix(in oklab, var(--border) 84%, transparent) !important;
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-card) !important;
+  padding: 1.25rem 1.35rem !important;
+  margin-bottom: 1.35rem !important;
+}
+
+/* Ensure child column container is positioned correctly and overrides any leaky CSS from auth.py */
+.st-key-dashboard-banner [data-testid="stHorizontalBlock"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: 1rem !important;
+  min-height: auto !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+.st-key-dashboard-banner [data-testid="stPageLink"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
+}
+
+.st-key-dashboard-banner [data-testid="stPageLink"] a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  padding: 0.65rem 1.2rem !important;
+  border-radius: var(--radius-md) !important;
+  background: linear-gradient(135deg, var(--primary), var(--primary-glow)) !important;
+  color: var(--primary-foreground) !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.15) !important;
+  transition: all 0.2s !important;
+  text-decoration: none !important;
+  width: auto !important;
+}
+
+.st-key-dashboard-banner [data-testid="stPageLink"] a:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.35) !important;
+  opacity: 0.95 !important;
+}
+
+.st-key-dashboard-banner [data-testid="stPageLink"] a * {
+  color: inherit !important;
+  background: transparent !important;
+}

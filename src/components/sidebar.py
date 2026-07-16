@@ -2,20 +2,39 @@ from __future__ import annotations
 
 import streamlit as st
 
-# ---------- Icon set (lucide-style, monochrome, currentColor) ----------
-_ICONS = {
-    "dashboard": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>',
-    "upload": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>',
-    "profiling": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
-    "cleaning": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"></path></svg>',
-    "database": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5V19A9 3 0 0 0 21 19V5"></path><path d="M3 12A9 3 0 0 0 21 12"></path></svg>',
-    "analytics": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>',
-    "funnel": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>',
-    "kpi_engine": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>',
-    "visualizations": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>',
-    "sql_workspace": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>',
-    "export_data": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>',
-    "alerts": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>',
+# ---------- Icon set (Material Symbols) ----------
+_MATERIAL_ICONS = {
+    "dashboard": ":material/dashboard:",
+    "upload": ":material/upload:",
+    "profiling": ":material/search:",
+    "cleaning": ":material/brush:",
+    "database": ":material/database:",
+    "analytics": ":material/trending_up:",
+    "funnel": ":material/filter_alt:",
+    "kpi_engine": ":material/speed:",
+    "visualizations": ":material/bar_chart:",
+    "sql_workspace": ":material/terminal:",
+    "export_data": ":material/description:",
+    "alerts": ":material/notifications:",
+    "settings": ":material/settings:",
+}
+
+# ---------- Page Paths ----------
+_PAGE_PATHS = {
+    "dashboard": "pages/dashboard.py",
+    "upload": "pages/upload.py",
+    "profiling": "pages/profiling.py",
+    "cleaning": "pages/cleaning.py",
+    "database": "pages/database.py",
+    "campaign_analysis": "pages/campaign_analysis.py",
+    "activation_funnel": "pages/activation_funnel.py",
+    "kpi_engine": "pages/kpi_engine.py",
+    "visualizations": "pages/visualizations.py",
+    "sql_workspace": "pages/sql_workspace.py",
+    "export_data": "pages/export_data.py",
+    "reports": "pages/reports.py",
+    "alerts": "pages/alerts.py",
+    "settings": "pages/settings.py",
 }
 
 _SIDEBAR_CSS = """
@@ -32,48 +51,84 @@ section[data-testid="stSidebar"] {
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
-.nav-link, .nav-link-active {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.64rem 0.75rem;
-    border-radius: 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-decoration: none;
-    margin-bottom: 0.2rem;
-    border: 1px solid transparent;
-    transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+
+/* Remove default Streamlit background, border, and style from st.page_link in sidebar */
+div[data-testid="stSidebar"] div[data-testid="stPageLink"] {
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
-.nav-link {
-    color: rgba(226,232,240,0.72);
+
+div[data-testid="stSidebar"] div[data-testid="stPageLink"] a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
+    padding: 0.64rem 0.75rem !important;
+    border-radius: 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    margin-bottom: 0.2rem !important;
+    border: 1px solid transparent !important;
+    background-color: transparent !important;
+    background: transparent !important;
+    color: rgba(226,232,240,0.72) !important;
+    transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease !important;
+    width: 100% !important;
 }
-.nav-link:hover {
-    background: rgba(255,255,255,0.05);
-    color: white;
-    transform: translateX(2px);
+
+div[data-testid="stSidebar"] div[data-testid="stPageLink"] a:hover {
+    background: rgba(255,255,255,0.05) !important;
+    color: white !important;
+    transform: translateX(2px) !important;
 }
-.nav-link-active {
-    background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(129,140,248,0.12));
-    border: 1px solid rgba(56,189,248,0.24);
-    color: white;
-    font-weight: 600;
+
+/* Specific styling for the Active nav link */
+div[class*="nav-link-active-container"] div[data-testid="stPageLink"] a {
+    background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(129,140,248,0.12)) !important;
+    border: 1px solid rgba(56,189,248,0.24) !important;
+    color: white !important;
+    font-weight: 600 !important;
 }
-.nav-link svg, .nav-link-active svg {
-    flex-shrink: 0;
-    opacity: 0.9;
+
+/* Ensure no extra padding/margins on container wrapper elements */
+div[class*="nav-link-container"], div[class*="nav-link-active-container"] {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Ensure text and icons inherit colors properly */
+div[data-testid="stSidebar"] div[data-testid="stPageLink"] a * {
+    color: inherit !important;
+}
+
+/* Align and style the material symbols icon inside the page link */
+div[data-testid="stSidebar"] div[data-testid="stPageLink"] a span[data-testid="stIconMaterial"] {
+    color: inherit !important;
+    font-size: 1.1rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 0.9 !important;
 }
 </style>
 """
 
 
 def _render_nav_link(label: str, icon_key: str, href: str, page_key: str, current_page: str) -> None:
-    icon_svg = _ICONS.get(icon_key, "")
-    css_class = "nav-link-active" if current_page == page_key else "nav-link"
-    st.markdown(
-        f'<a class="{css_class}" href="{href}">{icon_svg}<span>{label}</span></a>',
-        unsafe_allow_html=True,
-    )
+    page_path = _PAGE_PATHS.get(page_key)
+    if not page_path:
+        return
+
+    icon = _MATERIAL_ICONS.get(icon_key, ":material/link:")
+
+    # Wrap in active or inactive container class
+    is_active = (current_page == page_key)
+    container_class = "nav-link-active-container" if is_active else "nav-link-container"
+
+    with st.container(key=f"{container_class}_{page_key}"):
+        st.page_link(page_path, label=label, icon=icon)
 
 
 def render_sidebar(current_page: str):
@@ -111,14 +166,15 @@ def render_sidebar(current_page: str):
         st.markdown('<div class="nav-section-label">Insights</div>', unsafe_allow_html=True)
         _render_nav_link("Analytics", "analytics", "/campaign_analysis", "campaign_analysis", current_page)
         _render_nav_link("Funnel", "funnel", "/activation_funnel", "activation_funnel", current_page)
-        _render_nav_link("KPI Engine", "kpi_engine", "/export_data", "kpi_engine", current_page)
-        _render_nav_link("Visualizations", "visualizations", "/export_data", "visualizations", current_page)
-        _render_nav_link("SQL Workspace", "sql_workspace", "/export_data", "sql_workspace", current_page)
+        _render_nav_link("KPI Engine", "kpi_engine", "/kpi_engine", "kpi_engine", current_page)
+        _render_nav_link("Visualizations", "visualizations", "/visualizations", "visualizations", current_page)
+        _render_nav_link("SQL Workspace", "sql_workspace", "/sql_workspace", "sql_workspace", current_page)
 
         # Actions Section
         st.markdown('<div class="nav-section-label" style="margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">Actions</div>', unsafe_allow_html=True)
-        _render_nav_link("Reports", "export_data", "/export_data", "export_data", current_page)
-        _render_nav_link("Alerts", "alerts", "/export_data", "alerts", current_page)
+        _render_nav_link("Reports", "export_data", "/reports", "reports", current_page)
+        _render_nav_link("Alerts", "alerts", "/alerts", "alerts", current_page)
+        _render_nav_link("Settings", "settings", "/settings", "settings", current_page)
 
         st.markdown(
             '<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);"></div>',
