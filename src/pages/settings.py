@@ -42,10 +42,10 @@ def main():
                 unsafe_allow_html=True
             )
             
-            fullname = st.text_input("Full name", value="Yarasu Sri Keerthi Reddy", key="settings_fullname")
+            fullname = st.text_input("Full name", value="", key="settings_fullname")
             
             # Default email value from session state
-            default_email = st.session_state.get("email", "srikeerthireddy24@gmail.com")
+            default_email = st.session_state.get("email", "")
             email = st.text_input("Email", value=default_email, key="settings_email", disabled=True)
             
             st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)

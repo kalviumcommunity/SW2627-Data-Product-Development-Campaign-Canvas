@@ -33,7 +33,6 @@ def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
     dated = frame.copy()
     dated["date"] = pd.to_datetime(dated["date"], errors="coerce")
     dated = dated.dropna(subset=["date"])
-    dated["date"] = dated["date"].dt.strftime("%Y-%m-%d")
 
     spend_col = "spend_usd" if "spend_usd" in dated.columns else "spend"
     activation_col = "activations_7d" if "activations_7d" in dated.columns else "conversions"

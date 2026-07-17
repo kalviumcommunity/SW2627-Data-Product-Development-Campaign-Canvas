@@ -14,6 +14,7 @@ if root_dir not in sys.path:
 from src.utils.campaigns import load_campaign_data
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
+from src.components.navbar import render_navbar
 
 st.set_page_config(page_title="Visualizations — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
@@ -56,20 +57,8 @@ COLOR_PALETTE = [
 def main():
     # Sidebar
     render_sidebar("visualizations")
-
-    # Header Card
-    st.markdown(
-        """
-        <div class="glass-card" style="margin-bottom: 1.5rem;">
-            <div style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">CampaignCanvas</div>
-            <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;">Visualizations</div>
-            <div style="font-size: 0.9rem; color: var(--muted-foreground); margin-top: 0.3rem;">
-                Visual breakdowns of campaign spend, revenue channels, conversions, and regional segments.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    # Navbar
+    render_navbar("Visualizations")
 
     df, is_demo = load_campaign_data()
 
@@ -213,7 +202,10 @@ def main():
         with st.container(border=True):
             st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Line — Daily conversions</span>", unsafe_allow_html=True)
             
-            daily_df = df.groupby("date", as_index=False)["activations_7d"].sum().sort_values("date")
+            daily_df = df.copy()
+            daily_df["date"] = pd.to_datetime(daily_df["date"], errors="coerce")
+            daily_df = daily_df.dropna(subset=["date"])
+            daily_df = daily_df.groupby("date", as_index=False)["activations_7d"].sum().sort_values("date")
             
             fig_line = px.line(
                 daily_df,
