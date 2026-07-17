@@ -142,3 +142,65 @@ def handle_clerk_callback():
                     st.error(f"An error occurred during Clerk authentication callback: {e}")
         else:
             st.warning("Clerk credentials are not configured. Callback code was ignored.")
+
+
+def check_and_restore_session():
+    """
+    Checks for authentication cookies and restores or updates session state/cookies accordingly.
+    Call this at the beginning of each page rendering to persist authentication.
+    """
+    # 1. Restore session from cookies if session state is uninitialized
+    if st.session_state.get("logged_in") is None:
+        try:
+            cookies = st.context.cookies
+            if cookies.get("logged_in") == "true":
+                st.session_state.logged_in = True
+                st.session_state.email = cookies.get("email", "")
+        except Exception:
+            pass
+
+    # 2. If logged in in session state, make sure cookies are set
+    if st.session_state.get("logged_in") is True:
+        if "cookie_cleared" in st.session_state:
+            del st.session_state["cookie_cleared"]
+        try:
+            cookies = st.context.cookies
+            if cookies.get("logged_in") != "true" and not st.session_state.get("cookie_written"):
+                email = st.session_state.get("email", "")
+                import streamlit.components.v1 as components
+                components.html(
+                    f"""
+                    <script>
+                        parent.document.cookie = "logged_in=true; path=/; max-age=86400; SameSite=Lax";
+                        parent.document.cookie = "email={email}; path=/; max-age=86400; SameSite=Lax";
+                    </script>
+                    """,
+                    height=0,
+                    width=0,
+                )
+                st.session_state["cookie_written"] = True
+        except Exception:
+            pass
+
+    # 3. If explicitly logged out, ensure cookies are cleared
+    elif st.session_state.get("logged_in") is False:
+        try:
+            cookies = st.context.cookies
+            if cookies.get("logged_in") == "true" and not st.session_state.get("cookie_cleared"):
+                import streamlit.components.v1 as components
+                components.html(
+                    """
+                    <script>
+                        parent.document.cookie = "logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                        parent.document.cookie = "email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                    </script>
+                    """,
+                    height=0,
+                    width=0,
+                )
+                st.session_state["cookie_cleared"] = True
+                if "cookie_written" in st.session_state:
+                    del st.session_state["cookie_written"]
+        except Exception:
+            pass
+
