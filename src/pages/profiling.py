@@ -77,7 +77,7 @@ def main():
     completeness_ratio = (total_elements - missing_cells) / total_elements if total_elements > 0 else 1.0
     
     # Calculate Outliers Percentage (Numeric columns > 3 stddevs)
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    numeric_cols = df.select_dtypes(include='number').columns
     outliers_count = 0
     total_numeric_elements = 0
     for col in numeric_cols:
@@ -142,7 +142,7 @@ def main():
         unique = col_series.nunique()
         
         # Calculate stats for numeric columns
-        if np.issubdtype(col_series.dtype, np.number):
+        if pd.api.types.is_numeric_dtype(col_series.dtype):
             col_clean = col_series.dropna()
             if not col_clean.empty:
                 c_min = f"{col_clean.min():.2f}".rstrip('0').rstrip('.')
