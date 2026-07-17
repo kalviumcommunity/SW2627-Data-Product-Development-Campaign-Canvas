@@ -31,7 +31,6 @@ _PAGE_PATHS = {
     "kpi_engine": "pages/kpi_engine.py",
     "visualizations": "pages/visualizations.py",
     "sql_workspace": "pages/sql_workspace.py",
-    "export_data": "pages/export_data.py",
     "reports": "pages/reports.py",
     "alerts": "pages/alerts.py",
     "settings": "pages/settings.py",
