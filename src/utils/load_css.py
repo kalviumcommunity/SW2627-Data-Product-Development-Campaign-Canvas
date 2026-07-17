@@ -20,3 +20,7 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         st.warning(f"Stylesheet not found at {path} — using default Streamlit theme.")
         return
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+    # Initialize and restore authentication state via cookies
+    from src.utils.clerk_auth import check_and_restore_session
+    check_and_restore_session()

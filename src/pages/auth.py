@@ -8,9 +8,17 @@ if root_dir not in sys.path:
 
 from datetime import datetime
 import streamlit as st
-from src.utils.clerk_auth import handle_clerk_callback, get_clerk_credentials, get_clerk_endpoints
+from src.utils.clerk_auth import (
+    handle_clerk_callback,
+    get_clerk_credentials,
+    get_clerk_endpoints,
+    check_and_restore_session,
+)
 
 st.set_page_config(page_title="Sign in — CampaignCanvas", page_icon="📊", layout="wide")
+
+# Restore session from cookies
+check_and_restore_session()
 
 # Process any Clerk authentication callback parameters
 handle_clerk_callback()
@@ -18,6 +26,7 @@ handle_clerk_callback()
 # Check if user is logged in
 if st.session_state.get("logged_in", False):
     st.switch_page("pages/dashboard.py")
+
 
 # ---------- Styling: reskin default Streamlit widgets to match the dark CampaignCanvas theme ----------
 st.markdown(f"""
