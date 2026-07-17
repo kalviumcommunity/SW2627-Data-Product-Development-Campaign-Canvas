@@ -28,7 +28,7 @@ if not st.session_state.get("logged_in", False):
 
 def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
     if frame.empty:
-        return pd.DataFrame(columns=["date", "spend", "revenue", "conversions"])
+        return pd.DataFrame(columns=["date", "spend", "revenue", "conversions", "signups", "activations_7d"])
 
     dated = frame.copy()
     dated["date"] = pd.to_datetime(dated["date"], errors="coerce")
@@ -43,12 +43,27 @@ def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
         .agg(
             spend=(spend_col, "sum"),
             conversions=(activation_col, "sum"),
+            signups=("signups", "sum"),
+            activations_7d=(activation_col, "sum"),
             revenue=("revenue", "sum")
         )
         .sort_values("date")
         .reset_index(drop=True)
     )
     return grouped
+
+
+def _build_funnel_totals(frame: pd.DataFrame) -> list[int]:
+    if frame.empty:
+        return [0, 0, 0, 0, 0]
+
+    return [
+        int(frame["impressions"].sum()),
+        int(frame["clicks"].sum()),
+        int(frame["signups"].sum()) if "signups" in frame.columns else 0,
+        int(frame["profile_completed"].sum()) if "profile_completed" in frame.columns else 0,
+        int(frame["activations_7d"].sum()) if "activations_7d" in frame.columns else 0,
+    ]
 
 
 def _trend_revenue_delta(frame: pd.DataFrame) -> float:
@@ -230,38 +245,69 @@ def main() -> None:
         if by_date.empty:
             st.info("No trend data is available yet.")
         else:
-            fig = go.Figure()
-            fig.add_trace(
-                go.Scatter(
-                    x=by_date["date"],
-                    y=by_date["revenue"],
-                    name="Revenue",
-                    mode="lines",
-                    line=dict(color="#38bdf8", width=3),
-                    fill="tozeroy",
-                    fillcolor="rgba(56, 189, 248, 0.16)",
+            if by_date["date"].nunique() < 3:
+                fallback = by_campaign.copy().head(8)
+                label_col = "display_name" if "display_name" in fallback.columns else "name"
+                fig = go.Figure()
+                fig.add_trace(
+                    go.Bar(
+                        x=fallback[label_col],
+                        y=fallback["revenue"],
+                        name="Revenue",
+                        marker_color="#38bdf8",
+                    )
                 )
-            )
-            fig.add_trace(
-                go.Scatter(
-                    x=by_date["date"],
-                    y=by_date["spend"],
-                    name="Spend",
-                    mode="lines",
-                    line=dict(color="#f59e0b", width=3),
-                    fill="tozeroy",
-                    fillcolor="rgba(245, 158, 11, 0.14)",
+                fig.add_trace(
+                    go.Bar(
+                        x=fallback[label_col],
+                        y=fallback["spend_usd"],
+                        name="Spend",
+                        marker_color="#f59e0b",
+                    )
                 )
-            )
-            fig.update_layout(
-                height=300,
-                margin=dict(l=0, r=0, t=10, b=0),
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white", size=10)),
-                xaxis=dict(showgrid=False, title=None, tickfont=dict(color="#94a3b8", size=10)),
-                yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
-            )
+                fig.update_layout(
+                    height=300,
+                    barmode="group",
+                    margin=dict(l=0, r=0, t=10, b=0),
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white", size=10)),
+                    xaxis=dict(showgrid=False, title=None, tickangle=-20, tickfont=dict(color="#94a3b8", size=10)),
+                    yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
+                )
+            else:
+                fig = go.Figure()
+                fig.add_trace(
+                    go.Scatter(
+                        x=by_date["date"],
+                        y=by_date["revenue"],
+                        name="Revenue",
+                        mode="lines+markers",
+                        line=dict(color="#38bdf8", width=3),
+                        fill="tozeroy",
+                        fillcolor="rgba(56, 189, 248, 0.16)",
+                    )
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=by_date["date"],
+                        y=by_date["spend"],
+                        name="Spend",
+                        mode="lines+markers",
+                        line=dict(color="#f59e0b", width=3),
+                        fill="tozeroy",
+                        fillcolor="rgba(245, 158, 11, 0.14)",
+                    )
+                )
+                fig.update_layout(
+                    height=300,
+                    margin=dict(l=0, r=0, t=10, b=0),
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white", size=10)),
+                    xaxis=dict(showgrid=False, title=None, tickfont=dict(color="#94a3b8", size=10)),
+                    yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
+                )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
         _render_panel_end()
@@ -271,6 +317,74 @@ def main() -> None:
         _render_campaign_card("Best", best, True)
         if worst is not None and (best is None or _campaign_name(worst) != _campaign_name(best)):
             _render_campaign_card("Worst", worst, False)
+        _render_panel_end()
+
+    lower_left, lower_right = st.columns(2, gap="large")
+    with lower_left:
+        _render_panel_start("Acquisition funnel", "Joined from ad, signup, and activation tables")
+
+        funnel_values = _build_funnel_totals(frame)
+        fig_funnel = go.Figure(
+            go.Funnel(
+                y=["Impressions", "Clicks", "Signups", "Profile completed", "Activations"],
+                x=funnel_values,
+                textinfo="value+percent previous",
+                connector=dict(fillcolor="rgba(56, 189, 248, 0.12)"),
+                marker=dict(
+                    color=["#0ea5e9", "#06b6d4", "#10b981", "#f59e0b", "#a855f7"],
+                    line=dict(width=0),
+                ),
+            )
+        )
+        fig_funnel.update_layout(
+            height=320,
+            margin=dict(l=10, r=10, t=10, b=0),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#94a3b8", family="Inter, sans-serif"),
+        )
+        st.plotly_chart(fig_funnel, use_container_width=True, config={"displayModeBar": False})
+
+        _render_panel_end()
+
+    with lower_right:
+        _render_panel_start("Signups vs. activations", "Daily progression from HubSpot into product usage")
+
+        if by_date.empty:
+            st.info("No trend data is available yet.")
+        else:
+            fig_stage_trend = go.Figure()
+            fig_stage_trend.add_trace(
+                go.Scatter(
+                    x=by_date["date"],
+                    y=by_date["signups"],
+                    name="Signups",
+                    mode="lines+markers",
+                    line=dict(color="#38bdf8", width=3),
+                    marker=dict(size=6),
+                )
+            )
+            fig_stage_trend.add_trace(
+                go.Scatter(
+                    x=by_date["date"],
+                    y=by_date["activations_7d"],
+                    name="Activations",
+                    mode="lines+markers",
+                    line=dict(color="#10b981", width=3),
+                    marker=dict(size=6),
+                )
+            )
+            fig_stage_trend.update_layout(
+                height=320,
+                margin=dict(l=0, r=0, t=10, b=0),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white", size=10)),
+                xaxis=dict(showgrid=False, title=None, tickfont=dict(color="#94a3b8", size=10)),
+                yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
+            )
+            st.plotly_chart(fig_stage_trend, use_container_width=True, config={"displayModeBar": False})
+
         _render_panel_end()
 
     _render_panel_start("Campaign performance", "Revenue and spend by campaign", panel_class="dashboard-table-panel")
