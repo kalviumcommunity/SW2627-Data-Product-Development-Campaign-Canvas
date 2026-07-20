@@ -528,3 +528,13 @@ hr { border-color: var(--border) !important; }
   color: inherit !important;
   background: transparent !important;
 }
+
+/* --- Streamlit Override Fixes for Markdown Links --- */
+div[data-testid="stMarkdownContainer"] a,
+[data-testid="stMarkdownContainer"] a {
+  text-decoration: none !important;
+}
+div[data-testid="stMarkdownContainer"] a:hover,
+[data-testid="stMarkdownContainer"] a:hover {
+  text-decoration: none !important;
+}

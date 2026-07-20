@@ -474,6 +474,24 @@ div[data-testid="stFormSubmitButton"] button:focus:not(:active),
     color: #030712 !important;
     border-color: transparent !important;
 }}
+
+/* --- Streamlit Override Fixes --- */
+[data-testid="stMarkdownContainer"] .clerk-btn {{
+    color: white !important;
+    text-decoration: none !important;
+}}
+[data-testid="stMarkdownContainer"] .clerk-btn:hover {{
+    color: white !important;
+    text-decoration: none !important;
+}}
+[data-testid="stMarkdownContainer"] .back-home a {{
+    color: #9ca3af !important;
+    text-decoration: none !important;
+}}
+[data-testid="stMarkdownContainer"] .back-home a:hover {{
+    color: white !important;
+    text-decoration: none !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
