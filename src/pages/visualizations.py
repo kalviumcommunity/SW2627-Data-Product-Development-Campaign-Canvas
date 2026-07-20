@@ -12,7 +12,7 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 from src.utils.campaigns import load_campaign_data
-from src.utils.load_css import load_css
+from src.utils.load_css import load_css, get_plotly_layout
 from src.components.sidebar import render_sidebar
 
 st.set_page_config(page_title="Visualizations — CampaignCanvas", page_icon="📊", layout="wide")
@@ -163,7 +163,7 @@ def main():
             )
             
             # Apply styles
-            fig_bar.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_bar.update_layout(get_plotly_layout())
             fig_bar.update_traces(
                 marker_color="#38bdf8",
                 marker_line_color="#38bdf8",
@@ -186,7 +186,7 @@ def main():
                 color_discrete_sequence=COLOR_PALETTE
             )
             
-            fig_pie.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_pie.update_layout(get_plotly_layout())
             fig_pie.update_traces(textposition='inside', textinfo='percent+label')
             st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
 
@@ -204,7 +204,7 @@ def main():
                 marker=dict(colors=COLOR_PALETTE)
             )])
             
-            fig_donut.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_donut.update_layout(get_plotly_layout())
             fig_donut.update_traces(textposition='inside', textinfo='percent+label')
             st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
 
@@ -223,7 +223,7 @@ def main():
                 color_discrete_sequence=["#10b981"]
             )
             
-            fig_line.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_line.update_layout(get_plotly_layout())
             fig_line.update_traces(line=dict(color="#10b981", width=2.5))
             st.plotly_chart(fig_line, use_container_width=True, config={"displayModeBar": False})
 

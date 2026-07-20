@@ -15,7 +15,7 @@ if root_dir not in sys.path:
 
 from src.components.sidebar import render_sidebar
 from src.utils.campaigns import aggregate_by, fmt_currency, load_campaign_data
-from src.utils.load_css import load_css
+from src.utils.load_css import load_css, get_plotly_layout
 
 st.set_page_config(page_title="Analytics — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
@@ -146,7 +146,7 @@ def main() -> None:
                     )
                 ]
             )
-            fig_donut.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_donut.update_layout(get_plotly_layout())
             fig_donut.update_traces(textposition="inside", textinfo="percent+label")
             st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
 
@@ -157,7 +157,7 @@ def main() -> None:
                 unsafe_allow_html=True,
             )
             fig_bar = px.bar(grouped, x="name", y="roas", color_discrete_sequence=["#38bdf8"])
-            fig_bar.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_bar.update_layout(get_plotly_layout())
             fig_bar.update_traces(marker_color="#38bdf8", opacity=0.9)
             st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
 
@@ -186,7 +186,7 @@ def main() -> None:
         display_df["ROAS"] = display_df["ROAS"].map(lambda value: f"{value:.2f}x")
         display_df["CTR"] = display_df["CTR"].map(_format_pct)
         display_df["CVR"] = display_df["CVR"].map(_format_pct)
-        st.dataframe(display_df, use_container_width=True, hide_index=True)
+        st.table(display_df)
 
     st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
     col_time, col_scatter = st.columns(2, gap="large")
@@ -199,7 +199,7 @@ def main() -> None:
             )
             daily_df = df.groupby("date", as_index=False)["conversions"].sum().sort_values("date")
             fig_line = px.line(daily_df, x="date", y="conversions", color_discrete_sequence=["#10b981"])
-            fig_line.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_line.update_layout(get_plotly_layout())
             fig_line.update_traces(line=dict(color="#10b981", width=2))
             st.plotly_chart(fig_line, use_container_width=True, config={"displayModeBar": False})
 
@@ -211,7 +211,7 @@ def main() -> None:
             )
             scatter_df = df.groupby(["date", dimension_col], as_index=False).agg({"spend": "sum", "revenue": "sum"})
             fig_scatter = px.scatter(scatter_df, x="spend", y="revenue", color_discrete_sequence=["#38bdf8"])
-            fig_scatter.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_scatter.update_layout(get_plotly_layout())
             fig_scatter.update_traces(marker=dict(size=8, opacity=0.75, line=dict(width=1, color="rgba(255,255,255,0.2)")))
             st.plotly_chart(fig_scatter, use_container_width=True, config={"displayModeBar": False})
 

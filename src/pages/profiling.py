@@ -181,12 +181,7 @@ def main():
 
     profile_df = pd.DataFrame(profile_rows)
 
-    # Render Profile Table
-    st.dataframe(
-        profile_df,
-        use_container_width=True,
-        hide_index=True
-    )
+    st.table(profile_df)
 
 if __name__ == "__main__":
     main()

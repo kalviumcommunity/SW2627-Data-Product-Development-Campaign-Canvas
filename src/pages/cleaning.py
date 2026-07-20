@@ -164,11 +164,8 @@ def main():
         )
 
         # Show Table
-        st.dataframe(
-            df_cleaned,
-            use_container_width=True,
-            hide_index=True
-        )
+        st.table(df_cleaned.head(15))
+        st.caption("Showing preview of first 15 rows.")
 
 if __name__ == "__main__":
     main()

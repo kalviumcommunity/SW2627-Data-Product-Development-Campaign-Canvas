@@ -106,12 +106,15 @@ def main():
             )
         ))
 
+        theme = st.session_state.get("theme", "dark")
+        text_color = "#1e293b" if theme == "light" else "#e2e8f0"
+
         fig_funnel.update_layout(
             height=380,
             margin=dict(l=60, r=60, t=10, b=10),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color="#94a3b8", family="Inter, sans-serif")
+            font=dict(color=text_color, family="Inter, sans-serif")
         )
         st.plotly_chart(fig_funnel, use_container_width=True, config={"displayModeBar": False})
 

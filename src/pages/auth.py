@@ -8,6 +8,7 @@ if root_dir not in sys.path:
 
 from datetime import datetime
 import streamlit as st
+from src.utils.load_css import load_css
 from src.utils.clerk_auth import (
     handle_clerk_callback,
     get_clerk_credentials,
@@ -16,6 +17,7 @@ from src.utils.clerk_auth import (
 )
 
 st.set_page_config(page_title="Sign in — CampaignCanvas", page_icon="📊", layout="wide")
+load_css()
 
 # Restore session from cookies
 check_and_restore_session()
@@ -51,7 +53,7 @@ header[data-testid="stHeader"] {{
 }}
 
 .stApp {{
-    background: #030712 !important;
+    background: var(--background) !important;
     height: 100vh !important;
     overflow: hidden !important;
 }}
@@ -74,7 +76,7 @@ div.block-container {{
 
 /* Horizontal columns layout - unify to single card split down the middle */
 div[data-testid="stHorizontalBlock"] {{
-    background: #090d16 !important;
+    background: var(--background) !important;
     border: none !important;
     border-radius: 0px !important;
     overflow: hidden !important;
@@ -155,7 +157,7 @@ div[data-testid="column"] > div {{
 div[data-testid="stHorizontalBlock"] > div:last-child,
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child,
 .stColumn:last-child {{
-    background: radial-gradient(circle at top, rgba(15, 23, 42, 0.8) 0%, #030712 100%) !important;
+    background: radial-gradient(circle at top, var(--card) 0%, var(--background) 100%) !important;
     padding: 3rem 3.5rem !important;
     display: flex !important;
     flex-direction: column !important;
@@ -167,15 +169,15 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child,
 
 /* Card wrapper - Auth Form Card */
 .st-key-auth_card {{
-    background: rgba(15, 23, 42, 0.8) !important;
-    border: 1px solid rgba(148, 163, 184, 0.1) !important;
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
     border-radius: 1.25rem !important;
     padding: 2.5rem 2.75rem 2rem !important;
     backdrop-filter: blur(20px) !important;
     max-width: 450px !important;
     width: 100% !important;
     margin: 0 auto !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: var(--shadow-card) !important;
 }}
 
 .auth-logo {{
@@ -213,22 +215,22 @@ div[data-testid="column"]:first-child .auth-logo-text {{
     font-weight: 700 !important;
 }}
 
-.auth-title {{ color: white; font-size: 1.75rem; font-weight: 700; margin: 0 0 0.35rem 0; }}
-.auth-subtitle {{ color: #9ca3af; font-size: 0.9rem; margin-bottom: 3; }}
+.auth-title {{ color: var(--foreground) !important; font-size: 1.75rem !important; font-weight: 700 !important; margin: 0 0 0.35rem 0 !important; }}
+.auth-subtitle {{ color: var(--muted-foreground) !important; font-size: 0.9rem !important; margin-bottom: 3 !important; }}
 
 .auth-divider {{
     display: flex;
     align-items: center;
     gap: 0.75rem;
     margin: 1.5rem 0 1rem 0;
-    color: #4b5563;
+    color: var(--muted-foreground);
     font-size: 0.75rem;
 }}
 .auth-divider::before, .auth-divider::after {{
     content: "";
     flex: 1;
     height: 1px;
-    background: rgba(255,255,255,0.08);
+    background: var(--border);
 }}
 
 .back-home {{
@@ -236,8 +238,8 @@ div[data-testid="column"]:first-child .auth-logo-text {{
     margin-top: 1.5rem;
     font-size: 0.85rem;
 }}
-.back-home a {{ color: #9ca3af; text-decoration: none; transition: color 0.2s ease; }}
-.back-home a:hover {{ color: white; }}
+.back-home a {{ color: var(--muted-foreground) !important; text-decoration: none !important; transition: color 0.2s ease !important; }}
+.back-home a:hover {{ color: var(--foreground) !important; }}
 
 /* Clerk Login Button - links and styled buttons */
 .clerk-btn,
@@ -284,17 +286,17 @@ div.st-key-mock_clerk_login_btn button::before {{
 
 /* BaseWeb Input styling (Email, Password, Name) */
 div[data-testid="stTextInput"] > div {{
-    background-color: rgba(15, 23, 42, 0.65) !important;
-    background: rgba(15, 23, 42, 0.65) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: var(--input) !important;
+    background: var(--input) !important;
+    border: 1px solid var(--border) !important;
     border-radius: 0.6rem !important;
     transition: all 0.2s ease !important;
 }}
 
 /* BaseWeb Input Focus styling */
 div[data-testid="stTextInput"] > div:focus-within {{
-    border-color: #38bdf8 !important;
-    box-shadow: 0 0 0 1px #38bdf8 !important;
+    border-color: var(--ring) !important;
+    box-shadow: 0 0 0 1px var(--ring) !important;
 }}
 
 /* Clear borders, backgrounds, and shadows on inner container wrappers to resolve the double border issue */
@@ -314,7 +316,7 @@ div[data-baseweb="input"] input,
 input {{
     background-color: transparent !important;
     background: transparent !important;
-    color: #ffffff !important;
+    color: var(--foreground) !important;
     border: none !important;
     box-shadow: none !important;
 }}
@@ -322,7 +324,7 @@ input {{
 /* Input Labels */
 div[data-testid="stTextInput"] label,
 .stTextInput label {{
-    color: #cbd5e1 !important;
+    color: var(--muted-foreground) !important;
     font-size: 0.85rem !important;
     font-weight: 500 !important;
     margin-bottom: 0.35rem !important;
@@ -335,14 +337,14 @@ div[data-testid="stTextInput"] button svg,
 }}
 div[data-testid="stTextInput"] button:hover svg,
 .stTextInput button:hover svg {{
-    fill: #ffffff !important;
+    fill: var(--foreground) !important;
 }}
 
 /* Tabs override to dark themed pill container */
 [role="tablist"] {{
     gap: 4px !important;
-    background: rgba(15, 23, 42, 0.7) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: var(--secondary) !important;
+    border: 1px solid var(--border) !important;
     border-radius: 9999px !important;
     padding: 0.25rem !important;
 }}
@@ -575,6 +577,7 @@ CLERK_REDIRECT_URI=http://localhost:8501/
                     time.sleep(1.0)
                 st.session_state.logged_in = True
                 st.session_state.email = "demo.clerk.user@gmail.com"
+                st.session_state.name = "Demo Clerk User"
                 st.success("Welcome back! Redirecting to dashboard...")
                 st.switch_page("pages/dashboard.py")
 
@@ -593,6 +596,9 @@ CLERK_REDIRECT_URI=http://localhost:8501/
                     else:
                         st.session_state.logged_in = True
                         st.session_state.email = email
+                        # Derive name from email prefix
+                        derived_name = " ".join([word.capitalize() for word in email.split("@")[0].replace(".", " ").replace("_", " ").split()])
+                        st.session_state.name = derived_name
                         st.success("Welcome back! Redirecting to dashboard...")
                         st.switch_page("pages/dashboard.py")
 
@@ -608,6 +614,7 @@ CLERK_REDIRECT_URI=http://localhost:8501/
                     else:
                         st.session_state.logged_in = True
                         st.session_state.email = email_up
+                        st.session_state.name = name
                         st.success("Account created! Redirecting to dashboard...")
                         st.switch_page("pages/dashboard.py")
 

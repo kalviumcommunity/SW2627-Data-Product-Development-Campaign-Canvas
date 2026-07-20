@@ -42,16 +42,27 @@ def main():
                 unsafe_allow_html=True
             )
             
-            fullname = st.text_input("Full name", value="Yarasu Sri Keerthi Reddy", key="settings_fullname")
+            default_name = st.session_state.get("name", "")
+            fullname = st.text_input("Full name", value=default_name, key="settings_fullname")
             
             # Default email value from session state
-            default_email = st.session_state.get("email", "srikeerthireddy24@gmail.com")
+            default_email = st.session_state.get("email", "")
             email = st.text_input("Email", value=default_email, key="settings_email", disabled=True)
             
             st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
             save_clicked = st.button("Save", key="save_profile_btn")
             if save_clicked:
-                st.session_state.email = email
+                st.session_state.name = fullname
+                import streamlit.components.v1 as components
+                components.html(
+                    f"""
+                    <script>
+                        parent.document.cookie = "name={fullname}; path=/; max-age=86400; SameSite=Lax";
+                    </script>
+                    """,
+                    height=0,
+                    width=0,
+                )
                 st.toast("Profile settings saved successfully!", icon="✅")
         
         st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
@@ -84,7 +95,20 @@ def main():
                 unsafe_allow_html=True
             )
             
-            st.toggle("Dark mode", value=True, key="settings_dark_mode")
+            current_theme = st.session_state.get("theme", "dark")
+            is_dark = (current_theme == "dark")
+            
+            def on_theme_toggle_change():
+                new_theme = "dark" if st.session_state["settings_dark_mode"] else "light"
+                st.session_state["theme"] = new_theme
+                st.query_params["theme"] = new_theme
+
+            st.toggle(
+                "Dark mode",
+                value=is_dark,
+                key="settings_dark_mode",
+                on_change=on_theme_toggle_change
+            )
             st.caption("Switch between light and dark themes.")
         
         st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)

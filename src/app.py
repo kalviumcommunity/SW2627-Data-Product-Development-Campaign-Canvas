@@ -17,6 +17,10 @@ from src.utils.load_css import load_css
 st.set_page_config(page_title="CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
+current_theme = st.session_state.get("theme", "dark")
+next_theme = "light" if current_theme == "dark" else "dark"
+theme_icon = "🌙" if current_theme == "dark" else "☀️"
+
 # Process any Clerk authentication callback parameters
 handle_clerk_callback()
 
@@ -350,7 +354,23 @@ landing_html = f"""
     border-color: rgba(255, 255, 255, 0.4) !important;
 }}
 
-
+.theme-toggle-link {{
+    font-size: 1.25rem !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    border-radius: 9999px !important;
+    transition: all 0.2s !important;
+    cursor: pointer !important;
+    color: var(--foreground) !important;
+    margin-right: 0.5rem !important;
+}}
+.theme-toggle-link:hover {{
+    background: var(--accent) !important;
+}}
 
 </style>
 
@@ -364,6 +384,7 @@ landing_html = f"""
             <span class="logo-text">CampaignCanvas</span>
         </a>
         <div class="header-actions">
+            <a href="?theme={next_theme}" target="_self" class="theme-toggle-link" title="Toggle Theme">{theme_icon}</a>
             <a href="/auth" class="btn-ghost">Sign in</a>
             <a href="/auth" class="btn-primary">Get started</a>
         </div>
