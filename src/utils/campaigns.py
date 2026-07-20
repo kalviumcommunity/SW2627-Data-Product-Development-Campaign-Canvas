@@ -89,6 +89,78 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
     df_demo["revenue"] = df_demo["activations_7d"] * 135.287876
     return df_demo, True
 
+
+def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
+    """Adds reusable audience and channel dimensions for charting."""
+    if frame.empty:
+        return frame.copy()
+
+    enriched = frame.copy()
+    campaign_text = enriched["campaign_id"].astype(str).str.lower() if "campaign_id" in enriched.columns else pd.Series("", index=enriched.index)
+    campaign_name_text = enriched["campaign_name"].astype(str).str.lower() if "campaign_name" in enriched.columns else campaign_text
+    platform_text = enriched["ad_platform"].astype(str).str.lower() if "ad_platform" in enriched.columns else pd.Series("", index=enriched.index)
+
+    def map_channel() -> pd.Series:
+        values = []
+        for campaign_id, campaign_name in zip(campaign_text, campaign_name_text):
+            if any(token in campaign_id or token in campaign_name for token in ["email", "mailchimp", "klaviyo"]):
+                values.append("Email")
+            elif any(token in campaign_id or token in campaign_name for token in ["youtube", "video"]):
+                values.append("Video")
+            elif any(token in campaign_id or token in campaign_name for token in ["display", "remarketing"]):
+                values.append("Display")
+            elif any(token in campaign_id or token in campaign_name for token in ["brand", "search"]):
+                values.append("Search")
+            else:
+                values.append("Social")
+        return pd.Series(values, index=enriched.index)
+
+    def map_region() -> pd.Series:
+        values = []
+        for campaign_id in campaign_text:
+            if "brand" in campaign_id:
+                values.append("US")
+            elif "nonbrand" in campaign_id or "retarget" in campaign_id:
+                values.append("EU")
+            elif "prospect" in campaign_id or "leadgen" in campaign_id:
+                values.append("LATAM")
+            else:
+                values.append("APAC")
+        return pd.Series(values, index=enriched.index)
+
+    def map_device() -> pd.Series:
+        values = []
+        for campaign_id in campaign_text:
+            values.append("Mobile" if any(token in campaign_id for token in ["brand", "prospect", "instagram", "tiktok"]) else "Desktop")
+        return pd.Series(values, index=enriched.index)
+
+    def map_platform_grouped() -> pd.Series:
+        values = []
+        for platform, campaign_id in zip(platform_text, campaign_text):
+            if "google" in platform or "google" in campaign_id:
+                values.append("Google")
+            elif "youtube" in campaign_id:
+                values.append("YouTube")
+            elif "display" in campaign_id:
+                values.append("Programmatic")
+            elif "meta" in platform or "meta" in campaign_id or "instagram" in campaign_id:
+                values.append("Meta")
+            elif "linkedin" in campaign_id:
+                values.append("LinkedIn")
+            elif "tiktok" in campaign_id:
+                values.append("TikTok")
+            elif "pinterest" in campaign_id:
+                values.append("Pinterest")
+            else:
+                values.append("Other")
+        return pd.Series(values, index=enriched.index)
+
+    enriched["channel"] = map_channel()
+    enriched["platform_grouped"] = map_platform_grouped()
+    enriched["region"] = map_region()
+    enriched["device"] = map_device()
+    return enriched
+
 def _build_demo_data() -> pd.DataFrame:
     """Builds a fallback demo DataFrame in case the database is completely empty."""
     import numpy as np

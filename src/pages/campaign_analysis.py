@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
@@ -51,41 +52,59 @@ def _prepare_frame() -> tuple[pd.DataFrame, bool]:
         return frame, is_demo
 
     frame = frame.copy()
-    frame["campaign"] = frame["campaign_name"]
-    frame["platform"] = frame["ad_platform"].astype(str).str.replace("_", " ").str.title()
+    campaign_text = frame["campaign_id"].astype(str).str.lower() if "campaign_id" in frame.columns else pd.Series("", index=frame.index)
+    platform_text = frame["ad_platform"].astype(str).str.lower() if "ad_platform" in frame.columns else pd.Series("", index=frame.index)
 
-    def map_channel(row):
-        camp = str(row["campaign_id"]).lower()
-        if "email" in camp or "mailchimp" in camp or "klaviyo" in camp:
+    def _pick_channel(campaign_id: str, campaign_name: str) -> str:
+        if any(token in campaign_id or token in campaign_name for token in ["email", "mailchimp", "klaviyo"]):
             return "Email"
-        if "youtube" in camp or "video" in camp:
+        if any(token in campaign_id or token in campaign_name for token in ["youtube", "video"]):
             return "Video"
-        if "display" in camp or "remarketing" in camp:
+        if any(token in campaign_id or token in campaign_name for token in ["display", "remarketing"]):
             return "Display"
-        if "brand" in camp or "search" in camp:
+        if any(token in campaign_id or token in campaign_name for token in ["brand", "search"]):
             return "Search"
         return "Social"
 
-    def map_region(row):
-        camp = str(row["campaign_id"]).lower()
-        if "brand" in camp:
+    def _pick_region(campaign_id: str) -> str:
+        if "brand" in campaign_id:
             return "US"
-        if "nonbrand" in camp or "retarget" in camp:
+        if "nonbrand" in campaign_id or "retarget" in campaign_id:
             return "EU"
-        if "prospect" in camp or "leadgen" in camp:
+        if "prospect" in campaign_id or "leadgen" in campaign_id:
             return "LATAM"
         return "APAC"
 
-    def map_device(row):
-        camp = str(row["campaign_id"]).lower()
-        return "Mobile" if "brand" in camp or "prospect" in camp else "Desktop"
+    def _pick_device(campaign_id: str) -> str:
+        return "Mobile" if any(token in campaign_id for token in ["brand", "prospect", "instagram", "tiktok"]) else "Desktop"
 
-    frame["channel"] = frame.apply(map_channel, axis=1)
-    frame["region"] = frame.apply(map_region, axis=1)
-    frame["device"] = frame.apply(map_device, axis=1)
+    def _pick_platform(platform: str, campaign_id: str) -> str:
+        if "google" in platform or "google" in campaign_id:
+            return "Google"
+        if "youtube" in campaign_id:
+            return "YouTube"
+        if "display" in campaign_id:
+            return "Programmatic"
+        if "meta" in platform or "meta" in campaign_id or "instagram" in campaign_id:
+            return "Meta"
+        if "linkedin" in campaign_id:
+            return "LinkedIn"
+        if "tiktok" in campaign_id:
+            return "TikTok"
+        if "pinterest" in campaign_id:
+            return "Pinterest"
+        return "Other"
+
+    campaign_name_text = frame["campaign_name"].astype(str).str.lower() if "campaign_name" in frame.columns else campaign_text
+    frame["channel"] = [_pick_channel(campaign_id, campaign_name) for campaign_id, campaign_name in zip(campaign_text, campaign_name_text)]
+    frame["platform_grouped"] = [_pick_platform(platform, campaign_id) for platform, campaign_id in zip(platform_text, campaign_text)]
+    frame["region"] = [_pick_region(campaign_id) for campaign_id in campaign_text]
+    frame["device"] = [_pick_device(campaign_id) for campaign_id in campaign_text]
+    frame["campaign"] = frame["campaign_name"] if "campaign_name" in frame.columns else frame["campaign_id"]
+    frame["platform"] = frame["ad_platform"].astype(str).str.replace("_", " ").str.title()
     frame["conversions"] = frame["activations_7d"]
     frame["spend"] = frame["spend_usd"]
-    frame["revenue"] = frame["conversions"] * 133.72
+    frame["revenue"] = frame["revenue"] if "revenue" in frame.columns else frame["conversions"] * 133.72
     return frame, is_demo
 
 
@@ -128,19 +147,20 @@ def main() -> None:
     grouped["CTR"] = (grouped["clicks"] / grouped["impressions"] * 100).fillna(0.0)
     grouped["CVR"] = (grouped["signups"] / grouped["clicks"] * 100).fillna(0.0)
     grouped["ROAS"] = (grouped.get("revenue", grouped["spend_usd"] * 1.5) / grouped["spend_usd"]).fillna(0.0)
+    grouped["Activation rate"] = (grouped["activations_7d"] / grouped["signups"] * 100).fillna(0.0)
 
     col_donut, col_bar = st.columns(2, gap="large")
     with col_donut:
         with st.container(border=True):
             st.markdown(
-                f"<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Revenue by {dimension_col}</span>",
+                f"<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Signups by {dimension_col}</span>",
                 unsafe_allow_html=True,
             )
             fig_donut = go.Figure(
                 data=[
                     go.Pie(
                         labels=grouped["name"],
-                        values=grouped.get("totalRevenue", grouped.get("revenue", grouped["spend_usd"])),
+                        values=grouped["signups"],
                         hole=0.4,
                         marker=dict(colors=COLOR_PALETTE),
                     )
@@ -153,11 +173,11 @@ def main() -> None:
     with col_bar:
         with st.container(border=True):
             st.markdown(
-                f"<span style='font-family: var(--font-display); font-weight: 700; color: white;'>ROAS by {dimension_col}</span>",
+                f"<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Activation rate by {dimension_col}</span>",
                 unsafe_allow_html=True,
             )
-            fig_bar = px.bar(grouped, x="name", y="roas", color_discrete_sequence=["#38bdf8"])
-            fig_bar.update_layout(get_plotly_layout())
+            fig_bar = px.bar(grouped, x="name", y="Activation rate", color_discrete_sequence=["#38bdf8"])
+            fig_bar.update_layout(PLOTLY_THEME_LAYOUT)
             fig_bar.update_traces(marker_color="#38bdf8", opacity=0.9)
             st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
 
@@ -169,13 +189,15 @@ def main() -> None:
         )
         st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
-        display_df = grouped[["name", "impressions", "clicks", "CTR", "signups", "CVR", "spend_usd", "totalRevenue", "roas"]].copy()
+        display_df = grouped[["name", "impressions", "clicks", "CTR", "signups", "CVR", "activations_7d", "Activation rate", "spend_usd", "totalRevenue", "roas"]].copy()
         display_df = display_df.rename(
             columns={
                 "name": dimension_col,
                 "impressions": "Impressions",
                 "clicks": "Clicks",
                 "signups": "Conv.",
+                "activations_7d": "Activations",
+                "Activation rate": "Activation rate (%)",
                 "spend_usd": "Spend",
                 "totalRevenue": "Revenue",
                 "roas": "ROAS",
@@ -186,7 +208,8 @@ def main() -> None:
         display_df["ROAS"] = display_df["ROAS"].map(lambda value: f"{value:.2f}x")
         display_df["CTR"] = display_df["CTR"].map(_format_pct)
         display_df["CVR"] = display_df["CVR"].map(_format_pct)
-        st.table(display_df)
+        display_df["Activation rate (%)"] = display_df["Activation rate (%)"].map(_format_pct)
+        st.dataframe(display_df, use_container_width=True, hide_index=True)
 
     st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
     col_time, col_scatter = st.columns(2, gap="large")
@@ -194,24 +217,32 @@ def main() -> None:
     with col_time:
         with st.container(border=True):
             st.markdown(
-                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Time-series — Conversions</span>",
+                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Time-series — Signups and activations</span>",
                 unsafe_allow_html=True,
             )
-            daily_df = df.groupby("date", as_index=False)["conversions"].sum().sort_values("date")
-            fig_line = px.line(daily_df, x="date", y="conversions", color_discrete_sequence=["#10b981"])
-            fig_line.update_layout(get_plotly_layout())
-            fig_line.update_traces(line=dict(color="#10b981", width=2))
+            daily_df = df.groupby("date", as_index=False).agg({"signups": "sum", "activations_7d": "sum"}).sort_values("date")
+            if daily_df["date"].nunique() < 3:
+                campaign_df = grouped[["name", "signups", "activations_7d"]].head(8).sort_values("signups", ascending=False)
+                fig_line = go.Figure()
+                fig_line.add_trace(go.Bar(x=campaign_df["name"], y=campaign_df["signups"], name="Signups", marker_color="#38bdf8"))
+                fig_line.add_trace(go.Bar(x=campaign_df["name"], y=campaign_df["activations_7d"], name="Activations", marker_color="#10b981"))
+                fig_line.update_layout(PLOTLY_THEME_LAYOUT, barmode="group")
+            else:
+                fig_line = go.Figure()
+                fig_line.add_trace(go.Scatter(x=daily_df["date"], y=daily_df["signups"], name="Signups", mode="lines+markers", line=dict(color="#38bdf8", width=2.5)))
+                fig_line.add_trace(go.Scatter(x=daily_df["date"], y=daily_df["activations_7d"], name="Activations", mode="lines+markers", line=dict(color="#10b981", width=2.5)))
+                fig_line.update_layout(PLOTLY_THEME_LAYOUT)
             st.plotly_chart(fig_line, use_container_width=True, config={"displayModeBar": False})
 
     with col_scatter:
         with st.container(border=True):
             st.markdown(
-                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Spend vs. Revenue correlation</span>",
+                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Spend vs. activations correlation</span>",
                 unsafe_allow_html=True,
             )
-            scatter_df = df.groupby(["date", dimension_col], as_index=False).agg({"spend": "sum", "revenue": "sum"})
-            fig_scatter = px.scatter(scatter_df, x="spend", y="revenue", color_discrete_sequence=["#38bdf8"])
-            fig_scatter.update_layout(get_plotly_layout())
+            scatter_df = df.groupby(["date", dimension_col], as_index=False).agg({"spend": "sum", "activations_7d": "sum"})
+            fig_scatter = px.scatter(scatter_df, x="spend", y="activations_7d", color_discrete_sequence=["#38bdf8"])
+            fig_scatter.update_layout(PLOTLY_THEME_LAYOUT)
             fig_scatter.update_traces(marker=dict(size=8, opacity=0.75, line=dict(width=1, color="rgba(255,255,255,0.2)")))
             st.plotly_chart(fig_scatter, use_container_width=True, config={"displayModeBar": False})
 
