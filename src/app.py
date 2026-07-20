@@ -65,7 +65,7 @@ st.markdown(
         height: 0px !important;
     }
     section[data-testid="stSidebar"] { display: none !important; }
-    #MainMenu, footer { visibility: hidden; }
+    #MainMenu, footer:not(.footer) { visibility: hidden !important; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -290,6 +290,8 @@ landing_html = f"""
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     width: 100%;
     background: rgba(15, 23, 42, 0.3);
+    visibility: visible !important;
+    display: block !important;
 }}
 
 .footer-content {{

@@ -63,7 +63,7 @@ div[data-testid="stAppHeader"] {{
 }}
 
 section[data-testid="stSidebar"] {{ display: none !important; }}
-#MainMenu, footer {{ visibility: hidden; }}
+#MainMenu, footer:not(.footer) {{ visibility: hidden !important; }}
 
 /* Force Streamlit block container to fill 100% viewport width and height (no gap) */
 div.block-container {{
