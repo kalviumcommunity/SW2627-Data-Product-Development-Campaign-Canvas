@@ -19,7 +19,16 @@ load_css()
 
 current_theme = st.session_state.get("theme", "dark")
 next_theme = "light" if current_theme == "dark" else "dark"
-theme_icon = ":material/dark_mode:" if current_theme == "dark" else ":material/light_mode:"
+theme_icon = """
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3a1 1 0 0 1 1 1v1.08a7 7 0 1 1-3.08 12.91 1 1 0 0 1 1.14-1.64A5 5 0 1 0 12 5V4a1 1 0 0 1 1-1Z"/>
+    <path d="M12 1.75v2.5M12 19.75v2.5M4.22 4.22l1.77 1.77M17.99 17.99l1.77 1.77M1.75 12h2.5M19.75 12h2.5M4.22 19.78l1.77-1.77M17.99 6.01l1.77-1.77"/>
+</svg>
+""" if current_theme == "dark" else """
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z"/>
+</svg>
+"""
 
 # Process any Clerk authentication callback parameters
 handle_clerk_callback()
@@ -82,12 +91,22 @@ landing_html = f"""
 
 * {{ box-sizing: border-box; }}
 
+:root {{
+    --landing-background: {'linear-gradient(180deg, #f8fbff 0%, #eef6ff 45%, #eaf1ff 100%)' if current_theme == 'light' else 'radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), #030712'};
+    --landing-foreground: {'#0f172a' if current_theme == 'light' else '#f8fafc'};
+    --landing-muted: {'#475569' if current_theme == 'light' else '#9ca3af'};
+    --landing-surface: {'rgba(255, 255, 255, 0.78)' if current_theme == 'light' else 'rgba(30, 41, 59, 0.4)'};
+    --landing-border: {'rgba(148, 163, 184, 0.22)' if current_theme == 'light' else 'rgba(255, 255, 255, 0.1)'};
+    --landing-card: {'rgba(255, 255, 255, 0.9)' if current_theme == 'light' else 'rgba(15, 23, 42, 0.4)'};
+    --landing-card-border: {'rgba(148, 163, 184, 0.2)' if current_theme == 'light' else 'rgba(255, 255, 255, 0.05)'};
+    --landing-footer: {'rgba(255, 255, 255, 0.72)' if current_theme == 'light' else 'rgba(15, 23, 42, 0.3)'};
+    --landing-glow: {'rgba(56, 189, 248, 0.18)' if current_theme == 'light' else 'rgba(56, 189, 248, 0.4)'};
+}}
+
 .landing-container {{
     display: block;
-    background: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                #030712;
-    color: #f3f4f6;
+    background: var(--landing-background);
+    color: var(--landing-foreground);
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     min-height: 100vh;
     width: 100%;
@@ -119,7 +138,7 @@ landing_html = f"""
     background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
     display: grid;
     place-items: center;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 18px var(--landing-glow);
     color: white;
 }}
 
@@ -129,14 +148,31 @@ landing_html = f"""
     font-size: 1.125rem;
     font-weight: 600;
     letter-spacing: -0.02em;
-    color: white;
+    color: var(--landing-foreground);
 }}
 
 .header-actions {{ display: flex; align-items: center; gap: 0.5rem; }}
 
+.theme-toggle-link {{
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    border-radius: 9999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid var(--landing-border) !important;
+    background: var(--landing-surface) !important;
+    color: var(--landing-foreground) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    margin-right: 0.5rem !important;
+}}
+.theme-toggle-link svg {{ width: 1rem; height: 1rem; }}
+.theme-toggle-link:hover {{ transform: translateY(-1px); box-shadow: 0 10px 30px -18px rgba(15, 23, 42, 0.35); }}
+
 .btn-ghost {{
     background: transparent;
-    color: #9ca3af;
+    color: var(--landing-muted);
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-weight: 500;
@@ -146,7 +182,7 @@ landing_html = f"""
     border: 1px solid transparent;
     cursor: pointer;
 }}
-.btn-ghost:hover {{ color: white; background: rgba(255, 255, 255, 0.05); }}
+.btn-ghost:hover {{ color: var(--landing-foreground); background: color-mix(in oklab, var(--landing-foreground) 8%, transparent); }}
 
 .btn-primary {{
     background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
@@ -182,12 +218,12 @@ landing_html = f"""
     align-items: center;
     gap: 0.5rem;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid var(--landing-border);
+    background: var(--landing-surface);
     backdrop-filter: blur(8px);
     padding: 0.35rem 0.85rem;
     font-size: 0.75rem;
-    color: #cbd5e1;
+    color: var(--landing-muted);
     margin-bottom: 1.5rem;
 }}
 .hero-badge svg {{ color: #38bdf8; width: 0.875rem; height: 0.875rem; }}
@@ -198,7 +234,7 @@ landing_html = f"""
     line-height: 1.1;
     letter-spacing: -0.03em;
     margin: 0 0 1.5rem 0;
-    color: white;
+    color: var(--landing-foreground);
 }}
 
 .gradient-text {{
@@ -211,7 +247,7 @@ landing_html = f"""
 .hero-desc {{
     max-width: 42rem;
     font-size: 1.125rem;
-    color: #9ca3af;
+    color: var(--landing-muted);
     line-height: 1.6;
     margin-bottom: 2.25rem;
 }}
@@ -222,8 +258,8 @@ landing_html = f"""
 
 .btn-outline {{
     background: transparent;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--landing-foreground);
+    border: 1px solid var(--landing-border);
     padding: 0.75rem 1.75rem;
     font-size: 1rem;
     border-radius: 0.75rem;
@@ -236,8 +272,8 @@ landing_html = f"""
     cursor: pointer;
 }}
 .btn-outline:hover {{
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: color-mix(in oklab, var(--landing-foreground) 7%, transparent);
+    border-color: color-mix(in oklab, var(--landing-foreground) 24%, var(--landing-border));
     transform: translateY(-1px);
 }}
 
@@ -259,8 +295,8 @@ landing_html = f"""
 }}
 
 .glass-card {{
-    background: rgba(15, 23, 42, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--landing-card);
+    border: 1px solid var(--landing-card-border);
     border-radius: 1rem;
     padding: 1.75rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -269,8 +305,8 @@ landing_html = f"""
 }}
 .glass-card:hover {{
     transform: translateY(-4px);
-    border-color: rgba(56, 189, 248, 0.2);
-    box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+    border-color: color-mix(in oklab, var(--landing-foreground) 14%, var(--landing-card-border));
+    box-shadow: 0 18px 45px -30px rgba(15, 23, 42, 0.35);
 }}
 
 .card-icon-container {{
@@ -286,14 +322,14 @@ landing_html = f"""
 }}
 .card-icon-container svg {{ width: 1.25rem; height: 1.25rem; }}
 
-.card-title {{ font-weight: 600; font-size: 1.0625rem; color: white; margin-bottom: 0.35rem; }}
-.card-desc {{ font-size: 0.875rem; color: #9ca3af; line-height: 1.5; }}
+.card-title {{ font-weight: 600; font-size: 1.0625rem; color: var(--landing-foreground); margin-bottom: 0.35rem; }}
+.card-desc {{ font-size: 0.875rem; color: var(--landing-muted); line-height: 1.5; }}
 
 /* ---------- Footer ---------- */
 .footer {{
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--landing-border);
     width: 100%;
-    background: rgba(15, 23, 42, 0.3);
+    background: var(--landing-footer);
     visibility: visible !important;
     display: block !important;
 }}
@@ -325,13 +361,13 @@ landing_html = f"""
 }}
 
 [data-testid="stMarkdownContainer"] .landing-container .btn-ghost {{
-    color: #9ca3af !important;
+    color: var(--landing-muted) !important;
     text-decoration: none !important;
 }}
 
 [data-testid="stMarkdownContainer"] .landing-container .btn-ghost:hover {{
-    color: white !important;
-    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--landing-foreground) !important;
+    background: color-mix(in oklab, var(--landing-foreground) 8%, transparent) !important;
 }}
 
 [data-testid="stMarkdownContainer"] .landing-container .btn-primary {{
@@ -344,32 +380,14 @@ landing_html = f"""
 }}
 
 [data-testid="stMarkdownContainer"] .landing-container .btn-outline {{
-    color: white !important;
+    color: var(--landing-foreground) !important;
     text-decoration: none !important;
 }}
 
 [data-testid="stMarkdownContainer"] .landing-container .btn-outline:hover {{
-    color: white !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(255, 255, 255, 0.4) !important;
-}}
-
-.theme-toggle-link {{
-    font-size: 1.25rem !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 2.25rem !important;
-    height: 2.25rem !important;
-    border-radius: 9999px !important;
-    transition: all 0.2s !important;
-    cursor: pointer !important;
-    color: var(--foreground) !important;
-    margin-right: 0.5rem !important;
-}}
-.theme-toggle-link:hover {{
-    background: var(--accent) !important;
+    color: var(--landing-foreground) !important;
+    background: color-mix(in oklab, var(--landing-foreground) 7%, transparent) !important;
+    border-color: color-mix(in oklab, var(--landing-foreground) 24%, var(--landing-border)) !important;
 }}
 
 </style>
@@ -384,7 +402,7 @@ landing_html = f"""
             <span class="logo-text">CampaignCanvas</span>
         </a>
         <div class="header-actions">
-            <a href="?theme={next_theme}" target="_self" class="theme-toggle-link" title="Toggle Theme">{theme_icon}</a>
+            <a href="?theme={next_theme}" target="_self" class="theme-toggle-link" title="Toggle Theme" aria-label="Toggle theme">{theme_icon}</a>
             <a href="/auth" class="btn-ghost">Sign in</a>
             <a href="/auth" class="btn-primary">Get started</a>
         </div>
