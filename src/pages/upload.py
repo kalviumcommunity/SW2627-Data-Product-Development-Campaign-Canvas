@@ -124,7 +124,7 @@ def main():
                         st.toast(f"File {uploaded_file.name} failed to parse.", icon="❌")
 
         # History Table Panel
-        st.markdown("<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: white;'>Upload history</div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground);'>Upload history</div>", unsafe_allow_html=True)
         
         if not st.session_state.upload_history:
             st.markdown(
@@ -136,11 +136,37 @@ def main():
                 unsafe_allow_html=True
             )
         else:
-            history_df = pd.DataFrame(st.session_state.upload_history)
-            history_df.columns = ["File Name", "Size", "Type", "Status", "Date"]
-            
-            # Format and render dataframe with custom config
-            st.table(history_df)
+            # Build a custom HTML table to avoid st.table's auto-index column
+            rows_html = ""
+            for item in st.session_state.upload_history:
+                rows_html += f"""
+                <tr>
+                    <td>{item.get('filename', '')}</td>
+                    <td>{item.get('size', '')}</td>
+                    <td>{item.get('type', '')}</td>
+                    <td>{item.get('status', '')}</td>
+                    <td>{item.get('timestamp', '')}</td>
+                </tr>"""
+
+            st.markdown(
+                f"""
+                <table class="custom-data-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Size</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows_html}
+                    </tbody>
+                </table>
+                """,
+                unsafe_allow_html=True,
+            )
 
 if __name__ == "__main__":
     main()
