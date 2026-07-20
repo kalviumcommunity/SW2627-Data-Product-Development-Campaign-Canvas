@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+import pandas as pd
 
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[2])

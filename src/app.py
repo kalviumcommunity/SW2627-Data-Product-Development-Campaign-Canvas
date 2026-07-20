@@ -369,6 +369,70 @@ landing_html = f"""
 }}
 
 .footer-bottom-links {{ display: flex; gap: 1.25rem; }}
+
+/* --- Streamlit Override Fixes --- */
+.landing-container a,
+[data-testid="stMarkdownContainer"] .landing-container a {{
+    text-decoration: none !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container a:hover,
+[data-testid="stMarkdownContainer"] .landing-container a:focus {{
+    text-decoration: none !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .logo-container {{
+    text-decoration: none !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .btn-ghost {{
+    color: #9ca3af !important;
+    text-decoration: none !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .btn-ghost:hover {{
+    color: white !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .btn-primary {{
+    color: white !important;
+    text-decoration: none !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .btn-primary:hover {{
+    color: white !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .btn-outline {{
+    color: white !important;
+    text-decoration: none !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .btn-outline:hover {{
+    color: white !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .footer-link {{
+    color: #6b7280 !important;
+    text-decoration: none !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .footer-link:hover {{
+    color: #f3f4f6 !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .footer-social-icon {{
+    color: #9ca3af !important;
+    text-decoration: none !important;
+}}
+
+[data-testid="stMarkdownContainer"] .landing-container .footer-social-icon:hover {{
+    color: #38bdf8 !important;
+}}
+
 </style>
 
 <div class="landing-container">
@@ -519,35 +583,6 @@ landing_html = f"""
         </div>
     </footer>
 </div>
-<script>
-(function() {{
-    function setupInterceptors() {{
-        document.querySelectorAll('a').forEach(function(anchor) {{
-            if (anchor.textContent.includes('hidden_auth') || anchor.textContent.includes('hidden_dash')) {{
-                return;
-            }}
-            let href = anchor.getAttribute('href');
-            if (href === '/auth' || href === '/dashboard' || href === 'pages/auth.py' || href === 'pages/dashboard.py') {{
-                if (!anchor.dataset.intercepted) {{
-                    anchor.dataset.intercepted = "true";
-                    anchor.addEventListener('click', function(e) {{
-                        e.preventDefault();
-                        let targetKey = href.includes('auth') ? 'auth' : 'dashboard';
-                        let streamlitLink = document.querySelector('div[data-testid="stPageLink"] a[href*="' + targetKey + '"]');
-                        if (streamlitLink) {{
-                            streamlitLink.click();
-                        }} else {{
-                            window.location.href = href;
-                        }}
-                    }});
-                }}
-            }}
-        }});
-    }}
-    setupInterceptors();
-    setInterval(setupInterceptors, 200);
-}})();
-</script>
 """
 
 # Streamlit's markdown parser follows standard Markdown rules, where any
@@ -559,9 +594,3 @@ landing_html = f"""
 landing_html_flat = "\n".join(line.lstrip() for line in landing_html.split("\n"))
 
 st.markdown(landing_html_flat, unsafe_allow_html=True)
-
-# Hidden page links to allow client-side single page app navigation
-st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
-st.page_link("pages/auth.py", label="hidden_auth")
-st.page_link("pages/dashboard.py", label="hidden_dash")
-st.markdown("</div>", unsafe_allow_html=True)
