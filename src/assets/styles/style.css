@@ -85,7 +85,7 @@ html, body, [class*="css"] { font-family: var(--font-sans); }
 h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; color: var(--foreground); }
 
 header[data-testid="stHeader"] { background: transparent !important; }
-#MainMenu, footer { visibility: hidden; }
+#MainMenu, footer:not(.footer) { visibility: hidden !important; }
 
 div.block-container { padding-top: 2rem; padding-bottom: 3rem; }
 
