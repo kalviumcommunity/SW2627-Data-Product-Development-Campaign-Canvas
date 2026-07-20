@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 from pathlib import Path
 
 # Add project root to sys.path
@@ -16,7 +16,7 @@ from src.utils.clerk_auth import (
     check_and_restore_session,
 )
 
-st.set_page_config(page_title="Sign in — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Sign in — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Restore session from cookies

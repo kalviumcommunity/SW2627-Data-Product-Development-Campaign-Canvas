@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 from pathlib import Path
 
 # Add project root to sys.path
@@ -14,12 +14,12 @@ from src.utils.clerk_auth import handle_clerk_callback
 from src.utils.load_css import load_css
 
 # Configure the Streamlit page
-st.set_page_config(page_title="CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 current_theme = st.session_state.get("theme", "dark")
 next_theme = "light" if current_theme == "dark" else "dark"
-theme_icon = "🌙" if current_theme == "dark" else "☀️"
+theme_icon = ":material/dark_mode:" if current_theme == "dark" else ":material/light_mode:"
 
 # Process any Clerk authentication callback parameters
 handle_clerk_callback()

@@ -12,8 +12,9 @@ if root_dir not in sys.path:
 from src.utils.campaigns import load_campaign_data
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
+from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="SQL Workspace — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="SQL Workspace — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -27,6 +28,9 @@ if "saved_queries" not in st.session_state:
 def main():
     # Sidebar
     render_sidebar("sql_workspace")
+
+    # Navbar
+    render_navbar("SQL Workspace")
 
     # Header Card
     st.markdown(
@@ -155,7 +159,7 @@ ORDER BY revenue DESC"""
                         "name": save_name,
                         "query": query_input
                     })
-                    st.toast(f"Query '{save_name}' successfully saved!", icon="💾")
+                    st.toast(f"Query '{save_name}' successfully saved!", icon=":material/download:")
                     st.rerun()
 
     with col_saved:

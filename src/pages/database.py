@@ -15,8 +15,9 @@ from src.database.db_client import get_connection, init_db
 from src.utils.campaigns import load_campaign_data
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
+from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Database — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Database — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -90,6 +91,9 @@ def _build_dataset_summary(connection) -> pd.DataFrame:
 
 def main() -> None:
 	render_sidebar("database")
+
+	# Navbar
+	render_navbar("Database")
 
 	init_db()
 
