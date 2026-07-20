@@ -124,7 +124,7 @@ def main():
                         st.toast(f"File {uploaded_file.name} failed to parse.", icon="❌")
 
         # History Table Panel
-        st.markdown("<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: white;'>Upload history</div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground);'>Upload history</div>", unsafe_allow_html=True)
         
         if not st.session_state.upload_history:
             st.markdown(
@@ -136,10 +136,14 @@ def main():
                 unsafe_allow_html=True
             )
         else:
-            history_df = pd.DataFrame(st.session_state.upload_history)
+            history_df = pd.DataFrame(
+                st.session_state.upload_history,
+                columns=["filename", "size", "type", "status", "timestamp"]
+            )
             history_df.columns = ["File Name", "Size", "Type", "Status", "Date"]
-            
-            # Format and render dataframe with custom config
+            history_df = history_df.reset_index(drop=True)
+
+            # Render as table — st.table uses index as first col unless reset
             st.table(history_df)
 
 if __name__ == "__main__":
