@@ -148,6 +148,31 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         div.js-plotly-plot .main-svg {
             background: transparent !important;
         }
+
+        /* ── File uploader: override dark baseweb styles in Light Mode ── */
+        [data-testid="stFileUploader"] section,
+        [data-testid="stFileUploaderDropzone"] {
+            background-color: #f8fafc !important;
+            border: 1.5px dashed #94a3b8 !important;
+            color: #1e293b !important;
+        }
+        [data-testid="stFileUploader"] button,
+        [data-testid="stFileUploader"] [role="button"],
+        [data-testid="stFileUploader"] button[kind="secondary"],
+        [data-testid="stFileUploader"] [data-baseweb="button"] {
+            background-color: #e2e8f0 !important;
+            color: #1e293b !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        [data-testid="stFileUploader"] button:hover,
+        [data-testid="stFileUploader"] [data-baseweb="button"]:hover {
+            background-color: #cbd5e1 !important;
+        }
+        [data-testid="stFileUploader"] span,
+        [data-testid="stFileUploader"] p,
+        [data-testid="stFileUploader"] small {
+            color: #64748b !important;
+        }
         """
 
     # Global CSS overrides (no style tags)
@@ -243,6 +268,32 @@ input:disabled,
 .stTable thead tr th:first-child {
     display: none !important;
 }
+
+/* Custom data tables (used in Upload history etc.) — do NOT hide any columns */
+.custom-data-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    color: var(--foreground) !important;
+    background-color: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-lg) !important;
+}
+.custom-data-table th {
+    background-color: var(--secondary) !important;
+    color: var(--foreground) !important;
+    font-weight: 600 !important;
+    text-align: left !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 2px solid var(--border) !important;
+}
+.custom-data-table td {
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid var(--border) !important;
+    color: var(--foreground) !important;
+}
+.custom-data-table tr:hover {
+    background-color: var(--accent) !important;
+}
 """
 
     import textwrap
@@ -303,4 +354,4 @@ def get_plotly_layout() -> dict:
         "legend": {
             "font": {"color": text_color}
         }
-    }
+    }
