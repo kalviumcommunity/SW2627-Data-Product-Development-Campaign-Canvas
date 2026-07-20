@@ -98,6 +98,9 @@ def main():
             return "Social"
 
     df["channel"] = df.apply(map_channel, axis=1)
+    
+    # Convert date column to datetime for proper sorting
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
     # 2. Platform Mapping for Pie Chart
     def map_platform(row):
