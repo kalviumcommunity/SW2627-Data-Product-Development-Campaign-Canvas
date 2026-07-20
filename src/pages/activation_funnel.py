@@ -12,8 +12,9 @@ if root_dir not in sys.path:
 from src.utils.campaigns import load_campaign_data, fmt_num, fmt_pct
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
+from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Funnel Analysis — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Funnel Analysis — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -23,6 +24,9 @@ if not st.session_state.get("logged_in", False):
 def main():
     # Sidebar
     render_sidebar("activation_funnel")
+
+    # Navbar
+    render_navbar("Funnel Analysis")
 
     # Header Card
     st.markdown(

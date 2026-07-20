@@ -10,8 +10,9 @@ if root_dir not in sys.path:
 
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
+from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Reports — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Reports — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -41,11 +42,14 @@ def render_report_card(title: str, desc: str, key_id: str):
         if generate_clicked:
             with st.spinner(f"Compiling {title}..."):
                 time.sleep(1.2)
-            st.toast(f"{title} successfully generated!", icon="🎉")
+            st.toast(f"{title} successfully generated!", icon=":material/check_circle:")
 
 def main():
     # Sidebar
     render_sidebar("reports")
+
+    # Navbar
+    render_navbar("Reports")
 
     # Header Card
     st.markdown(
