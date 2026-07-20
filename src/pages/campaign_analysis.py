@@ -16,7 +16,7 @@ if root_dir not in sys.path:
 
 from src.components.sidebar import render_sidebar
 from src.utils.campaigns import aggregate_by, fmt_currency, load_campaign_data
-from src.utils.load_css import load_css
+from src.utils.load_css import load_css, get_plotly_layout
 
 st.set_page_config(page_title="Analytics — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
@@ -166,7 +166,7 @@ def main() -> None:
                     )
                 ]
             )
-            fig_donut.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_donut.update_layout(get_plotly_layout())
             fig_donut.update_traces(textposition="inside", textinfo="percent+label")
             st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
 

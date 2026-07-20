@@ -140,18 +140,7 @@ def main():
             history_df.columns = ["File Name", "Size", "Type", "Status", "Date"]
             
             # Format and render dataframe with custom config
-            st.dataframe(
-                history_df,
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "Status": st.column_config.SelectboxColumn(
-                        "Status",
-                        help="Current status of the upload file",
-                        options=["Processed", "Ready", "Failed"]
-                    )
-                }
-            )
+            st.table(history_df)
 
 if __name__ == "__main__":
     main()

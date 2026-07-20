@@ -538,3 +538,30 @@ div[data-testid="stMarkdownContainer"] a:hover,
 [data-testid="stMarkdownContainer"] a:hover {
   text-decoration: none !important;
 }
+
+/* --- Theme Toggle Button Styling --- */
+div.st-key-theme_toggle_btn button {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 1.25rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 2.2rem !important;
+  height: 2.2rem !important;
+  min-height: 2.2rem !important;
+  border-radius: 9999px !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+div.st-key-theme_toggle_btn button:hover {
+  background: var(--accent) !important;
+}
+div.st-key-theme_toggle_btn button:active {
+  background: var(--accent) !important;
+}
+div.st-key-theme_toggle_btn button p {
+  margin: 0 !important;
+}

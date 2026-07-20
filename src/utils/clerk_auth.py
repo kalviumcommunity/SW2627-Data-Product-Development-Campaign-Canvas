@@ -126,8 +126,12 @@ def handle_clerk_callback():
                                 email = user_data["emails"][0]
                             
                             if email:
+                                name = user_data.get("name") or f"{user_data.get('given_name', '')} {user_data.get('family_name', '')}".strip()
+                                if not name:
+                                    name = " ".join([word.capitalize() for word in email.split("@")[0].replace(".", " ").replace("_", " ").split()])
                                 st.session_state.logged_in = True
                                 st.session_state.email = email
+                                st.session_state.name = name
                                 st.session_state.clerk_user = user_data
                                 st.success("Signed in successfully with Clerk!")
                                 st.switch_page("pages/dashboard.py")
@@ -155,7 +159,14 @@ def check_and_restore_session():
             cookies = st.context.cookies
             if cookies.get("logged_in") == "true":
                 st.session_state.logged_in = True
-                st.session_state.email = cookies.get("email", "")
+                email = cookies.get("email", "")
+                st.session_state.email = email
+                
+                name_cookie = cookies.get("name", "")
+                if name_cookie:
+                    st.session_state.name = name_cookie
+                else:
+                    st.session_state.name = " ".join([w.capitalize() for w in email.split("@")[0].replace(".", " ").replace("_", " ").split()])
         except Exception:
             pass
 
@@ -167,12 +178,14 @@ def check_and_restore_session():
             cookies = st.context.cookies
             if cookies.get("logged_in") != "true" and not st.session_state.get("cookie_written"):
                 email = st.session_state.get("email", "")
+                name = st.session_state.get("name", "")
                 import streamlit.components.v1 as components
                 components.html(
                     f"""
                     <script>
                         parent.document.cookie = "logged_in=true; path=/; max-age=86400; SameSite=Lax";
                         parent.document.cookie = "email={email}; path=/; max-age=86400; SameSite=Lax";
+                        parent.document.cookie = "name={name}; path=/; max-age=86400; SameSite=Lax";
                     </script>
                     """,
                     height=0,
@@ -193,6 +206,7 @@ def check_and_restore_session():
                     <script>
                         parent.document.cookie = "logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
                         parent.document.cookie = "email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                        parent.document.cookie = "name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
                     </script>
                     """,
                     height=0,

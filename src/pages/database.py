@@ -146,7 +146,7 @@ def main() -> None:
 		)
 
 		summary = _build_dataset_summary(conn)
-		st.dataframe(summary, use_container_width=True, hide_index=True)
+		st.table(summary)
 	finally:
 		conn.close()
 

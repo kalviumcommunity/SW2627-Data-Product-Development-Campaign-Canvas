@@ -213,7 +213,8 @@ ORDER BY revenue DESC"""
                 if res_df.empty:
                     st.info("Query returned 0 rows.")
                 else:
-                    st.dataframe(res_df, use_container_width=True)
+                    st.table(res_df.head(15))
+                    st.caption("Showing preview of first 15 rows.")
             except Exception as e:
                 st.error(f"SQL Execution Error: {e}")
         else:

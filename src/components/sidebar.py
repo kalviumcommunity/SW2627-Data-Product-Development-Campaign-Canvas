@@ -39,14 +39,14 @@ _PAGE_PATHS = {
 _SIDEBAR_CSS = """
 <style>
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0a1018 0%, #0d1521 100%);
-    border-right: 1px solid rgba(255,255,255,0.08);
+    background: var(--sidebar) !important;
+    border-right: 1px solid var(--sidebar-border);
 }
 .nav-section-label {
     padding: 0.8rem 0.75rem 0.45rem;
     font-size: 0.68rem;
     font-weight: 700;
-    color: rgba(226,232,240,0.48);
+    color: var(--muted-foreground);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -72,14 +72,14 @@ div[data-testid="stSidebar"] div[data-testid="stPageLink"] a {
     border: 1px solid transparent !important;
     background-color: transparent !important;
     background: transparent !important;
-    color: rgba(226,232,240,0.72) !important;
+    color: var(--sidebar-foreground) !important;
     transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease !important;
     width: 100% !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stPageLink"] a:hover {
-    background: rgba(255,255,255,0.05) !important;
-    color: white !important;
+    background: var(--sidebar-accent) !important;
+    color: var(--foreground) !important;
     transform: translateX(2px) !important;
 }
 
@@ -87,7 +87,7 @@ div[data-testid="stSidebar"] div[data-testid="stPageLink"] a:hover {
 div[class*="nav-link-active-container"] div[data-testid="stPageLink"] a {
     background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(129,140,248,0.12)) !important;
     border: 1px solid rgba(56,189,248,0.24) !important;
-    color: white !important;
+    color: var(--foreground) !important;
     font-weight: 600 !important;
 }
 
