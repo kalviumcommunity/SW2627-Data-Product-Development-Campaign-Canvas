@@ -250,6 +250,7 @@ class DatabaseClient:
 
 # Global database client instance
 db_client = DatabaseClient()
+DB_PATH = db_client.db_path
 
 
 def get_connection() -> sqlite3.Connection:
