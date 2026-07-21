@@ -37,15 +37,6 @@ COLOR_PALETTE = [
     "#06b6d4",
 ]
 
-PLOTLY_THEME_LAYOUT = {
-    "paper_bgcolor": "rgba(0,0,0,0)",
-    "plot_bgcolor": "rgba(0,0,0,0)",
-    "font": {"family": "Inter, sans-serif", "color": "#94a3b8", "size": 11},
-    "margin": {"t": 40, "b": 40, "l": 40, "r": 40},
-    "xaxis": {"gridcolor": "rgba(255,255,255,0.06)", "zeroline": False, "showline": False},
-    "yaxis": {"gridcolor": "rgba(255,255,255,0.06)", "zeroline": False, "showline": False},
-}
-
 
 def _prepare_frame() -> tuple[pd.DataFrame, bool]:
     frame, is_demo = load_campaign_data()
@@ -157,7 +148,7 @@ def main() -> None:
     with col_donut:
         with st.container(border=True):
             st.markdown(
-                f"<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Signups by {dimension_col}</span>",
+                f"<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Signups by {dimension_col}</span>",
                 unsafe_allow_html=True,
             )
             fig_donut = go.Figure(
@@ -177,18 +168,18 @@ def main() -> None:
     with col_bar:
         with st.container(border=True):
             st.markdown(
-                f"<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Activation rate by {dimension_col}</span>",
+                f"<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Activation rate by {dimension_col}</span>",
                 unsafe_allow_html=True,
             )
             fig_bar = px.bar(grouped, x="name", y="Activation rate", color_discrete_sequence=["#38bdf8"])
-            fig_bar.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_bar.update_layout(get_plotly_layout())
             fig_bar.update_traces(marker_color="#38bdf8", opacity=0.9)
             st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
 
     st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown(
-            "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Performance breakdown</span>",
+            "<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Performance breakdown</span>",
             unsafe_allow_html=True,
         )
         st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
@@ -221,7 +212,7 @@ def main() -> None:
     with col_time:
         with st.container(border=True):
             st.markdown(
-                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Time-series — Signups and activations</span>",
+                "<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Time-series — Signups and activations</span>",
                 unsafe_allow_html=True,
             )
             daily_df = df.groupby("date", as_index=False).agg({"signups": "sum", "activations_7d": "sum"}).sort_values("date")
@@ -230,23 +221,23 @@ def main() -> None:
                 fig_line = go.Figure()
                 fig_line.add_trace(go.Bar(x=campaign_df["name"], y=campaign_df["signups"], name="Signups", marker_color="#38bdf8"))
                 fig_line.add_trace(go.Bar(x=campaign_df["name"], y=campaign_df["activations_7d"], name="Activations", marker_color="#10b981"))
-                fig_line.update_layout(PLOTLY_THEME_LAYOUT, barmode="group")
+                fig_line.update_layout(get_plotly_layout(), barmode="group")
             else:
                 fig_line = go.Figure()
                 fig_line.add_trace(go.Scatter(x=daily_df["date"], y=daily_df["signups"], name="Signups", mode="lines+markers", line=dict(color="#38bdf8", width=2.5)))
                 fig_line.add_trace(go.Scatter(x=daily_df["date"], y=daily_df["activations_7d"], name="Activations", mode="lines+markers", line=dict(color="#10b981", width=2.5)))
-                fig_line.update_layout(PLOTLY_THEME_LAYOUT)
+                fig_line.update_layout(get_plotly_layout())
             st.plotly_chart(fig_line, use_container_width=True, config={"displayModeBar": False})
 
     with col_scatter:
         with st.container(border=True):
             st.markdown(
-                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Spend vs. activations correlation</span>",
+                "<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Spend vs. activations correlation</span>",
                 unsafe_allow_html=True,
             )
             scatter_df = df.groupby(["date", dimension_col], as_index=False).agg({"spend": "sum", "activations_7d": "sum"})
             fig_scatter = px.scatter(scatter_df, x="spend", y="activations_7d", color_discrete_sequence=["#38bdf8"])
-            fig_scatter.update_layout(PLOTLY_THEME_LAYOUT)
+            fig_scatter.update_layout(get_plotly_layout())
             fig_scatter.update_traces(marker=dict(size=8, opacity=0.75, line=dict(width=1, color="rgba(255,255,255,0.2)")))
             st.plotly_chart(fig_scatter, use_container_width=True, config={"displayModeBar": False})
 

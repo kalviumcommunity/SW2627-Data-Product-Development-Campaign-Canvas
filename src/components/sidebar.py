@@ -143,10 +143,10 @@ def render_sidebar(current_page: str):
         # Logo at top
         st.markdown("""
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.15rem 0;">
-                <div style="width: 36px; height: 36px; border-radius: 0.9rem; background: linear-gradient(135deg, #7dd3fc, #0f172a); border: 1px solid rgba(255,255,255,0.08); display: grid; place-items: center; box-shadow: 0 16px 30px -20px rgba(56,189,248,0.6);">
+                <div style="width: 36px; height: 36px; border-radius: 0.9rem; background: linear-gradient(135deg, #38bdf8, #0f172a); border: 1px solid var(--sidebar-border); display: grid; place-items: center; box-shadow: 0 16px 30px -20px rgba(56,189,248,0.6);">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
                 </div>
-                <span style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: white; letter-spacing: -0.02em;">CampaignCanvas</span>
+                <span style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: var(--sidebar-foreground); letter-spacing: -0.02em;">CampaignCanvas</span>
             </div>
         """, unsafe_allow_html=True)
 
@@ -170,13 +170,13 @@ def render_sidebar(current_page: str):
         _render_nav_link("SQL Workspace", "sql_workspace", "/sql_workspace", "sql_workspace", current_page)
 
         # Actions Section
-        st.markdown('<div class="nav-section-label" style="margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">Actions</div>', unsafe_allow_html=True)
+        st.markdown('<div class="nav-section-label" style="margin-top: 0.5rem; border-top: 1px solid var(--sidebar-border); padding-top: 1rem;">Actions</div>', unsafe_allow_html=True)
         _render_nav_link("Reports", "export_data", "/reports", "reports", current_page)
         _render_nav_link("Alerts", "alerts", "/alerts", "alerts", current_page)
         _render_nav_link("Settings", "settings", "/settings", "settings", current_page)
 
         st.markdown(
-            '<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);"></div>',
+            '<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--sidebar-border);"></div>',
             unsafe_allow_html=True,
         )
 
