@@ -19,7 +19,7 @@ from src.utils.campaigns import aggregate_by, fmt_currency, load_campaign_data
 from src.utils.load_css import load_css, get_plotly_layout
 from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Analytics — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
+st.set_page_config(page_title="Analytics — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 if not st.session_state.get("logged_in", False):

@@ -19,7 +19,7 @@ from src.utils.report_generator import (
     generate_excel,
 )
 
-st.set_page_config(page_title="Reports — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
+st.set_page_config(page_title="Reports — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 # Check if user is logged in

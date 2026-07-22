@@ -17,7 +17,7 @@ from src.utils.clerk_auth import (
 )
 from src.utils.load_css import load_css
 
-st.set_page_config(page_title="Sign in — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
+st.set_page_config(page_title="Sign in — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 check_and_restore_session()
@@ -462,7 +462,7 @@ with col_promo:
     )
 
 with col_form:
-    card = st.container(key="auth_card")
+    card = st.container()
     with card:
         clean_theme_icon = theme_icon.strip()
         st.markdown(
@@ -471,7 +471,7 @@ with col_form:
         )
 
         client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
-        clerk_wrap = st.container(key="clerk_btn")
+        clerk_wrap = st.container()
         with clerk_wrap:
             if client_id and client_secret and domain:
                 st.session_state["clerk_redirect_uri"] = redirect_uri

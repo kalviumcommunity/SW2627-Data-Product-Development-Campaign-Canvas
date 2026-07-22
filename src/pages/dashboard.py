@@ -18,7 +18,7 @@ from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
+st.set_page_config(page_title="CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -153,12 +153,12 @@ def main() -> None:
     worst = by_campaign.iloc[-1] if len(by_campaign) > 1 else None
 
     # Banner
-    with st.container(key="dashboard-banner"):
-        col_text, col_btn = st.columns([5, 1], vertical_alignment="center")
+    with st.container():
+        col_text, col_btn = st.columns([5, 1])
         with col_text:
             st.markdown('<div class="dashboard-banner__text">Demo dataset loaded. Upload your own to unlock the pipeline.</div>', unsafe_allow_html=True)
         with col_btn:
-            st.page_link("pages/upload.py", label="Upload data", icon=":material/upload:")
+            st.page_link("pages/upload.py", label="Upload data", icon="📤")
 
     if is_demo:
         pass

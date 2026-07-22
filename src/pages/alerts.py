@@ -11,7 +11,7 @@ from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Alerts — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
+st.set_page_config(page_title="Alerts — CampaignCanvas", page_icon="📊", layout="wide")
 load_css()
 
 # Check if user is logged in
