@@ -184,23 +184,82 @@ div[data-testid="stDownloadButton"] a *,
   box-shadow: var(--shadow-glow);
 }
 
-/* ---------- inputs / select / textarea ---------- */
-.stTextInput input, .stTextArea textarea, .stNumberInput input,
-.stSelectbox [data-baseweb="select"] > div, .stMultiSelect [data-baseweb="select"] > div,
-.stDateInput input {
+/* ---------- inputs / select / textarea / number input ---------- */
+.stTextInput > div > div,
+.stNumberInput > div > div,
+.stTextArea > div > div,
+div[data-baseweb="input"],
+div[data-baseweb="base-input"] {
   background: var(--input) !important;
   border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--foreground) !important;
+}
+
+.stTextInput input,
+.stTextArea textarea,
+.stNumberInput input,
+.stSelectbox [data-baseweb="select"] > div,
+.stMultiSelect [data-baseweb="select"] > div,
+.stDateInput input,
+div[data-baseweb="input"] input {
+  background: transparent !important;
+  border: none !important;
   color: var(--foreground) !important;
   border-radius: var(--radius-md) !important;
 }
-.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus {
+
+/* Number input step controls (- and + buttons) */
+div[data-baseweb="input"] button,
+button[data-testid="stNumberInputStepDown"],
+button[data-testid="stNumberInputStepUp"],
+div[data-testid="stNumberInputStepDown"],
+div[data-testid="stNumberInputStepUp"] {
+  background: var(--secondary) !important;
+  color: var(--secondary-foreground) !important;
+  border: none !important;
+  border-left: 1px solid var(--border) !important;
+}
+
+div[data-baseweb="input"] button:hover,
+button[data-testid="stNumberInputStepDown"]:hover,
+button[data-testid="stNumberInputStepUp"]:hover {
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+}
+
+div[data-baseweb="input"] button *,
+button[data-testid="stNumberInputStepDown"] *,
+button[data-testid="stNumberInputStepUp"] * {
+  color: var(--secondary-foreground) !important;
+  fill: var(--secondary-foreground) !important;
+}
+
+.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus, div[data-baseweb="input"]:focus-within {
   border-color: var(--ring) !important;
   box-shadow: 0 0 0 1px var(--ring) !important;
 }
+
 .stTextInput label, .stSelectbox label, .stMultiSelect label, .stTextArea label,
 .stNumberInput label, .stDateInput label, .stSlider label {
   color: var(--muted-foreground) !important;
   font-size: 0.85rem !important;
+}
+
+/* ---------- tooltips ---------- */
+div[role="tooltip"],
+div[data-baseweb="tooltip"],
+[data-baseweb="tooltip"] {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-card) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+div[role="tooltip"] *,
+div[data-baseweb="tooltip"] * {
+  color: var(--card-foreground) !important;
 }
 
 /* ---------- tabs ---------- */
