@@ -304,7 +304,7 @@ input:disabled,
     combined_css = f"{theme_variables}\n{css}\n{extra_overrides}"
     st.markdown(f"<style>{combined_css}</style>", unsafe_allow_html=True)
     
-# Initialize and restore authentication state via cookies
+    # Initialize and restore authentication state via cookies
     from src.utils.clerk_auth import check_and_restore_session
     check_and_restore_session()
 
