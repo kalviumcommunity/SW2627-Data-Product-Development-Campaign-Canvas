@@ -33,11 +33,8 @@ theme_icon = """
 # Process any Clerk authentication callback parameters
 handle_clerk_callback()
 
-# Check whether user intentionally opened landing page from sidebar
-from_sidebar = st.query_params.get("from_sidebar") == "true"
-
-# Redirect logged-in users only during normal app entry
-if st.session_state.get("logged_in", False) and not from_sidebar:
+# Check if user is logged in
+if st.session_state.get("logged_in", False):
     st.switch_page("pages/dashboard.py")
 
 # ---------------------------------------------------------------------------

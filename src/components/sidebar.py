@@ -146,7 +146,7 @@ def render_sidebar(current_page: str):
                 <div style="width: 36px; height: 36px; border-radius: 0.9rem; background: linear-gradient(135deg, #7dd3fc, #0f172a); border: 1px solid rgba(255,255,255,0.08); display: grid; place-items: center; box-shadow: 0 16px 30px -20px rgba(56,189,248,0.6);">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
                 </div>
-                <a href="/?from_sidebar=true" target="_self" style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: white; letter-spacing: -0.02em; text-decoration: none;">CampaignCanvas</a>
+                <span style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: white; letter-spacing: -0.02em;">CampaignCanvas</span>
             </div>
         """, unsafe_allow_html=True)
 
