@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -26,21 +26,54 @@ handle_clerk_callback()
 if st.session_state.get("logged_in", False):
     st.switch_page("pages/dashboard.py")
 
-# Auth page styling is fixed: left always light blue, right always dark
-page_bg = "#000000"
-left_bg = "linear-gradient(180deg, #38bdf8 0%, #7dd3fc 100%)"
-left_text = "#030712"
-left_muted = "rgba(9, 13, 22, 0.8)"
-left_soft = "rgba(9, 13, 22, 0.6)"
-icon_bg = "rgba(9, 13, 22, 0.08)"
-icon_border = "rgba(9, 13, 22, 0.15)"
-card_bg = "rgba(15, 23, 42, 0.95)"
-card_border = "rgba(148, 163, 184, 0.18)"
+theme = st.session_state.get("theme", "dark")
+is_light = theme == "light"
+
+page_bg = (
+    "linear-gradient(180deg, #f8fbff 0%, #eef6ff 45%, #eaf1ff 100%)"
+    if is_light
+    else "radial-gradient(circle at top, color-mix(in oklab, var(--card) 86%, transparent) 0%, var(--background) 100%)"
+)
+left_bg = "linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%)" if is_light else "linear-gradient(180deg, #38bdf8 0%, #7dd3fc 100%)"
+left_text = "#0f172a" if is_light else "#030712"
+left_muted = "rgba(15, 23, 42, 0.72)" if is_light else "rgba(9, 13, 22, 0.8)"
+left_soft = "rgba(15, 23, 42, 0.56)" if is_light else "rgba(9, 13, 22, 0.6)"
+icon_bg = "rgba(255, 255, 255, 0.72)" if is_light else "rgba(9, 13, 22, 0.08)"
+icon_border = "rgba(148, 163, 184, 0.22)" if is_light else "rgba(9, 13, 22, 0.15)"
+card_bg = "rgba(255, 255, 255, 0.9)" if is_light else "var(--card)"
+card_border = "rgba(148, 163, 184, 0.18)" if is_light else "var(--border)"
 
 st.markdown(
     f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+html, body, [class*="css"] {{
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}}
+
+.stApp,
+.stMain,
+[data-testid="stMain"],
+[data-testid="stAppHeader"],
+header[data-testid="stHeader"] {{
+    padding: 0 !important;
+    margin: 0 !important;
+    top: 0 !important;
+}}
+
+.stApp {{
+    background: {page_bg} !important;
+    min-height: 100vh !important;
+    overflow: hidden !important;
+    padding: 0.65rem !important;
+}}
+
+header[data-testid="stHeader"],
+div[data-testid="stAppHeader"] {{
+    display: none !important;
+    height: 0 !important;
+}}
 
 section[data-testid="stSidebar"],
 #MainMenu,
@@ -90,7 +123,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
 div[data-testid="stHorizontalBlock"] > div:last-child,
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child,
 .stColumn:last-child {{
-    background: radial-gradient(circle at top, color-mix(in oklab, rgba(15,23,42,0.98) 86%, transparent) 0%, #020617 100%) !important;
+    background: var(--background) !important;
     padding: 4rem 3.5rem 3rem 3.5rem !important;
     display: flex !important;
     flex-direction: column !important;
@@ -108,6 +141,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child,
     justify-content: space-between !important;
     align-items: flex-start !important;
     height: 100% !important;
+    color: {left_text} !important;
 }}
 
 .auth-logo {{
@@ -129,9 +163,9 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child,
 }}
 
 .auth-logo-icon svg {{ width: 1.25rem; height: 1.25rem; }}
-.auth-logo-text {{ font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; color: {left_text} !important; }}
+.auth-logo-text {{ font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; color: {left_text}; }}
 
-.auth-logo-badge {{
+div[data-testid="column"]:first-child .auth-logo-icon {{
     background: {icon_bg} !important;
     border: 1px solid {icon_border} !important;
     box-shadow: none !important;
@@ -196,7 +230,7 @@ div[data-testid="column"]:first-child .auth-logo-text {{ color: {left_text} !imp
     content: "";
     flex: 1;
     height: 1px;
-    background: rgba(148, 163, 184, 0.2);
+    background: var(--border);
 }}
 
 .back-home {{ text-align: center; margin-top: 1.35rem; font-size: 0.85rem; }}
@@ -229,31 +263,6 @@ div.st-key-mock_clerk_login_btn button:hover {{
     transform: translateY(-1px) !important;
     filter: brightness(1.03) !important;
     box-shadow: 0 16px 34px rgba(108, 71, 255, 0.34) !important;
-}}
-
-/* Style sign in / create account / send reset link buttons */
-div[data-testid="stForm"] button[kind="secondary"],
-div[data-testid="stForm"] button,
-div.stForm button {{
-    background: linear-gradient(135deg, #38bdf8 0%, #7dd3fc 100%) !important;
-    color: #030712 !important;
-    border: none !important;
-    font-weight: 700 !important;
-    font-size: 0.95rem !important;
-    text-decoration: none !important;
-    border-radius: 0.9rem !important;
-    height: 3rem !important;
-    width: 100% !important;
-    cursor: pointer !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
-    box-shadow: 0 12px 30px rgba(56, 189, 248, 0.26) !important;
-}}
-
-div[data-testid="stForm"] button:hover,
-div.stForm button:hover {{
-    transform: translateY(-1px) !important;
-    filter: brightness(1.03) !important;
-    box-shadow: 0 16px 34px rgba(56, 189, 248, 0.34) !important;
 }}
 .clerk-btn::before,
 div.st-key-clerk_setup_trigger_btn button::before,
@@ -292,11 +301,14 @@ input {{
     background: transparent !important;
     color: var(--foreground) !important;
     border: none !important;
-    box-shadow: none !importanut"] label,
+    box-shadow: none !important;
+}}
+div[data-testid="stTextInput"] label,
 .stTextInput label {{
-    color: var(--muted-foreground) !impovar(--ring)
+    color: var(--muted-foreground) !important;
     font-size: 0.85rem !important;
-   vnrt--mina!important;
+    font-weight: 500 !important;
+    margin-bottom: 0.35rem !important;
 }}
 div[data-testid="stTextInput"] button svg,
 .stTextInput button svg {{ fill: #6b7280 !important; }}
@@ -401,7 +413,7 @@ with col_promo:
     )
 
 with col_form:
-    card = st.container()
+    card = st.container(key="auth_card")
     with card:
         st.markdown(
             """
@@ -412,7 +424,7 @@ with col_form:
         )
 
         client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
-        clerk_wrap = st.container()
+        clerk_wrap = st.container(key="clerk_btn")
         with clerk_wrap:
             if client_id and client_secret and domain:
                 st.session_state["clerk_redirect_uri"] = redirect_uri
