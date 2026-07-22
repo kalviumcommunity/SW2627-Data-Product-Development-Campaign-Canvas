@@ -28,6 +28,18 @@ if st.session_state.get("logged_in", False):
 
 theme = st.session_state.get("theme", "dark")
 is_light = theme == "light"
+next_theme = "light" if theme == "dark" else "dark"
+
+theme_icon = """
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3a1 1 0 0 1 1 1v1.08a7 7 0 1 1-3.08 12.91 1 1 0 0 1 1.14-1.64A5 5 0 1 0 12 5V4a1 1 0 0 1 1-1Z"/>
+    <path d="M12 1.75v2.5M12 19.75v2.5M4.22 4.22l1.77 1.77M17.99 17.99l1.77 1.77M1.75 12h2.5M19.75 12h2.5M4.22 19.78l1.77-1.77M17.99 6.01l1.77-1.77"/>
+</svg>
+""" if theme == "dark" else """
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z"/>
+</svg>
+"""
 
 page_bg = (
     "linear-gradient(180deg, #f8fbff 0%, #eef6ff 45%, #eaf1ff 100%)"
@@ -50,6 +62,43 @@ st.markdown(
 
 html, body, [class*="css"] {{
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}}
+
+/* Hide overlapping form submit instructions */
+[data-testid="InputInstructions"],
+div[data-testid="InputInstructions"],
+small[data-testid="InputInstructions"],
+.stForm [data-testid="InputInstructions"],
+form [data-testid="InputInstructions"] {{
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}}
+
+.theme-toggle-link {{
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    border-radius: 9999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid var(--border) !important;
+    background: color-mix(in oklab, var(--foreground) 6%, transparent) !important;
+    color: var(--foreground) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}}
+.theme-toggle-link svg {{
+    width: 1rem !important;
+    height: 1rem !important;
+    stroke: var(--foreground) !important;
+}}
+.theme-toggle-link:hover {{
+    transform: translateY(-1px) !important;
+    background: color-mix(in oklab, var(--foreground) 12%, transparent) !important;
 }}
 
 .stApp,
@@ -415,11 +464,9 @@ with col_promo:
 with col_form:
     card = st.container(key="auth_card")
     with card:
+        clean_theme_icon = theme_icon.strip()
         st.markdown(
-            """
-            <div class="auth-title">Welcome</div>
-            <p class="auth-subtitle">Sign in to your analytics workspace.</p>
-            """,
+            f'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;"><div class="auth-title" style="margin-bottom:0 !important;">Welcome</div><a href="/auth?theme={next_theme}" target="_self" class="theme-toggle-link" title="Switch to {next_theme} mode">{clean_theme_icon}</a></div><p class="auth-subtitle">Sign in to your analytics workspace.</p>',
             unsafe_allow_html=True,
         )
 

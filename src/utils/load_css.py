@@ -137,12 +137,37 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         section[data-testid="stSidebar"] * {
             color: var(--sidebar-foreground) !important;
         }
-        div[data-testid="stSidebar"] div[data-testid="stPageLink"] a {
-            color: var(--sidebar-foreground) !important;
-        }
         div[data-testid="stSidebar"] div[data-testid="stPageLink"] a:hover {
             background: var(--sidebar-accent) !important;
             color: var(--foreground) !important;
+        }
+
+        /* Streamlit download and standard button styling in Light Theme */
+        .stButton button,
+        div[data-testid="stFormSubmitButton"] button,
+        div[data-testid="stDownloadButton"] button,
+        div[data-testid="stDownloadButton"] a,
+        .stDownloadButton button,
+        .stDownloadButton a,
+        [data-testid="stBaseButton-secondary"],
+        [data-testid="stBaseButton-primary"],
+        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] button,
+        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] a {
+            background-color: var(--secondary) !important;
+            background-image: none !important;
+            color: var(--secondary-foreground) !important;
+            border: 1px solid var(--border) !important;
+        }
+        .stButton button *,
+        div[data-testid="stFormSubmitButton"] button *,
+        div[data-testid="stDownloadButton"] button *,
+        div[data-testid="stDownloadButton"] a *,
+        .stDownloadButton button *,
+        .stDownloadButton a *,
+        [data-testid="stBaseButton-secondary"] *,
+        [data-testid="stBaseButton-primary"] *,
+        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] * {
+            color: var(--secondary-foreground) !important;
         }
         /* Plotly background */
         div.js-plotly-plot .main-svg {
@@ -263,9 +288,9 @@ input:disabled,
 .stTable tr:hover {
     background-color: var(--accent) !important;
 }
-/* Hide index column in Streamlit st.table */
-.stTable tbody tr th:first-child,
-.stTable thead tr th:first-child {
+/* Hide index column in Streamlit st.table only if marked blank */
+.stTable th.blank,
+.stTable td.blank {
     display: none !important;
 }
 

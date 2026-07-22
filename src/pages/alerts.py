@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 from pathlib import Path
 import streamlit as st
 
@@ -39,7 +39,7 @@ def main():
                 """
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                    <span style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: white;">Create alert</span>
+                    <span style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--foreground);">Create alert</span>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -79,7 +79,7 @@ def main():
         if not st.session_state.active_alerts:
             st.markdown(
                 """
-                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-xl); padding: 3rem; text-align: center; color: var(--muted-foreground); font-size: 0.9rem;">
+                <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 3rem; text-align: center; color: var(--muted-foreground); font-size: 0.9rem;">
                     No alerts yet — create one on the right to monitor a KPI threshold.
                 </div>
                 """,
@@ -100,7 +100,7 @@ def main():
                         st.markdown(
                             f"""
                             <div style="display: flex; flex-direction: column;">
-                                <span style="font-family: var(--font-display); font-weight: 700; color: white; font-size: 1.05rem;">{alert['name']}</span>
+                                <span style="font-family: var(--font-display); font-weight: 700; color: var(--foreground); font-size: 1.05rem;">{alert['name']}</span>
                                 <span style="font-size: 0.85rem; color: var(--muted-foreground); margin-top: 0.25rem;">
                                     Monitors: <strong style="color: #38bdf8;">{alert['metric']}</strong> {op_icon} <strong style="color: #38bdf8;">{fmt_val}</strong>
                                 </span>

@@ -135,15 +135,46 @@ button[kind="header"] {
 }
 
 /* ---------- buttons ---------- */
-.stButton button, div[data-testid="stFormSubmitButton"] button {
+.stButton button,
+div[data-testid="stFormSubmitButton"] button,
+div[data-testid="stDownloadButton"] button,
+div[data-testid="stDownloadButton"] a,
+.stDownloadButton button,
+.stDownloadButton a,
+[data-testid="stBaseButton-secondary"],
+[data-testid="stBaseButton-primary"],
+[data-testid="stElementContainer"] [data-testid="stDownloadButton"] button,
+[data-testid="stElementContainer"] [data-testid="stDownloadButton"] a {
   background: color-mix(in oklab, var(--secondary) 100%, transparent) !important;
   color: var(--secondary-foreground) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--radius-md) !important;
   font-weight: 600 !important;
+  text-decoration: none !important;
 }
-.stButton button:hover, div[data-testid="stFormSubmitButton"] button:hover {
+.stButton button:hover,
+div[data-testid="stFormSubmitButton"] button:hover,
+div[data-testid="stDownloadButton"] button:hover,
+div[data-testid="stDownloadButton"] a:hover,
+.stDownloadButton button:hover,
+.stDownloadButton a:hover,
+[data-testid="stBaseButton-secondary"]:hover,
+[data-testid="stBaseButton-primary"]:hover,
+[data-testid="stElementContainer"] [data-testid="stDownloadButton"] button:hover,
+[data-testid="stElementContainer"] [data-testid="stDownloadButton"] a:hover {
   filter: brightness(1.1);
+  color: var(--secondary-foreground) !important;
+}
+.stButton button *,
+div[data-testid="stFormSubmitButton"] button *,
+div[data-testid="stDownloadButton"] button *,
+div[data-testid="stDownloadButton"] a *,
+.stDownloadButton button *,
+.stDownloadButton a *,
+[data-testid="stBaseButton-secondary"] *,
+[data-testid="stBaseButton-primary"] *,
+[data-testid="stElementContainer"] [data-testid="stDownloadButton"] * {
+  color: var(--secondary-foreground) !important;
 }
 /* mark a button primary by wrapping it: st.container(key="primary_btn") */
 .st-key-primary_btn button {
@@ -153,23 +184,109 @@ button[kind="header"] {
   box-shadow: var(--shadow-glow);
 }
 
-/* ---------- inputs / select / textarea ---------- */
-.stTextInput input, .stTextArea textarea, .stNumberInput input,
-.stSelectbox [data-baseweb="select"] > div, .stMultiSelect [data-baseweb="select"] > div,
-.stDateInput input {
+/* ---------- Code and badges styling ---------- */
+code, .stMarkdown code, div[data-testid="stMarkdownContainer"] code {
+    background-color: var(--secondary) !important;
+    color: var(--primary) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.15rem 0.4rem !important;
+    font-family: var(--font-mono, monospace) !important;
+    font-size: 0.82em !important;
+}
+
+/* ---------- inputs / select / textarea / number input ---------- */
+.stTextInput > div > div,
+.stNumberInput > div > div,
+.stTextArea > div > div,
+div[data-baseweb="input"],
+div[data-baseweb="base-input"],
+div[data-baseweb="textarea"] {
   background: var(--input) !important;
   border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--foreground) !important;
+}
+
+.stTextInput input,
+.stTextArea textarea,
+.stNumberInput input,
+.stSelectbox [data-baseweb="select"] > div,
+.stMultiSelect [data-baseweb="select"] > div,
+.stDateInput input,
+div[data-baseweb="input"] input,
+div[data-baseweb="textarea"] textarea {
+  background: transparent !important;
+  border: none !important;
   color: var(--foreground) !important;
   border-radius: var(--radius-md) !important;
 }
-.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus {
+
+/* Number input step controls (- and + buttons) */
+div[data-baseweb="input"] button,
+button[data-testid="stNumberInputStepDown"],
+button[data-testid="stNumberInputStepUp"],
+div[data-testid="stNumberInputStepDown"],
+div[data-testid="stNumberInputStepUp"] {
+  background: var(--secondary) !important;
+  color: var(--secondary-foreground) !important;
+  border: none !important;
+  border-left: 1px solid var(--border) !important;
+}
+
+div[data-baseweb="input"] button:hover,
+button[data-testid="stNumberInputStepDown"]:hover,
+button[data-testid="stNumberInputStepUp"]:hover {
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+}
+
+div[data-baseweb="input"] button *,
+button[data-testid="stNumberInputStepDown"] *,
+button[data-testid="stNumberInputStepUp"] * {
+  color: var(--secondary-foreground) !important;
+  fill: var(--secondary-foreground) !important;
+}
+
+.stTextInput input:focus,
+.stTextArea textarea:focus,
+.stNumberInput input:focus,
+div[data-baseweb="input"]:focus-within,
+div[data-baseweb="textarea"]:focus-within {
   border-color: var(--ring) !important;
   box-shadow: 0 0 0 1px var(--ring) !important;
 }
+
+/* Input placeholder text contrast fix */
+::placeholder,
+::-webkit-input-placeholder,
+[data-baseweb="input"] input::placeholder,
+[data-baseweb="textarea"] textarea::placeholder,
+.stTextInput input::placeholder {
+  color: var(--muted-foreground) !important;
+  opacity: 0.8 !important;
+}
+
 .stTextInput label, .stSelectbox label, .stMultiSelect label, .stTextArea label,
 .stNumberInput label, .stDateInput label, .stSlider label {
   color: var(--muted-foreground) !important;
   font-size: 0.85rem !important;
+}
+
+/* ---------- tooltips ---------- */
+div[role="tooltip"],
+div[data-baseweb="tooltip"],
+[data-baseweb="tooltip"] {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-card) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+div[role="tooltip"] *,
+div[data-baseweb="tooltip"] * {
+  color: var(--card-foreground) !important;
 }
 
 /* ---------- tabs ---------- */
