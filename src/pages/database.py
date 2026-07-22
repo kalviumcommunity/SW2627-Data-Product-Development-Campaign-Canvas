@@ -122,9 +122,9 @@ def main() -> None:
 				st.markdown(
 					f"""
 					<div class="glass-card" style="padding: 1.25rem; height: 100%;">
-						<div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
-							<div style="font-family: var(--font-display); font-weight: 700;">public.{table['name']}</div>
-							<span style="font-size: 0.72rem; padding: 0.25rem 0.5rem; border-radius: 9999px; background: rgba(255,255,255,0.06); color: var(--muted-foreground);">{table['scope']}</span>
+						<div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+							<div style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;">public.{table['name']}</div>
+							<span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 9999px; background: rgba(148, 163, 184, 0.12); color: var(--muted-foreground); white-space: nowrap;">{table['scope']}</span>
 						</div>
 						<div style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted-foreground);">Rows: {row_count:,}</div>
 						<ul style="margin: 0.9rem 0 0 1rem; padding: 0; color: var(--muted-foreground); font-size: 0.8rem; line-height: 1.5;">
@@ -150,7 +150,36 @@ def main() -> None:
 		)
 
 		summary = _build_dataset_summary(conn)
-		st.table(summary)
+		rows_html = ""
+		for _, row in summary.iterrows():
+			rows_html += f"""
+			<tr>
+				<td style="font-weight: 600;">{row['Name']}</td>
+				<td>{row['Source']}</td>
+				<td>{int(row['Rows']):,}</td>
+				<td>{int(row['Columns'])}</td>
+				<td>{row['Cleaned']}</td>
+			</tr>"""
+
+		st.markdown(
+			f"""
+			<table class="custom-data-table">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Source</th>
+						<th>Rows</th>
+						<th>Columns</th>
+						<th>Cleaned</th>
+					</tr>
+				</thead>
+				<tbody>
+					{rows_html}
+				</tbody>
+			</table>
+			""",
+			unsafe_allow_html=True,
+		)
 	finally:
 		conn.close()
 

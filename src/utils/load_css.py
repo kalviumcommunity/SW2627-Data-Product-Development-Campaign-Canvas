@@ -288,9 +288,9 @@ input:disabled,
 .stTable tr:hover {
     background-color: var(--accent) !important;
 }
-/* Hide index column in Streamlit st.table */
-.stTable tbody tr th:first-child,
-.stTable thead tr th:first-child {
+/* Hide index column in Streamlit st.table only if marked blank */
+.stTable th.blank,
+.stTable td.blank {
     display: none !important;
 }
 
