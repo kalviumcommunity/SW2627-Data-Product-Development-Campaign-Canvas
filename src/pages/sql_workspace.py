@@ -124,9 +124,9 @@ ORDER BY revenue DESC"""
         with st.container(border=True):
             st.markdown(
                 """
-                <div style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 0.5rem;">SQL Workspace</div>
+                <div style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--foreground); margin-bottom: 0.5rem;">SQL Workspace</div>
                 <div style="font-size: 0.8rem; color: var(--muted-foreground); margin-bottom: 1rem; line-height: 1.4;">
-                    Table available: <strong style="color: white; font-family: monospace;">campaigns</strong> — columns: <code style="color: #38bdf8;">date, campaign, channel, platform, region, device, impressions, clicks, visits, signups, conversions, spend, revenue</code>
+                    Table available: <strong style="color: var(--foreground); font-family: monospace;">campaigns</strong> — columns: <code>date, campaign, channel, platform, region, device, impressions, clicks, visits, signups, conversions, spend, revenue</code>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -168,7 +168,7 @@ ORDER BY revenue DESC"""
                 """
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                    <span style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: white;">Saved queries</span>
+                    <span style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: var(--foreground);">Saved queries</span>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -200,7 +200,7 @@ ORDER BY revenue DESC"""
         st.markdown(
             """
             <div style="margin-bottom: 0.75rem;">
-                <h4 style="margin: 0; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: white;">Results</h4>
+                <h4 style="margin: 0; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground);">Results</h4>
             </div>
             """,
             unsafe_allow_html=True
