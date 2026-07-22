@@ -23,6 +23,24 @@ load_css()
 if not st.session_state.get("logged_in", False):
     st.switch_page("pages/auth.py")
 
+# Custom Dark Theme configuration for Plotly Charts
+PLOTLY_THEME_LAYOUT = {
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "font": {"family": "Inter, sans-serif", "color": "#94a3b8", "size": 11},
+    "margin": {"t": 40, "b": 40, "l": 40, "r": 40},
+    "xaxis": {
+        "gridcolor": "rgba(255,255,255,0.06)",
+        "zeroline": False,
+        "showline": False,
+    },
+    "yaxis": {
+        "gridcolor": "rgba(255,255,255,0.06)",
+        "zeroline": False,
+        "showline": False,
+    }
+}
+
 # Harmonious dark palette colors
 COLOR_PALETTE = [
     "#38bdf8",  # Sky blue
@@ -134,7 +152,7 @@ def main():
     # 1. Bar Chart — Revenue by Channel
     with col_row1_left:
         with st.container(border=True):
-            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Bar — Revenue by Channel</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Bar — Revenue by Channel</span>", unsafe_allow_html=True)
             
             # Aggregate data
             bar_df = df.groupby("channel", as_index=False)["revenue"].sum()
@@ -164,7 +182,7 @@ def main():
     # 2. Pie Chart — Spend distribution
     with col_row1_right:
         with st.container(border=True):
-            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Pie — Spend distribution</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Pie — Spend distribution</span>", unsafe_allow_html=True)
             
             spend_df = df.groupby("platform_grouped", as_index=False)["spend_usd"].sum()
             
@@ -182,7 +200,7 @@ def main():
     # 3. Donut Chart — Conversions by Region
     with col_row2_left:
         with st.container(border=True):
-            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Donut — Conversions by Region</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Donut — Conversions by Region</span>", unsafe_allow_html=True)
             
             region_df = df.groupby("region", as_index=False)["activations_7d"].sum()
             
@@ -200,7 +218,7 @@ def main():
     # 4. Line Chart — Daily conversions
     with col_row2_right:
         with st.container(border=True):
-            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Line — Daily conversions</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Line — Daily conversions</span>", unsafe_allow_html=True)
             
             daily_df = df.groupby("date", as_index=False)["activations_7d"].sum().sort_values("date")
             

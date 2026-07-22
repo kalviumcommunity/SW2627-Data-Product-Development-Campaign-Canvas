@@ -45,8 +45,6 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         :root, body, .stApp, [data-testid="stAppViewContainer"] {
           --background: oklch(0.98 0.005 240) !important;
           --foreground: oklch(0.12 0.02 240) !important;
-          --foreground-secondary: oklch(0.25 0.02 240) !important;
-          --foreground-tertiary: oklch(0.45 0.02 240) !important;
           --card: oklch(1 0 0) !important;
           --card-foreground: oklch(0.12 0.02 240) !important;
           --popover: oklch(1 0 0) !important;

@@ -3,11 +3,6 @@ from unittest.mock import patch, MagicMock
 import streamlit as st
 import os
 
-try:
-    from streamlit.errors import StreamlitSecretNotFoundError
-except ImportError:
-    StreamlitSecretNotFoundError = Exception
-
 from src.utils.clerk_auth import (
     get_clerk_credentials,
     get_clerk_endpoints,

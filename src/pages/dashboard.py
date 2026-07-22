@@ -1,4 +1,4 @@
-
+﻿
 from __future__ import annotations
 
 import sys
@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.utils.campaigns import aggregate_by, compute_kpis, fmt_currency, fmt_num, fmt_pct, load_campaign_data
-from src.utils.load_css import load_css, get_plotly_layout
+from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 
@@ -142,9 +142,6 @@ def main() -> None:
     # Navbar
     render_navbar("Dashboard")
 
-    # Get theme-adapted plotly layout
-    plotly_layout = get_plotly_layout()
-
     frame, is_demo = load_campaign_data()
     by_date = _build_date_series(frame)
     kpis = compute_kpis(frame)
@@ -269,13 +266,14 @@ def main() -> None:
                     )
                 )
                 fig.update_layout(
-                    **plotly_layout,
                     height=300,
                     barmode="group",
                     margin=dict(l=0, r=0, t=10, b=0),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                    xaxis=dict(showgrid=False, title=None, tickangle=-20, tickfont=plotly_layout["xaxis"]["tickfont"]),
-                    yaxis=dict(showgrid=True, gridcolor=plotly_layout["yaxis"]["gridcolor"], title=None, tickfont=plotly_layout["yaxis"]["tickfont"]),
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white", size=10)),
+                    xaxis=dict(showgrid=False, title=None, tickangle=-20, tickfont=dict(color="#94a3b8", size=10)),
+                    yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
                 )
             else:
                 fig = go.Figure()
@@ -302,12 +300,13 @@ def main() -> None:
                     )
                 )
                 fig.update_layout(
-                    **plotly_layout,
                     height=300,
                     margin=dict(l=0, r=0, t=10, b=0),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                    xaxis=dict(showgrid=False, title=None, tickfont=plotly_layout["xaxis"]["tickfont"]),
-                    yaxis=dict(showgrid=True, gridcolor=plotly_layout["yaxis"]["gridcolor"], title=None, tickfont=plotly_layout["yaxis"]["tickfont"]),
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white", size=10)),
+                    xaxis=dict(showgrid=False, title=None, tickfont=dict(color="#94a3b8", size=10)),
+                    yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
                 )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
@@ -338,9 +337,11 @@ def main() -> None:
             )
         )
         fig_funnel.update_layout(
-            **plotly_layout,
             height=320,
             margin=dict(l=10, r=10, t=10, b=0),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#94a3b8", family="Inter, sans-serif"),
         )
         st.plotly_chart(fig_funnel, use_container_width=True, config={"displayModeBar": False})
 
@@ -374,12 +375,13 @@ def main() -> None:
                 )
             )
             fig_stage_trend.update_layout(
-                **plotly_layout,
                 height=320,
                 margin=dict(l=0, r=0, t=10, b=0),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                xaxis=dict(showgrid=False, title=None, tickfont=plotly_layout["xaxis"]["tickfont"]),
-                yaxis=dict(showgrid=True, gridcolor=plotly_layout["yaxis"]["gridcolor"], title=None, tickfont=plotly_layout["yaxis"]["tickfont"]),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="white", size=10)),
+                xaxis=dict(showgrid=False, title=None, tickfont=dict(color="#94a3b8", size=10)),
+                yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
             )
             st.plotly_chart(fig_stage_trend, use_container_width=True, config={"displayModeBar": False})
 
@@ -413,14 +415,15 @@ def main() -> None:
             )
         )
         fig.update_layout(
-            **plotly_layout,
             height=340,
             barmode="group",
             bargap=0.28,
             margin=dict(l=0, r=0, t=10, b=0),
-            legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="center", x=0.5),
-            xaxis=dict(showgrid=False, title=None, tickangle=-20, tickfont=plotly_layout["xaxis"]["tickfont"]),
-            yaxis=dict(showgrid=True, gridcolor=plotly_layout["yaxis"]["gridcolor"], title=None, tickfont=plotly_layout["yaxis"]["tickfont"]),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="center", x=0.5, font=dict(color="white", size=12)),
+            xaxis=dict(showgrid=False, title=None, tickangle=-20, tickfont=dict(color="#94a3b8", size=10)),
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.08)", title=None, tickfont=dict(color="#94a3b8", size=10)),
         )
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
