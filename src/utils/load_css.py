@@ -303,6 +303,27 @@ input:disabled,
     # Combine everything inside a single style block to avoid markdown rendering bugs
     combined_css = f"{theme_variables}\n{css}\n{extra_overrides}"
     st.markdown(f"<style>{combined_css}</style>", unsafe_allow_html=True)
+    
+    # Initialize and restore authentication state via cookies
+    from src.utils.clerk_auth import check_and_restore_session
+    check_and_restore_session()
+
+    # Make sure browser theme cookie is set correctly to prevent theme reset on page redirects
+    try:
+        cookies = st.context.cookies
+        if cookies.get("theme") != theme:
+            import streamlit.components.v1 as components
+            components.html(
+                f"""
+                <script>
+                    parent.document.cookie = "theme={theme}; path=/; max-age=31536000; SameSite=Lax";
+                </script>
+                """,
+                height=0,
+                width=0,
+            )
+    except Exception:
+        pass
 
 
 def get_plotly_layout() -> dict:
