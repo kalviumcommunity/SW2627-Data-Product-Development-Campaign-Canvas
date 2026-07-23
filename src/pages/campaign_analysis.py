@@ -153,6 +153,14 @@ def main() -> None:
     grouped["ROAS"] = (grouped.get("revenue", grouped["spend_usd"] * 1.5) / grouped["spend_usd"]).fillna(0.0)
     grouped["Activation rate"] = (grouped["activations_7d"] / grouped["signups"] * 100).fillna(0.0)
 
+    current_theme = st.session_state.get("theme", "dark")
+    is_light = current_theme == "light"
+    table_header_bg = "#f1f5f9" if is_light else "#111827"
+    table_cell_bg = "#ffffff" if is_light else "#0f172a"
+    table_border = "#cbd5e1" if is_light else "#334155"
+    table_text = "#0f172a" if is_light else "#e2e8f0"
+    table_hover = "#eff6ff" if is_light else "rgba(255,255,255,0.03)"
+
     col_donut, col_bar = st.columns(2, gap="large")
     with col_donut:
         with st.container(border=True):
@@ -188,7 +196,7 @@ def main() -> None:
     st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown(
-            "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Performance breakdown</span>",
+            "<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Performance breakdown</span>",
             unsafe_allow_html=True,
         )
         st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
@@ -213,7 +221,21 @@ def main() -> None:
         display_df["CTR"] = display_df["CTR"].map(_format_pct)
         display_df["CVR"] = display_df["CVR"].map(_format_pct)
         display_df["Activation rate (%)"] = display_df["Activation rate (%)"].map(_format_pct)
-        st.dataframe(display_df, use_container_width=True, hide_index=True)
+
+        
+        table_html = display_df.to_html(
+            index=False,
+            classes="performance-table",
+            border=0
+            )
+        
+        st.markdown(
+            f"""
+            <div class="performance-table-wrapper">
+            {table_html}
+            </div>""",
+            unsafe_allow_html=True,
+            )
 
     st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
     col_time, col_scatter = st.columns(2, gap="large")

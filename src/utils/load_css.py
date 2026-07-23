@@ -264,29 +264,44 @@ input:disabled,
 }
 
 /* HTML Table overrides for beautiful dynamic theme support in st.table */
-.stTable {
+.stTable,
+.custom-data-table,
+.performance-table {
     width: 100% !important;
     border-collapse: collapse !important;
     color: var(--foreground) !important;
     background-color: var(--card) !important;
     border: 1px solid var(--border) !important;
     border-radius: var(--radius-lg) !important;
+    overflow: hidden !important;
 }
-.stTable th {
+.stTable th,
+.stTable td,
+.custom-data-table th,
+.custom-data-table td,
+.performance-table th,
+.performance-table td {
+    border: 1px solid var(--border) !important;
+    padding: 0.75rem 1rem !important;
+    color: var(--foreground) !important;
+    text-align: left !important;
+}
+.stTable th,
+.custom-data-table th,
+.performance-table th {
     background-color: var(--secondary) !important;
     color: var(--foreground) !important;
     font-weight: 600 !important;
-    text-align: left !important;
-    padding: 0.75rem 1rem !important;
-    border-bottom: 2px solid var(--border) !important;
 }
-.stTable td {
-    padding: 0.75rem 1rem !important;
-    border-bottom: 1px solid var(--border) !important;
-    color: var(--foreground) !important;
+.stTable td,
+.custom-data-table td,
+.performance-table td {
+    background-color: var(--card) !important;
 }
-.stTable tr:hover {
-    background-color: var(--accent) !important;
+.stTable tr:hover,
+.custom-data-table tr:hover,
+.performance-table tr:hover {
+    background-color: color-mix(in oklab, var(--accent) 18%, transparent) !important;
 }
 /* Hide index column in Streamlit st.table only if marked blank */
 .stTable th.blank,
@@ -294,30 +309,22 @@ input:disabled,
     display: none !important;
 }
 
-/* Custom data tables (used in Upload history etc.) — do NOT hide any columns */
-.custom-data-table {
+.performance-table-wrapper {
     width: 100% !important;
-    border-collapse: collapse !important;
-    color: var(--foreground) !important;
-    background-color: var(--card) !important;
+    overflow-x: auto !important;
     border: 1px solid var(--border) !important;
     border-radius: var(--radius-lg) !important;
+    background: var(--card) !important;
 }
-.custom-data-table th {
-    background-color: var(--secondary) !important;
-    color: var(--foreground) !important;
-    font-weight: 600 !important;
-    text-align: left !important;
-    padding: 0.75rem 1rem !important;
-    border-bottom: 2px solid var(--border) !important;
+
+.performance-table-wrapper table {
+    margin: 0 !important;
+    border: none !important;
 }
-.custom-data-table td {
-    padding: 0.75rem 1rem !important;
-    border-bottom: 1px solid var(--border) !important;
-    color: var(--foreground) !important;
-}
-.custom-data-table tr:hover {
-    background-color: var(--accent) !important;
+
+.performance-table-wrapper td,
+.performance-table-wrapper th {
+    border-color: var(--border) !important;
 }
 """
 
