@@ -197,9 +197,22 @@ def load_css(path: Path = _STYLE_PATH) -> None:
             -webkit-text-fill-color: #ffffff !important;
         }
 
-        /* Plotly background */
+        /* Plotly background & text color overrides */
         div.js-plotly-plot .main-svg {
             background: transparent !important;
+        }
+        .stApp .js-plotly-plot text,
+        .stApp .js-plotly-plot .xtick text,
+        .stApp .js-plotly-plot .ytick text,
+        .stApp .js-plotly-plot .legendtext,
+        .stApp .js-plotly-plot .gtitle,
+        .stApp .js-plotly-plot .xtitle,
+        .stApp .js-plotly-plot .ytitle,
+        .stApp .js-plotly-plot .annotation-text,
+        .stApp .js-plotly-plot .funnel-label,
+        .stApp .js-plotly-plot .pielabel-text {
+            fill: #0f172a !important;
+            color: #0f172a !important;
         }
 
         /* ── File uploader: override dark baseweb styles in Light Mode ── */
@@ -417,8 +430,8 @@ input:disabled,
 def get_plotly_layout() -> dict:
     """Get the plotly layout dict styled dynamically for the active theme."""
     theme = st.session_state.get("theme", "dark")
-    text_color = "#1e293b" if theme == "light" else "#e2e8f0"
-    grid_color = "rgba(15, 23, 42, 0.06)" if theme == "light" else "rgba(255,255,255,0.06)"
+    text_color = "#0f172a" if theme == "light" else "#f8fafc"
+    grid_color = "rgba(15, 23, 42, 0.08)" if theme == "light" else "rgba(255,255,255,0.08)"
     
     return {
         "paper_bgcolor": "rgba(0,0,0,0)",
