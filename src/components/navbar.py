@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 
 
 def render_navbar(page_title: str):

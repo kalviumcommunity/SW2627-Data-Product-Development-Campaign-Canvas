@@ -124,9 +124,9 @@ ORDER BY revenue DESC"""
         with st.container(border=True):
             st.markdown(
                 """
-                <div style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--foreground); margin-bottom: 0.5rem;">SQL Workspace</div>
-                <div style="font-size: 0.8rem; color: var(--muted-foreground); margin-bottom: 1rem; line-height: 1.4;">
-                    Table available: <strong style="color: var(--foreground); font-family: monospace;">campaigns</strong> — columns: <code>date, campaign, channel, platform, region, device, impressions, clicks, visits, signups, conversions, spend, revenue</code>
+                <div style="font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground); margin-bottom: 0.5rem;">SQL Workspace</div>
+                <div style="font-size: 0.85rem; color: var(--muted-foreground); margin-bottom: 1.25rem; line-height: 1.5;">
+                    Table available: <span style="background: rgba(148, 163, 184, 0.15); color: var(--foreground); padding: 0.15rem 0.45rem; border-radius: 0.35rem; font-family: monospace; font-size: 0.82rem; font-weight: 600;">campaigns</span> — columns: date, campaign, channel, platform, region, device, impressions, clicks, visits, signups, conversions, spend, revenue
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -145,11 +145,11 @@ ORDER BY revenue DESC"""
             col_run_btn, col_save_name, col_save_btn = st.columns([1, 2, 1])
             
             with col_run_btn:
-                run_clicked = st.button("▶ Run", key="run_query_btn", use_container_width=True, type="primary")
+                run_clicked = st.button("Run", icon=":material/play_arrow:", key="run_query_btn", use_container_width=True, type="primary")
             with col_save_name:
                 save_name = st.text_input("Query Name", placeholder="Name to save", label_visibility="collapsed", key="save_query_name")
             with col_save_btn:
-                save_clicked = st.button("💾 Save", key="save_query_btn", use_container_width=True)
+                save_clicked = st.button("Save", icon=":material/bookmark:", key="save_query_btn", use_container_width=True)
 
             if save_clicked:
                 if not save_name.strip():
@@ -189,9 +189,9 @@ ORDER BY revenue DESC"""
                             st.info(f"Loaded: Click Run to execute this query.")
                             st.code(sq["query"], language="sql")
                     with col_sq_del:
-                        if st.button("🗑️", key=f"del_sq_{idx}"):
+                        if st.button("", icon=":material/delete:", key=f"del_sq_{idx}", help="Delete query"):
                             st.session_state.saved_queries.pop(idx)
-                            st.toast(f"Query deleted.", icon="🗑️")
+                            st.toast(f"Query deleted.", icon=":material/delete:")
                             st.rerun()
 
     # Results Panel
