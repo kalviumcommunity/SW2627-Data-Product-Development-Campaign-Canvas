@@ -198,6 +198,29 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         [data-testid="stFileUploader"] small {
             color: #64748b !important;
         }
+
+        /* ── Input and Textarea contrast overrides in Light Mode ── */
+        .stTextArea textarea,
+        .stTextArea > div,
+        .stTextArea > div > div,
+        div[data-testid="stTextArea"],
+        div[data-testid="stTextArea"] > div,
+        div[data-testid="stTextArea"] textarea,
+        div[data-baseweb="textarea"],
+        div[data-baseweb="textarea"] textarea,
+        div[data-baseweb="base-input"],
+        .stTextInput input,
+        .stTextInput > div > div,
+        div[data-testid="stTextInput"],
+        div[data-testid="stTextInput"] input,
+        div[data-baseweb="input"],
+        div[data-baseweb="input"] input {
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
         """
 
     # Global CSS overrides (no style tags)
@@ -228,12 +251,16 @@ def load_css(path: Path = _STYLE_PATH) -> None:
     color: var(--foreground) !important;
 }
 
-/* Extra accessibility fix for Light Mode selectboxes, textinputs, metrics, and labels */
+/* Extra accessibility fix for Light Mode selectboxes, textinputs, textareas, metrics, and labels */
 .stSelectbox div[data-baseweb="select"] *,
 .stTextInput input,
 .stNumberInput input,
+.stTextArea textarea,
+div[data-testid="stTextArea"] textarea,
+div[data-baseweb="textarea"] textarea,
 div[data-testid="stMetricValue"] {
     color: var(--foreground) !important;
+    -webkit-text-fill-color: var(--foreground) !important;
 }
 
 /* Streamlit widget labels styling */
