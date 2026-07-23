@@ -37,11 +37,11 @@ def render_navbar(page_title: str):
         
     with col_right:
         sub_email, sub_theme = st.columns([5, 1])
-        
+
         with sub_email:
             st.markdown(
                 f"""
-                <div style="display: flex; justify-content: flex-end; align-items: center; gap: 1rem; min-height: 2.2rem; height: 100%; text-align: right; width: 100%;">
+                <div style="display: flex; justify-content: flex-end; align-items: center; min-height: 2.2rem; height: 100%; text-align: right; width: 100%;">
                     <span style="
                         color: var(--muted-foreground);
                         font-size: 0.875rem;
@@ -49,24 +49,25 @@ def render_navbar(page_title: str):
                     ">
                         {user_email}
                     </span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted-foreground);">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
-            
+
         with sub_theme:
-            # Crescent moon icon in light mode, Sun icon in dark mode
             icon = ":material/dark_mode:" if theme == "light" else ":material/light_mode:"
-            if st.button(icon, key="theme_toggle_btn", help=f"Switch to {'Dark' if theme == 'light' else 'Light'} Theme"):
+            target_theme = "Dark" if theme == "light" else "Light"
+            if st.button(
+                icon,
+                key="theme_toggle_btn",
+                help=f"Switch to {target_theme} theme",
+                use_container_width=False,
+            ):
                 new_theme = "dark" if theme == "light" else "light"
                 st.session_state["theme"] = new_theme
-                
-                # Write to cookies
+
                 import streamlit.components.v1 as components
+
                 components.html(
                     f"""
                     <script>
