@@ -421,6 +421,38 @@ div[data-testid="stMetricDelta"] svg { color: var(--success) !important; }
 
 .dashboard-cta:hover { filter: brightness(1.03); }
 
+/* Primary Button Styling for Main Content stPageLink (e.g. Upload data button) */
+.stMain div[data-testid="stPageLink"] a,
+[data-testid="stMain"] div[data-testid="stPageLink"] a {
+  background-color: #0284c7 !important;
+  background-image: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  padding: 0.45rem 1rem !important;
+  font-weight: 600 !important;
+  font-size: 0.88rem !important;
+  text-decoration: none !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
+  transition: transform 120ms ease, box-shadow 120ms ease !important;
+}
+
+.stMain div[data-testid="stPageLink"] a:hover,
+[data-testid="stMain"] div[data-testid="stPageLink"] a:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35) !important;
+}
+
+.stMain div[data-testid="stPageLink"] a *,
+.stMain div[data-testid="stPageLink"] a p,
+.stMain div[data-testid="stPageLink"] a span,
+[data-testid="stMain"] div[data-testid="stPageLink"] a *,
+[data-testid="stMain"] div[data-testid="stPageLink"] a p,
+[data-testid="stMain"] div[data-testid="stPageLink"] a span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
 .dashboard-stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
