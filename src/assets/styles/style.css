@@ -196,6 +196,14 @@ code, .stMarkdown code, div[data-testid="stMarkdownContainer"] code {
 }
 
 /* ---------- inputs / select / textarea / number input ---------- */
+.stTextArea textarea,
+div[data-testid="stTextArea"] textarea,
+div[data-baseweb="textarea"] textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.88rem !important;
+  line-height: 1.5 !important;
+}
+
 .stTextInput > div,
 .stTextInput > div > div,
 .stNumberInput > div,
@@ -209,8 +217,8 @@ div[data-testid="stTextInput"] > div,
 div[data-baseweb="input"],
 div[data-baseweb="base-input"],
 div[data-baseweb="textarea"] {
-  background-color: var(--input) !important;
-  background: var(--input) !important;
+  background-color: var(--card) !important;
+  background: var(--card) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--radius-md) !important;
   color: var(--foreground) !important;

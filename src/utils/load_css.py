@@ -150,13 +150,13 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         .stDownloadButton button,
         .stDownloadButton a,
         [data-testid="stBaseButton-secondary"],
-        [data-testid="stBaseButton-primary"],
         [data-testid="stElementContainer"] [data-testid="stDownloadButton"] button,
         [data-testid="stElementContainer"] [data-testid="stDownloadButton"] a {
-            background-color: var(--secondary) !important;
+            background-color: #f1f5f9 !important;
             background-image: none !important;
-            color: var(--secondary-foreground) !important;
-            border: 1px solid var(--border) !important;
+            color: #334155 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 0.5rem !important;
         }
         .stButton button *,
         div[data-testid="stFormSubmitButton"] button *,
@@ -165,10 +165,28 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         .stDownloadButton button *,
         .stDownloadButton a *,
         [data-testid="stBaseButton-secondary"] *,
-        [data-testid="stBaseButton-primary"] *,
         [data-testid="stElementContainer"] [data-testid="stDownloadButton"] * {
-            color: var(--secondary-foreground) !important;
+            color: #334155 !important;
         }
+
+        /* Streamlit Primary Button styling in Light Theme (e.g. Run query, Submit) */
+        [data-testid="stBaseButton-primary"],
+        button[kind="primary"],
+        .stButton button[kind="primary"],
+        div[data-testid="stFormSubmitButton"] button[kind="primary"] {
+            background-color: #0284c7 !important;
+            background-image: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+        }
+        [data-testid="stBaseButton-primary"] *,
+        button[kind="primary"] *,
+        .stButton button[kind="primary"] *,
+        div[data-testid="stFormSubmitButton"] button[kind="primary"] * {
+            color: #ffffff !important;
+        }
+
         /* Plotly background */
         div.js-plotly-plot .main-svg {
             background: transparent !important;
@@ -200,21 +218,22 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         }
 
         /* ── Input and Textarea contrast overrides in Light Mode ── */
-        .stTextArea textarea,
-        .stTextArea > div,
-        .stTextArea > div > div,
-        div[data-testid="stTextArea"],
-        div[data-testid="stTextArea"] > div,
-        div[data-testid="stTextArea"] textarea,
-        div[data-baseweb="textarea"],
-        div[data-baseweb="textarea"] textarea,
-        div[data-baseweb="base-input"],
-        .stTextInput input,
-        .stTextInput > div > div,
-        div[data-testid="stTextInput"],
-        div[data-testid="stTextInput"] input,
-        div[data-baseweb="input"],
-        div[data-baseweb="input"] input {
+        .stApp .stTextArea,
+        .stApp .stTextArea *,
+        .stApp div[data-testid="stTextArea"],
+        .stApp div[data-testid="stTextArea"] *,
+        .stApp div[data-baseweb="textarea"],
+        .stApp div[data-baseweb="textarea"] *,
+        .stApp div[data-baseweb="base-input"],
+        .stApp div[data-baseweb="base-input"] *,
+        .stApp textarea,
+        .stApp .stTextInput input,
+        .stApp .stTextInput > div,
+        .stApp .stTextInput > div > div,
+        .stApp div[data-testid="stTextInput"],
+        .stApp div[data-testid="stTextInput"] *,
+        .stApp div[data-baseweb="input"],
+        .stApp div[data-baseweb="input"] * {
             background-color: #ffffff !important;
             background: #ffffff !important;
             color: #0f172a !important;

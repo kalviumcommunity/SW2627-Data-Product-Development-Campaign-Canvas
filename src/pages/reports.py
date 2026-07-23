@@ -85,7 +85,7 @@ def render_report_card(title: str, desc: str, key_id: str):
                 use_container_width=True,
             )
             # Small reset link so user can regenerate
-            if st.button("↩ Re-generate", key=f"regen_{key_id}", use_container_width=True):
+            if st.button("Re-generate", icon=":material/refresh:", key=f"regen_{key_id}", use_container_width=True):
                 st.session_state[ready_key] = False
                 st.session_state[data_key]  = None
                 st.rerun()

@@ -125,7 +125,7 @@ def main():
                     if status == "Processed":
                         st.toast(f"File {uploaded_file.name} successfully uploaded and parsed!", icon=":material/check_circle:")
                     else:
-                        st.toast(f"File {uploaded_file.name} failed to parse.", icon="❌")
+                        st.toast(f"File {uploaded_file.name} failed to parse.", icon=":material/error:")
 
         # History Table Panel
         st.markdown("<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground);'>Upload history</div>", unsafe_allow_html=True)

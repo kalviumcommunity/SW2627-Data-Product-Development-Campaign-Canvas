@@ -111,9 +111,9 @@ def main():
                     with col_action:
                         # Add some margin spacing
                         st.markdown("<div style='margin-top: 0.25rem;'></div>", unsafe_allow_html=True)
-                        if st.button("🗑️", key=f"del_alert_{idx}", help="Delete alert"):
+                        if st.button("", icon=":material/delete:", key=f"del_alert_{idx}", help="Delete alert"):
                             st.session_state.active_alerts.pop(idx)
-                            st.toast(f"Alert '{alert['name']}' deleted.", icon="🗑️")
+                            st.toast(f"Alert '{alert['name']}' deleted.", icon=":material/delete:")
                             st.rerun()
 
 

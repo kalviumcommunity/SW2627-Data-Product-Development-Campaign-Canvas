@@ -96,7 +96,7 @@ def main():
             st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
             save_clicked = st.button("Save cleaned dataset", use_container_width=True, type="primary")
             if save_clicked:
-                st.toast("Cleaned dataset successfully saved to database!", icon="🎉")
+                st.toast("Cleaned dataset successfully saved to database!", icon=":material/check_circle:")
 
     # Apply cleaning steps dynamically
     original_rows = len(df)
