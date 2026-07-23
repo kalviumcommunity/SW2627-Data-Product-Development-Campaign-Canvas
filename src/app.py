@@ -14,7 +14,7 @@ from src.utils.clerk_auth import handle_clerk_callback
 from src.utils.load_css import load_css
 
 # Configure the Streamlit page
-st.set_page_config(page_title="CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 current_theme = st.session_state.get("theme", "dark")

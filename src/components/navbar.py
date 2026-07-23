@@ -60,7 +60,7 @@ def render_navbar(page_title: str):
             
         with sub_theme:
             # Crescent moon icon in light mode, Sun icon in dark mode
-            icon = "🌙" if theme == "light" else "☀️"
+            icon = ":material/dark_mode:" if theme == "light" else ":material/light_mode:"
             if st.button(icon, key="theme_toggle_btn", help=f"Switch to {'Dark' if theme == 'light' else 'Light'} Theme"):
                 new_theme = "dark" if theme == "light" else "light"
                 st.session_state["theme"] = new_theme

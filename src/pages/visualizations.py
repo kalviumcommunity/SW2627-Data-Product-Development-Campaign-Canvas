@@ -16,7 +16,7 @@ from src.utils.load_css import load_css, get_plotly_layout
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Visualizations — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Visualizations — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Check if user is logged in
