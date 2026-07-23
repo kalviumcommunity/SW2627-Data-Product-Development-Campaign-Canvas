@@ -169,22 +169,32 @@ def load_css(path: Path = _STYLE_PATH) -> None:
             color: #334155 !important;
         }
 
-        /* Streamlit Primary Button styling in Light Theme (e.g. Run query, Submit) */
+        /* Streamlit Primary Button styling in Light Theme (e.g. Run query, Submit, Upload data) */
         [data-testid="stBaseButton-primary"],
         button[kind="primary"],
         .stButton button[kind="primary"],
-        div[data-testid="stFormSubmitButton"] button[kind="primary"] {
+        div[data-testid="stFormSubmitButton"] button[kind="primary"],
+        .stMain div[data-testid="stPageLink"] a,
+        [data-testid="stMain"] div[data-testid="stPageLink"] a {
             background-color: #0284c7 !important;
             background-image: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
             border: none !important;
             border-radius: 0.5rem !important;
         }
         [data-testid="stBaseButton-primary"] *,
         button[kind="primary"] *,
         .stButton button[kind="primary"] *,
-        div[data-testid="stFormSubmitButton"] button[kind="primary"] * {
+        div[data-testid="stFormSubmitButton"] button[kind="primary"] *,
+        .stMain div[data-testid="stPageLink"] a *,
+        .stMain div[data-testid="stPageLink"] a p,
+        .stMain div[data-testid="stPageLink"] a span,
+        [data-testid="stMain"] div[data-testid="stPageLink"] a *,
+        [data-testid="stMain"] div[data-testid="stPageLink"] a p,
+        [data-testid="stMain"] div[data-testid="stPageLink"] a span {
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
         }
 
         /* Plotly background */
