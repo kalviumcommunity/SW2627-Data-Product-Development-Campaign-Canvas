@@ -13,7 +13,7 @@ from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Upload Dataset — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Upload Dataset — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -123,7 +123,7 @@ def main():
                         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M")
                     })
                     if status == "Processed":
-                        st.toast(f"File {uploaded_file.name} successfully uploaded and parsed!", icon="✅")
+                        st.toast(f"File {uploaded_file.name} successfully uploaded and parsed!", icon=":material/check_circle:")
                     else:
                         st.toast(f"File {uploaded_file.name} failed to parse.", icon="❌")
 

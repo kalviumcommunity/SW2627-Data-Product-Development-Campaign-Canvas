@@ -4,19 +4,19 @@ import streamlit as st
 
 # ---------- Icon set (Material Symbols) ----------
 _MATERIAL_ICONS = {
-    "dashboard": "📊",
-    "upload": "📤",
-    "profiling": "🔍",
-    "cleaning": "🧹",
-    "database": "🗄️",
-    "analytics": "📈",
-    "funnel": "🔽",
-    "kpi_engine": "⚡",
-    "visualizations": "📉",
-    "sql_workspace": "💻",
-    "export_data": "📄",
-    "alerts": "🔔",
-    "settings": "⚙️",
+    "dashboard": ":material/dashboard:",
+    "upload": ":material/upload:",
+    "profiling": ":material/search:",
+    "cleaning": ":material/brush:",
+    "database": ":material/database:",
+    "analytics": ":material/trending_up:",
+    "funnel": ":material/filter_alt:",
+    "kpi_engine": ":material/speed:",
+    "visualizations": ":material/bar_chart:",
+    "sql_workspace": ":material/terminal:",
+    "export_data": ":material/description:",
+    "alerts": ":material/notifications:",
+    "settings": ":material/settings:",
 }
 
 # ---------- Page Paths ----------
@@ -120,13 +120,13 @@ def _render_nav_link(label: str, icon_key: str, href: str, page_key: str, curren
     if not page_path:
         return
 
-    icon = _MATERIAL_ICONS.get(icon_key, "🔗")
+    icon = _MATERIAL_ICONS.get(icon_key, ":material/link:")
 
     # Wrap in active or inactive container class
     is_active = (current_page == page_key)
     container_class = "nav-link-active-container" if is_active else "nav-link-container"
 
-    with st.container():
+    with st.container(key=f"{container_class}_{page_key}"):
         st.page_link(page_path, label=label, icon=icon)
 
 

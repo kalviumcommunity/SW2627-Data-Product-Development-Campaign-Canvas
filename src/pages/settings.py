@@ -11,7 +11,7 @@ from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Settings — CampaignCanvas", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Settings — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Check if user is logged in
@@ -63,7 +63,7 @@ def main():
                     height=0,
                     width=0,
                 )
-                st.toast("Profile settings saved successfully!", icon="✅")
+                st.toast("Profile settings saved successfully!", icon=":material/check_circle:")
         
         st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
 
@@ -130,7 +130,7 @@ def main():
             st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
             download_btn = st.button("Download backup (.xlsx)", key="download_backup_btn")
             if download_btn:
-                st.toast("Backup archive generated and downloading...", icon="⬇️")
+                st.toast("Backup archive generated and downloading...", icon=":material/download:")
 
 
 if __name__ == "__main__":
