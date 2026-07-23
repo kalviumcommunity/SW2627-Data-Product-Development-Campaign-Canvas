@@ -295,17 +295,24 @@ div[data-baseweb="textarea"]:focus-within {
 /* ---------- tooltips ---------- */
 div[role="tooltip"],
 div[data-baseweb="tooltip"],
-[data-baseweb="tooltip"] {
+[data-baseweb="tooltip"],
+div[data-testid="stTooltipContent"],
+[data-testid="stTooltipContent"] {
   background-color: var(--card) !important;
   color: var(--card-foreground) !important;
   border: 1px solid var(--border) !important;
   box-shadow: var(--shadow-card) !important;
   border-radius: var(--radius-md) !important;
+  opacity: 1 !important;
 }
 
 div[role="tooltip"] *,
-div[data-baseweb="tooltip"] * {
+div[data-baseweb="tooltip"] *,
+div[data-testid="stTooltipContent"] *,
+[data-testid="stTooltipContent"] * {
   color: var(--card-foreground) !important;
+  -webkit-text-fill-color: var(--card-foreground) !important;
+  opacity: 1 !important;
 }
 
 /* ---------- tabs ---------- */
@@ -616,10 +623,9 @@ div[data-testid="stMetricDelta"] svg { color: var(--success) !important; }
 }
 
 /* ---------- Streamlit Container & Card Styling ---------- */
-[data-testid="stVerticalBlockBorderWrapper"],
-div[data-testid="stVerticalBlockBorderWrapper"],
-div[data-testid="stVerticalBlockBorderWrapper"] > div,
-[data-testid="stContainer"],
+[data-testid="stVerticalBlockBorderWrapper"]:not(.st-key-navbar_row *),
+div[data-testid="stVerticalBlockBorderWrapper"]:not(.st-key-navbar_row *),
+[data-testid="stContainer"]:not(.st-key-navbar_row),
 .glass-card,
 .dashboard-stat-card,
 .campaign-card {
@@ -755,4 +761,33 @@ div.st-key-theme_toggle_btn button:active {
 }
 div.st-key-theme_toggle_btn button p {
   margin: 0 !important;
+}
+/* ==========================================
+   FORCE SELECTBOX CHEVRON BACKGROUND TO MATCH
+   ========================================== */
+
+/* 1. Target BaseWeb select control container */
+div[data-baseweb="select"],
+div[data-baseweb="select"] > div,
+div[data-baseweb="select"] * {
+    background-color: #0e1726 !important;
+    background: #0e1726 !important;
+}
+
+/* 2. Target the specific chevron container button and right-aligned div */
+div[data-baseweb="select"] button,
+div[data-baseweb="select"] [aria-hidden="true"],
+div[data-baseweb="select"] [data-baseweb="icon"],
+div[data-baseweb="select"] > div > div:last-child {
+    background-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* 3. Ensure arrow icon is visible and light */
+div[data-baseweb="select"] svg,
+div[data-baseweb="select"] path {
+    fill: #f8fafc !important;
+    stroke: #f8fafc !important;
+    background: transparent !important;
 }
