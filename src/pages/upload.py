@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 
 # Add project root to sys.path
-root_dir = str(Path(__file__).resolve().parents[2])
+root_dir = str(Path(__file__).resolve().parents[1])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
@@ -75,102 +75,96 @@ def main():
         unsafe_allow_html=True,
     )
 
-    # Main Grid (Upload Card and History Panel)
-    col_upload, col_space = st.columns([2, 1])
-
-    with col_upload:
-        # Dropzone File Uploader
-        with st.container(border=True):
-            st.markdown(
-                """
-                <div style="text-align: center; padding: 1.5rem 0 0.5rem 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(56, 189, 248, 0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    </div>
-                    <h4 style="margin: 0; font-size: 1.15rem; font-weight: 600; color: white;">Drop your dataset here</h4>
-                    <p style="margin: 0.4rem 0 1.2rem 0; font-size: 0.85rem; color: var(--muted-foreground);">CSV, Excel (.xlsx/.xls), or JSON — up to a few MBs</p>
+    # Main Container
+    with st.container(border=True):
+        st.markdown(
+            """
+            <div style="text-align: center; padding: 1.5rem 0 0.5rem 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(56, 189, 248, 0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-            
-            uploaded_file = st.file_uploader("Upload dataset", type=["csv", "xlsx", "xls", "json"], label_visibility="collapsed")
-            
-            if uploaded_file is not None:
-                # Add to history if not already added
-                exists = any(item["filename"] == uploaded_file.name for item in st.session_state.upload_history)
-                if not exists:
-                    try:
-                        if uploaded_file.name.endswith(".csv"):
-                            df_uploaded = pd.read_csv(uploaded_file)
-                        elif uploaded_file.name.endswith((".xls", ".xlsx")):
-                            df_uploaded = pd.read_excel(uploaded_file)
-                        else:
-                            df_uploaded = pd.read_json(uploaded_file)
-                        st.session_state.uploaded_df = df_uploaded
-                        st.session_state.uploaded_filename = uploaded_file.name
-                        status = "Processed"
-                    except Exception as e:
-                        st.error(f"Error parsing file: {e}")
-                        status = "Failed"
-
-                    file_ext = uploaded_file.name.split(".")[-1].upper()
-                    st.session_state.upload_history.insert(0, {
-                        "filename": uploaded_file.name,
-                        "size": format_size(uploaded_file.size),
-                        "type": file_ext,
-                        "status": status,
-                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M")
-                    })
-                    if status == "Processed":
-                        st.toast(f"File {uploaded_file.name} successfully uploaded and parsed!", icon=":material/check_circle:")
-                    else:
-                        st.toast(f"File {uploaded_file.name} failed to parse.", icon=":material/error:")
-
-        # History Table Panel
-        st.markdown("<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground);'>Upload history</div>", unsafe_allow_html=True)
+                <h4 style="margin: 0; font-size: 1.15rem; font-weight: 600; color: var(--foreground);">Drop your dataset here</h4>
+                <p style="margin: 0.4rem 0 1.2rem 0; font-size: 0.85rem; color: var(--muted-foreground);">CSV, Excel (.xlsx/.xls), or JSON — up to a few MBs</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         
-        if not st.session_state.upload_history:
-            st.markdown(
-                """
-                <div class="glass-card" style="padding: 2.5rem; text-align: center; color: var(--muted-foreground);">
-                    No uploads yet.
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        else:
-            # Build a custom HTML table to avoid st.table's auto-index column
-            rows_html = ""
-            for item in st.session_state.upload_history:
-                rows_html += f"""
-                <tr>
-                    <td>{item.get('filename', '')}</td>
-                    <td>{item.get('size', '')}</td>
-                    <td>{item.get('type', '')}</td>
-                    <td>{item.get('status', '')}</td>
-                    <td>{item.get('timestamp', '')}</td>
-                </tr>"""
+        uploaded_file = st.file_uploader("Upload dataset", type=["csv", "xlsx", "xls", "json"], label_visibility="collapsed")
+        
+        if uploaded_file is not None:
+            exists = any(item["filename"] == uploaded_file.name for item in st.session_state.upload_history)
+            if not exists:
+                try:
+                    if uploaded_file.name.endswith(".csv"):
+                        df_uploaded = pd.read_csv(uploaded_file)
+                    elif uploaded_file.name.endswith((".xls", ".xlsx")):
+                        df_uploaded = pd.read_excel(uploaded_file)
+                    else:
+                        df_uploaded = pd.read_json(uploaded_file)
+                    st.session_state.uploaded_df = df_uploaded
+                    st.session_state.uploaded_filename = uploaded_file.name
+                    status = "Processed"
+                except Exception as e:
+                    st.error(f"Error parsing file: {e}")
+                    status = "Failed"
 
-            st.markdown(
-                f"""
-                <table class="custom-data-table">
-                    <thead>
-                        <tr>
-                            <th>File Name</th>
-                            <th>Size</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows_html}
-                    </tbody>
-                </table>
-                """,
-                unsafe_allow_html=True,
-            )
+                file_ext = uploaded_file.name.split(".")[-1].upper()
+                st.session_state.upload_history.insert(0, {
+                    "filename": uploaded_file.name,
+                    "size": format_size(uploaded_file.size),
+                    "type": file_ext,
+                    "status": status,
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M")
+                })
+                if status == "Processed":
+                    st.toast(f"File {uploaded_file.name} successfully uploaded and parsed!", icon=":material/check_circle:")
+                else:
+                    st.toast(f"File {uploaded_file.name} failed to parse.", icon=":material/error:")
+
+    # History Table Panel
+    st.markdown("<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground);'>Upload history</div>", unsafe_allow_html=True)
+    
+    if not st.session_state.upload_history:
+        st.markdown(
+            """
+            <div class="glass-card" style="padding: 2.5rem; text-align: center; color: var(--muted-foreground);">
+                No uploads yet.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        rows_html = ""
+        for item in st.session_state.upload_history:
+            rows_html += f"""
+            <tr>
+                <td>{item.get('filename', '')}</td>
+                <td>{item.get('size', '')}</td>
+                <td>{item.get('type', '')}</td>
+                <td>{item.get('status', '')}</td>
+                <td>{item.get('timestamp', '')}</td>
+            </tr>"""
+
+        st.markdown(
+            f"""
+            <table class="custom-data-table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Size</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows_html}
+                </tbody>
+            </table>
+            """,
+            unsafe_allow_html=True,
+        )
 
 if __name__ == "__main__":
     main()
