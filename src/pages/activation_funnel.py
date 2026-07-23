@@ -79,7 +79,7 @@ def main():
 
     # 1. Conversion Funnel Chart Section
     with st.container(border=True):
-        st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Conversion funnel</span>", unsafe_allow_html=True)
+        st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Conversion funnel</span>", unsafe_allow_html=True)
         st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
         funnel_stages = [
@@ -124,7 +124,7 @@ def main():
 
     # 2. Stage-by-stage drop-off section
     st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
-    st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Stage-by-stage drop-off</span>", unsafe_allow_html=True)
+    st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: var(--foreground);'>Stage-by-stage drop-off</span>", unsafe_allow_html=True)
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3, gap="medium")
@@ -136,7 +136,7 @@ def main():
                 f"""
                 <div style="padding: 0.15rem 0;">
                     <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Impressions</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_impressions)}</div>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_impressions)}</div>
                     <div style="font-size: 0.78rem; color: var(--muted-foreground); margin-top: 0.5rem; visibility: hidden;">placeholder to align layout height</div>
                 </div>
                 """,
@@ -149,7 +149,7 @@ def main():
                 f"""
                 <div style="padding: 0.15rem 0;">
                     <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Signups</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_signups)}</div>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_signups)}</div>
                     <div style="font-size: 0.78rem; margin-top: 0.5rem;">
                         <span style="color: #10b981;">Conversion: {signup_conv*100:.2f}%</span>
                         <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(signup_drop)} ({signup_drop_pct:.2f}%)</span>
@@ -166,7 +166,7 @@ def main():
                 f"""
                 <div style="padding: 0.15rem 0;">
                     <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Clicks</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_clicks)}</div>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_clicks)}</div>
                     <div style="font-size: 0.78rem; margin-top: 0.5rem;">
                         <span style="color: #10b981;">Conversion: {click_conv*100:.2f}%</span>
                         <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(click_drop)} ({click_drop_pct:.2f}%)</span>
@@ -182,7 +182,7 @@ def main():
                 f"""
                 <div style="padding: 0.15rem 0;">
                     <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Purchases</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_conversions)}</div>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_conversions)}</div>
                     <div style="font-size: 0.78rem; margin-top: 0.5rem;">
                         <span style="color: #10b981;">Conversion: {purchase_conv*100:.2f}%</span>
                         <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(purchase_drop)} ({purchase_drop_pct:.2f}%)</span>
@@ -199,7 +199,7 @@ def main():
                 f"""
                 <div style="padding: 0.15rem 0;">
                     <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Website Visits</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_visits)}</div>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_visits)}</div>
                     <div style="font-size: 0.78rem; margin-top: 0.5rem;">
                         <span style="color: #10b981;">Conversion: {visit_conv*100:.2f}%</span>
                         <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(visit_drop)} ({visit_drop_pct:.2f}%)</span>
@@ -215,7 +215,7 @@ def main():
                 f"""
                 <div style="padding: 0.15rem 0;">
                     <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Retained</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: white; margin-top: 0.3rem;">{fmt_num(total_retained)}</div>
+                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_retained)}</div>
                     <div style="font-size: 0.78rem; margin-top: 0.5rem;">
                         <span style="color: #10b981;">Conversion: {retain_conv*100:.2f}%</span>
                         <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(retain_drop)} ({retain_drop_pct:.2f}%)</span>
