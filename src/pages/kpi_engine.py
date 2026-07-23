@@ -22,20 +22,21 @@ if not st.session_state.get("logged_in", False):
     st.switch_page("pages/auth.py")
 
 def render_kpi_card(title: str, value: str, formula: str, icon_svg: str):
-    with st.container(border=True):
-        st.markdown(
-            f"""
+    st.markdown(
+        f"""
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-card); margin-bottom: 1rem;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
                 <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">{title}</span>
-                <div style="color: #38bdf8; display: grid; place-items: center; opacity: 0.85;">
+                <div style="color: #0284c7; display: grid; place-items: center; opacity: 0.9;">
                     {icon_svg}
                 </div>
             </div>
-            <div style="font-family: var(--font-sans); font-size: 1.65rem; font-weight: 700; color: white; margin-bottom: 0.35rem;">{value}</div>
+            <div style="font-family: var(--font-sans); font-size: 1.65rem; font-weight: 700; color: var(--foreground); margin-bottom: 0.35rem;">{value}</div>
             <div style="font-size: 0.75rem; color: var(--muted-foreground); font-family: monospace;">= {formula}</div>
-            """,
-            unsafe_allow_html=True
-        )
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 def main():
     # Sidebar
@@ -133,22 +134,21 @@ def main():
         render_kpi_card("TOTAL CONVERSIONS", fmt_num(total_conversions), "sum(conversions)", target_svg)
 
     # Bottom Overall Status Card
-    st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
-    with st.container(border=True):
-        st.markdown(
-            """
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.25rem 0.5rem;">
-                <div style="display: flex; flex-direction: column;">
-                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700; margin-bottom: 0.2rem;">Overall Status</span>
-                    <span style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: #10b981;">Healthy</span>
-                </div>
-                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                </div>
+    st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-card); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700; margin-bottom: 0.2rem;">Overall Status</span>
+                <span style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: #10b981;">Healthy</span>
             </div>
-            """,
-            unsafe_allow_html=True
-        )
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 if __name__ == "__main__":
     main()

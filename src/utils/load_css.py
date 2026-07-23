@@ -91,6 +91,29 @@ def load_css(path: Path = _STYLE_PATH) -> None:
             color: var(--foreground) !important;
         }
 
+        /* Streamlit st.container(border=True) & Custom Card Light Mode Styling */
+        .stApp [data-testid="stVerticalBlockBorderWrapper"],
+        .stApp div[data-testid="stVerticalBlockBorderWrapper"],
+        .stApp div[data-testid="stVerticalBlockBorderWrapper"] > div,
+        .stApp [data-testid="stContainer"],
+        .stApp .glass-card,
+        .stApp .dashboard-stat-card,
+        .stApp .campaign-card {
+            background-color: #ffffff !important;
+            background-image: none !important;
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 0.875rem !important;
+            box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04) !important;
+        }
+        .stApp [data-testid="stVerticalBlockBorderWrapper"]:hover,
+        .stApp div[data-testid="stVerticalBlockBorderWrapper"]:hover,
+        .stApp .glass-card:hover,
+        .stApp .dashboard-stat-card:hover,
+        .stApp .campaign-card:hover {
+            border-color: #64748b !important;
+            box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.14) !important;
+        }
+
         /* Adjustments for custom dashboard HTML components in Light Theme */
         h1, h2, h3, h4, span, p, div {
             color: inherit;

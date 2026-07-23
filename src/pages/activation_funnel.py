@@ -131,99 +131,90 @@ def main():
 
     with col1:
         # Impressions Card
-        with st.container(border=True):
-            st.markdown(
-                f"""
-                <div style="padding: 0.15rem 0;">
-                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Impressions</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_impressions)}</div>
-                    <div style="font-size: 0.78rem; color: var(--muted-foreground); margin-top: 0.5rem; visibility: hidden;">placeholder to align layout height</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-card); margin-bottom: 1rem;">
+                <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Impressions</span>
+                <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_impressions)}</div>
+                <div style="font-size: 0.78rem; color: var(--muted-foreground); margin-top: 0.5rem; visibility: hidden;">placeholder</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         # Signups Card
-        with st.container(border=True):
-            st.markdown(
-                f"""
-                <div style="padding: 0.15rem 0;">
-                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Signups</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_signups)}</div>
-                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
-                        <span style="color: #10b981;">Conversion: {signup_conv*100:.2f}%</span>
-                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(signup_drop)} ({signup_drop_pct:.2f}%)</span>
-                    </div>
+        st.markdown(
+            f"""
+            <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-card); margin-bottom: 1rem;">
+                <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Signups</span>
+                <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_signups)}</div>
+                <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                    <span style="color: #10b981;">Conversion: {signup_conv*100:.2f}%</span>
+                    <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(signup_drop)} ({signup_drop_pct:.2f}%)</span>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     with col2:
         # Clicks Card
-        with st.container(border=True):
-            st.markdown(
-                f"""
-                <div style="padding: 0.15rem 0;">
-                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Clicks</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_clicks)}</div>
-                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
-                        <span style="color: #10b981;">Conversion: {click_conv*100:.2f}%</span>
-                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(click_drop)} ({click_drop_pct:.2f}%)</span>
-                    </div>
+        st.markdown(
+            f"""
+            <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-card); margin-bottom: 1rem;">
+                <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Clicks</span>
+                <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_clicks)}</div>
+                <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                    <span style="color: #10b981;">Conversion: {click_conv*100:.2f}%</span>
+                    <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(click_drop)} ({click_drop_pct:.2f}%)</span>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         # Purchases Card
-        with st.container(border=True):
-            st.markdown(
-                f"""
-                <div style="padding: 0.15rem 0;">
-                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Purchases</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_conversions)}</div>
-                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
-                        <span style="color: #10b981;">Conversion: {purchase_conv*100:.2f}%</span>
-                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(purchase_drop)} ({purchase_drop_pct:.2f}%)</span>
-                    </div>
+        st.markdown(
+            f"""
+            <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-card); margin-bottom: 1rem;">
+                <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Purchases</span>
+                <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_conversions)}</div>
+                <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                    <span style="color: #10b981;">Conversion: {purchase_conv*100:.2f}%</span>
+                    <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(purchase_drop)} ({purchase_drop_pct:.2f}%)</span>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     with col3:
         # Website Visits Card
-        with st.container(border=True):
-            st.markdown(
-                f"""
-                <div style="padding: 0.15rem 0;">
-                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Website Visits</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_visits)}</div>
-                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
-                        <span style="color: #10b981;">Conversion: {visit_conv*100:.2f}%</span>
-                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(visit_drop)} ({visit_drop_pct:.2f}%)</span>
-                    </div>
+        st.markdown(
+            f"""
+            <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-card); margin-bottom: 1rem;">
+                <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Website Visits</span>
+                <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_visits)}</div>
+                <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                    <span style="color: #10b981;">Conversion: {visit_conv*100:.2f}%</span>
+                    <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(visit_drop)} ({visit_drop_pct:.2f}%)</span>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         # Retained Card
-        with st.container(border=True):
-            st.markdown(
-                f"""
-                <div style="padding: 0.15rem 0;">
-                    <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Retained</span>
-                    <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_retained)}</div>
-                    <div style="font-size: 0.78rem; margin-top: 0.5rem;">
-                        <span style="color: #10b981;">Conversion: {retain_conv*100:.2f}%</span>
-                        <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(retain_drop)} ({retain_drop_pct:.2f}%)</span>
-                    </div>
+        st.markdown(
+            f"""
+            <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-card); margin-bottom: 1rem;">
+                <span style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 700;">Retained</span>
+                <div style="font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin-top: 0.3rem;">{fmt_num(total_retained)}</div>
+                <div style="font-size: 0.78rem; margin-top: 0.5rem;">
+                    <span style="color: #10b981;">Conversion: {retain_conv*100:.2f}%</span>
+                    <span style="color: var(--muted-foreground); margin-left: 0.5rem;">Drop-off: {fmt_num(retain_drop)} ({retain_drop_pct:.2f}%)</span>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 if __name__ == "__main__":
     main()

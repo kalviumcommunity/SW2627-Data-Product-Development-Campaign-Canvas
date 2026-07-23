@@ -615,6 +615,29 @@ div[data-testid="stMetricDelta"] svg { color: var(--success) !important; }
   }
 }
 
+/* ---------- Streamlit Container & Card Styling ---------- */
+[data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stVerticalBlockBorderWrapper"] > div,
+[data-testid="stContainer"],
+.glass-card,
+.dashboard-stat-card,
+.campaign-card {
+  background-color: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-card) !important;
+  transition: border-color 140ms ease, box-shadow 140ms ease !important;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"]:hover,
+div[data-testid="stVerticalBlockBorderWrapper"]:hover,
+.glass-card:hover,
+.dashboard-stat-card:hover,
+.campaign-card:hover {
+  border-color: color-mix(in oklab, var(--primary) 35%, var(--border)) !important;
+}
+
 /* ---------- dataframe / table ---------- */
 [data-testid="stDataFrame"], .stDataFrame {
   border: 1px solid var(--border) !important;
