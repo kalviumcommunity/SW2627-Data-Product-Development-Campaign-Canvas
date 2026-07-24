@@ -41,6 +41,13 @@ def get_clerk_credentials():
     if domain:
         domain = domain.replace("https://", "").replace("http://", "").strip("/")
 
+    # Check if running on Render platform where RENDER_EXTERNAL_URL is available
+    render_url = os.getenv("RENDER_EXTERNAL_URL")
+    if render_url:
+        render_redirect = render_url.rstrip("/") + "/"
+        if not redirect_uri or "localhost" in redirect_uri:
+            redirect_uri = render_redirect
+
     # Default redirect URI to local dev if not configured
     if not redirect_uri:
         redirect_uri = "http://localhost:8501/"
