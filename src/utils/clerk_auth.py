@@ -4,13 +4,13 @@ import streamlit as st
 from dotenv import load_dotenv
 
 # Load environment variables from .env if present
-load_dotenv(override=True)
+load_dotenv(override=False)
 
 def get_clerk_credentials():
     """
     Resolves Clerk credentials from streamlit secrets or environment variables.
     """
-    load_dotenv(override=True)
+    load_dotenv(override=False)
     client_id = None
     client_secret = None
     domain = None
@@ -86,6 +86,20 @@ def get_clerk_endpoints(domain: str):
     return default_endpoints
 
 
+def safe_switch_page(page_path: str):
+    """
+    Safely switches page in Streamlit trying both 'pages/...' and 'src/pages/...' paths.
+    """
+    try:
+        st.switch_page(page_path)
+    except Exception:
+        alt_path = f"src/{page_path}" if not page_path.startswith("src/") else page_path.replace("src/", "", 1)
+        try:
+            st.switch_page(alt_path)
+        except Exception:
+            st.rerun()
+
+
 def handle_clerk_callback():
     """
     Checks for a Clerk authentication redirect code in query params.
@@ -141,7 +155,7 @@ def handle_clerk_callback():
                                 except Exception:
                                     pass
                                 st.success("Signed in successfully with Clerk!")
-                                st.switch_page("pages/dashboard.py")
+                                safe_switch_page("pages/dashboard.py")
                                 return
                             else:
                                 st.error("No email address returned from your Clerk profile.")
