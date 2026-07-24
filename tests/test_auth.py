@@ -34,6 +34,19 @@ def test_get_clerk_credentials_env():
         assert domain == "env.clerk.accounts.dev"
         assert redirect_uri == "http://localhost:8501/auth"
 
+def test_get_clerk_credentials_render_fallback():
+    # Test auto-detection when running on Render platform
+    env_mock = {
+        "CLERK_CLIENT_ID": "render_id",
+        "CLERK_CLIENT_SECRET": "render_secret",
+        "CLERK_DOMAIN": "render.clerk.accounts.dev",
+        "CLERK_REDIRECT_URI": "http://localhost:8501/",
+        "RENDER_EXTERNAL_URL": "https://my-app.onrender.com"
+    }
+    with patch("src.utils.clerk_auth.load_dotenv"), patch.dict(os.environ, env_mock), patch.object(st, "secrets", {}):
+        client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
+        assert redirect_uri == "https://my-app.onrender.com/"
+
 def test_get_clerk_credentials_secrets():
     # Test credentials from st.secrets
     secrets_mock = {
