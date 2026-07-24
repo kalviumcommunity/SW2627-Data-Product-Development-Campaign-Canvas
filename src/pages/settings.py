@@ -110,27 +110,6 @@ def main():
                 on_change=on_theme_toggle_change
             )
             st.caption("Switch between light and dark themes.")
-        
-        st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
-
-        # 4. Data Settings
-        with st.container(border=True):
-            st.markdown(
-                """
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                    <span style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: white;">Data</span>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-            
-            st.write("Download a full workbook of every dataset in your workspace.")
-            
-            st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
-            download_btn = st.button("Download backup (.xlsx)", key="download_backup_btn")
-            if download_btn:
-                st.toast("Backup archive generated and downloading...", icon=":material/download:")
 
 
 if __name__ == "__main__":
