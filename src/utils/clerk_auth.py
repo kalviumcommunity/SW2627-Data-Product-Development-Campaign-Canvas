@@ -95,11 +95,7 @@ def handle_clerk_callback():
     if "code" in query_params:
         code = query_params["code"]
         
-        # Clear query parameters immediately so subsequent reruns do not re-trigger exchange
-        st.query_params.clear()
-        
         client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
-        used_redirect_uri = st.session_state.get("clerk_redirect_uri", redirect_uri)
         
         if client_id and client_secret and domain:
             endpoints = get_clerk_endpoints(domain)
@@ -112,7 +108,7 @@ def handle_clerk_callback():
                         "code": code,
                         "client_id": client_id,
                         "client_secret": client_secret,
-                        "redirect_uri": used_redirect_uri,
+                        "redirect_uri": redirect_uri,
                         "grant_type": "authorization_code",
                     }
                     res = requests.post(token_url, data=token_data, timeout=10)
@@ -140,6 +136,10 @@ def handle_clerk_callback():
                                 st.session_state.email = email
                                 st.session_state.name = name
                                 st.session_state.clerk_user = user_data
+                                try:
+                                    st.query_params.clear()
+                                except Exception:
+                                    pass
                                 st.success("Signed in successfully with Clerk!")
                                 st.switch_page("pages/dashboard.py")
                                 return
