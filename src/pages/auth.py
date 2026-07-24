@@ -484,10 +484,13 @@ with col_form:
                     state = str(uuid.uuid4())
                     st.session_state["clerk_oauth_state"] = state
 
+                import urllib.parse
+                encoded_redirect_uri = urllib.parse.quote(redirect_uri, safe="")
+
                 auth_url = (
                     f"{endpoints['authorization_endpoint']}"
                     f"?client_id={client_id}"
-                    f"&redirect_uri={redirect_uri}"
+                    f"&redirect_uri={encoded_redirect_uri}"
                     "&response_type=code"
                     "&scope=openid%20profile%20email"
                     f"&state={state}"
