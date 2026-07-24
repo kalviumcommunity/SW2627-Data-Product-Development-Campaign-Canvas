@@ -11,5 +11,3 @@ headless = true
 enableCORS = false
 enableXsrfProtection = false
 address = "0.0.0.0"
-primaryColor = "#2563eb"
-font = "sans serif"
