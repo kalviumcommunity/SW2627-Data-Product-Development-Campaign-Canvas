@@ -154,6 +154,38 @@ def load_css(path: Path = _STYLE_PATH) -> None:
             background-color: var(--accent) !important;
             color: var(--accent-foreground) !important;
         }
+        
+        /* Toggle outer area */
+        div[data-testid="stToggle"] {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* OFF toggle track */
+        div[data-testid="stToggle"] [role="switch"] {
+            background: #94a3b8 !important;
+            background-color: #94a3b8 !important;
+            border: 1px solid #64748b !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* ON toggle track */
+        div[data-testid="stToggle"] [role="switch"][aria-checked="true"] {
+            background: #38bdf8 !important;
+            background-color: #38bdf8 !important;
+            border-color: #0284c7 !important;
+            opacity: 1 !important;
+        }
+        
+        /* Toggle knob */
+        div[data-testid="stToggle"] [role="switch"] > div {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
         section[data-testid="stSidebar"] {
             background-color: var(--sidebar) !important;
         }
