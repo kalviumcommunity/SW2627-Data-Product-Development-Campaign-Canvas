@@ -91,6 +91,26 @@ def load_css(path: Path = _STYLE_PATH) -> None:
             color: var(--foreground) !important;
         }
 
+        .stApp .settings-section-title {
+            font-family: var(--font-display) !important;
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+            color: var(--foreground) !important;
+            letter-spacing: -0.01em !important;
+        }
+
+        .stApp [data-testid="stVerticalBlockBorderWrapper"] {
+            padding: 1.15rem 1.2rem 1.2rem !important;
+        }
+
+        .stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stToggle"] {
+            margin-top: 0.25rem !important;
+            padding: 0.35rem 0.45rem !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 0.75rem !important;
+            background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+        }
+
         /* Streamlit st.container(border=True) & Custom Card Light Mode Styling */
         .stApp [data-testid="stVerticalBlockBorderWrapper"],
         .stApp div[data-testid="stVerticalBlockBorderWrapper"],
