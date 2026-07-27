@@ -8,8 +8,7 @@ root_dir = str(Path(__file__).resolve().parents[1])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data, compute_kpis, aggregate_by
-
+from src.utils.campaigns import load_campaign_data, aggregate_by, calculate_metrics
 def test_load_campaign_data():
     """Test that campaign dataset load function returns a DataFrame and a boolean indicator."""
     df, is_demo = load_campaign_data()
@@ -20,8 +19,8 @@ def test_load_campaign_data():
         for col in required_cols:
             assert col in df.columns
 
-def test_compute_kpis():
-    """Test computation of marketing and activation KPIs."""
+def test_calculate_metrics():
+    """Test calculation of marketing and activation metrics."""
     mock_data = pd.DataFrame([
         {
             "campaign_id": "c1", "campaign_name": "Camp 1", "ad_platform": "google_ads", "date": "2026-06-01",
@@ -33,7 +32,7 @@ def test_compute_kpis():
         }
     ])
     
-    kpis = compute_kpis(mock_data)
+    kpis = calculate_metrics(mock_data)
     assert kpis["totalCampaigns"] == 2.0
     assert kpis["totalSpend"] == 300.0
     assert kpis["totalSignups"] == 25.0
