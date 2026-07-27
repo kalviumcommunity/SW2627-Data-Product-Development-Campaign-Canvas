@@ -38,8 +38,13 @@ def test_compute_kpis():
     assert kpis["totalSpend"] == 300.0
     assert kpis["totalSignups"] == 25.0
     assert kpis["totalActivations"] == 5.0
+    assert kpis["totalRevenue"] == 5.0 * 135.287876
     assert kpis["ctr"] == 300 / 1500
     assert kpis["cvr"] == 25 / 300
+    assert kpis["roas"] == (5.0 * 135.287876) / 300.0
+    assert kpis["cpc"] == 300.0 / 300.0
+    assert kpis["cpl"] == 300.0 / 25.0
+    assert kpis["aov"] == (5.0 * 135.287876) / 5.0
     # Camp 2 has 0 activations / 5 signups = 0% activation rate (<10%). So its spend of 200.0 is wasted.
     # Camp 1 has 5 activations / 20 signups = 25% activation rate (>=10%). Not wasted.
     assert kpis["wastedSpend"] == 200.0

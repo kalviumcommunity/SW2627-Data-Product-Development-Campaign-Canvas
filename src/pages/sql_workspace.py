@@ -9,7 +9,7 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data
+from src.utils.campaigns import load_campaign_data, ACTIVATION_ARPU
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
@@ -97,7 +97,7 @@ def main():
     # 4. Other fields mapping
     df["conversions"] = df["activations_7d"]
     df["spend"] = df["spend_usd"]
-    df["revenue"] = df["spend_usd"] * 2.6607
+    df["revenue"] = df["conversions"] * ACTIVATION_ARPU
     df["visits"] = (df["clicks"] * 0.826).astype(int)
 
     # Keep only the 13 columns specified
