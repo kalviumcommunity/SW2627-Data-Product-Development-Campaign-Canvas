@@ -198,14 +198,15 @@ def _build_demo_data() -> pd.DataFrame:
             
     return pd.DataFrame(rows)
 
-def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
-    """Computes high-level aggregated KPIs from the campaign dataframe."""
+def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
+    """Calculates high-level aggregated metrics from the campaign dataframe."""
+
     if frame.empty:
         return {
             "totalSpend": 0.0,
+            "totalRevenue": 0.0,
             "totalSignups": 0.0,
             "totalActivations": 0.0,
-            "totalRevenue": 0.0,
             "wastedSpend": 0.0,
             "ctr": 0.0,
             "cpa": 0.0,
@@ -217,56 +218,165 @@ def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
             "aov": 0.0,
             "cpc": 0.0,
             "cpl": 0.0,
-            "totalCampaigns": 0.0
+            "totalCampaigns": 0.0,
         }
 
-    # Column mappings to support both original schema and SQL join schema
+    # Support both the original schema and SQL join schema
     spend_col = "spend_usd" if "spend_usd" in frame.columns else "spend"
-    signup_col = "signups" if "signups" in frame.columns else ("conversions" if "conversions" in frame.columns else "signup_count")
-    activation_col = "activations_7d" if "activations_7d" in frame.columns else ("conversions" if "conversions" in frame.columns else "activation_count")
-    campaign_col = "campaign_id" if "campaign_id" in frame.columns else "campaign"
 
-    total_spend = float(frame[spend_col].sum())
-    total_clicks = float(frame["clicks"].sum()) if "clicks" in frame.columns else 0.0
-    total_impressions = float(frame["impressions"].sum()) if "impressions" in frame.columns else 0.0
-    total_signups = float(frame[signup_col].sum()) if signup_col in frame.columns else 0.0
-    total_activations = float(frame[activation_col].sum()) if activation_col in frame.columns else 0.0
-    
+    signup_col = (
+        "signups"
+        if "signups" in frame.columns
+        else "conversions"
+        if "conversions" in frame.columns
+        else "signup_count"
+    )
+
+    activation_col = (
+        "activations_7d"
+        if "activations_7d" in frame.columns
+        else "conversions"
+        if "conversions" in frame.columns
+        else "activation_count"
+    )
+
+    campaign_col = (
+        "campaign_id"
+        if "campaign_id" in frame.columns
+        else "campaign"
+    )
+
+    # Aggregate values safely
+    total_spend = (
+        float(frame[spend_col].sum())
+        if spend_col in frame.columns
+        else 0.0
+    )
+
+    total_clicks = (
+        float(frame["clicks"].sum())
+        if "clicks" in frame.columns
+        else 0.0
+    )
+
+    total_impressions = (
+        float(frame["impressions"].sum())
+        if "impressions" in frame.columns
+        else 0.0
+    )
+
+    total_signups = (
+        float(frame[signup_col].sum())
+        if signup_col in frame.columns
+        else 0.0
+    )
+
+    total_activations = (
+        float(frame[activation_col].sum())
+        if activation_col in frame.columns
+        else 0.0
+    )
+
     if "revenue" in frame.columns:
         total_revenue = float(frame["revenue"].sum())
     else:
         total_revenue = total_activations * ACTIVATION_ARPU
 
-    # Calculate Wasted Spend at the campaign level (<10% downstream activation rate)
-    if campaign_col in frame.columns and signup_col in frame.columns and activation_col in frame.columns:
-        campaign_groups = frame.groupby(campaign_col).agg(
-            spend=(spend_col, "sum"),
-            signups=(signup_col, "sum"),
-            activations=(activation_col, "sum")
-        ).reset_index()
-        
-        campaign_groups["activation_rate"] = campaign_groups["activations"] / campaign_groups["signups"]
-        wasted_spend = float(campaign_groups[campaign_groups["activation_rate"] < 0.10]["spend"].sum())
+    # Calculate wasted spend for campaigns with
+    # less than 10% activation rate
+    if (
+        campaign_col in frame.columns
+        and spend_col in frame.columns
+        and signup_col in frame.columns
+        and activation_col in frame.columns
+    ):
+        campaign_groups = (
+            frame.groupby(campaign_col)
+            .agg(
+                spend=(spend_col, "sum"),
+                signups=(signup_col, "sum"),
+                activations=(activation_col, "sum"),
+            )
+            .reset_index()
+        )
+
+        campaign_groups["activation_rate"] = (
+            campaign_groups["activations"]
+            / campaign_groups["signups"].replace(0, pd.NA)
+        )
+
+        wasted_spend = float(
+            campaign_groups.loc[
+                campaign_groups["activation_rate"] < 0.10,
+                "spend",
+            ].sum()
+        )
     else:
         wasted_spend = 0.0
 
+    total_campaigns = (
+        float(frame[campaign_col].nunique())
+        if campaign_col in frame.columns
+        else 0.0
+    )
+
     return {
-        "totalCampaigns": float(frame[campaign_col].nunique()) if campaign_col in frame.columns else 0.0,
+        "totalCampaigns": total_campaigns,
         "totalSpend": total_spend,
+        "totalRevenue": total_revenue,
         "totalSignups": total_signups,
         "totalActivations": total_activations,
-        "totalRevenue": total_revenue,
         "wastedSpend": wasted_spend,
-        "ctr": total_clicks / total_impressions if total_impressions else 0.0,
-        "cpa": total_spend / total_signups if total_signups else 0.0,
-        "cpau": total_spend / total_activations if total_activations else 0.0,
-        "cvr": total_signups / total_clicks if total_clicks else 0.0,
-        "activationRate": total_activations / total_signups if total_signups else 0.0,
-        "roas": total_revenue / total_spend if total_spend else 0.0,
-        "roi": ((total_revenue - total_spend) / total_spend * 100) if total_spend else 0.0,
-        "aov": total_revenue / total_activations if total_activations else 0.0,
-        "cpc": total_spend / total_clicks if total_clicks else 0.0,
-        "cpl": total_spend / total_signups if total_signups else 0.0,
+        "ctr": (
+            total_clicks / total_impressions
+            if total_impressions
+            else 0.0
+        ),
+        "cpa": (
+            total_spend / total_signups
+            if total_signups
+            else 0.0
+        ),
+        "cpau": (
+            total_spend / total_activations
+            if total_activations
+            else 0.0
+        ),
+        "cvr": (
+            total_signups / total_clicks
+            if total_clicks
+            else 0.0
+        ),
+        "activationRate": (
+            total_activations / total_signups
+            if total_signups
+            else 0.0
+        ),
+        "roas": (
+            total_revenue / total_spend
+            if total_spend
+            else 0.0
+        ),
+        "roi": (
+            (total_revenue - total_spend) / total_spend * 100
+            if total_spend
+            else 0.0
+        ),
+        "aov": (
+            total_revenue / total_activations
+            if total_activations
+            else 0.0
+        ),
+        "cpc": (
+            total_spend / total_clicks
+            if total_clicks
+            else 0.0
+        ),
+        "cpl": (
+            total_spend / total_signups
+            if total_signups
+            else 0.0
+        ),
     }
 
 def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
