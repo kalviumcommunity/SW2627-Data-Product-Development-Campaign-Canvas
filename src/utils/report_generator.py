@@ -10,8 +10,9 @@ from __future__ import annotations
 import io
 from datetime import datetime
 from typing import TYPE_CHECKING
+import pandas as pd 
 
-import pandas as pd
+from src.utils.campaigns import ACTIVATION_ARPU
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -24,7 +25,7 @@ def _compute_kpis(df: pd.DataFrame) -> dict:
     impr        = int(df["impressions"].sum())   if "impressions"    in df.columns else 0
     signups     = int(df["signups"].sum())       if "signups"        in df.columns else 0
     conversions = int(df["activations_7d"].sum()) if "activations_7d" in df.columns else 0
-    revenue     = float(df["revenue"].sum())     if "revenue"        in df.columns else spend * 2.66
+    revenue     = float(df["revenue"].sum())     if "revenue"        in df.columns else conversions * ACTIVATION_ARPU
 
     ctr     = (clicks / impr * 100)      if impr        else 0.0
     cvr     = (conversions / clicks * 100) if clicks    else 0.0

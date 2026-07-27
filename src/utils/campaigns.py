@@ -12,6 +12,8 @@ if root_dir not in sys.path:
 
 DATA_ROOT = Path(__file__).resolve().parents[2] / "data"
 
+ACTIVATION_ARPU = 135.287876
+
 def load_campaign_data() -> tuple[pd.DataFrame, bool]:
     """Loads campaign activation daily dataset from the SQLite database.
     If the DB is not found, runs the ETL to populate it.
@@ -79,14 +81,14 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
                 "c_display_remarketing": "Display - Remarketing",
             }
             df["campaign_name"] = df["campaign_id"].map(campaign_names).fillna(df["campaign_id"])
-            df["revenue"] = df["activations_7d"] * 135.287876
+            df["revenue"] = df["activations_7d"] * ACTIVATION_ARPU
             return df, False
         except Exception as e:
             print(f"Error reading from SQLite database: {e}")
             
     # Fallback to demo data if SQLite load fails
     df_demo = _build_demo_data()
-    df_demo["revenue"] = df_demo["activations_7d"] * 135.287876
+    df_demo["revenue"] = df_demo["activations_7d"] * ACTIVATION_ARPU
     return df_demo, True
 
 
@@ -203,12 +205,18 @@ def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
             "totalSpend": 0.0,
             "totalSignups": 0.0,
             "totalActivations": 0.0,
+            "totalRevenue": 0.0,
             "wastedSpend": 0.0,
             "ctr": 0.0,
             "cpa": 0.0,
             "cpau": 0.0,
             "cvr": 0.0,
             "activationRate": 0.0,
+            "roas": 0.0,
+            "roi": 0.0,
+            "aov": 0.0,
+            "cpc": 0.0,
+            "cpl": 0.0,
             "totalCampaigns": 0.0
         }
 
@@ -219,32 +227,46 @@ def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
     campaign_col = "campaign_id" if "campaign_id" in frame.columns else "campaign"
 
     total_spend = float(frame[spend_col].sum())
-    total_clicks = float(frame["clicks"].sum())
-    total_impressions = float(frame["impressions"].sum())
-    total_signups = float(frame[signup_col].sum())
-    total_activations = float(frame[activation_col].sum())
+    total_clicks = float(frame["clicks"].sum()) if "clicks" in frame.columns else 0.0
+    total_impressions = float(frame["impressions"].sum()) if "impressions" in frame.columns else 0.0
+    total_signups = float(frame[signup_col].sum()) if signup_col in frame.columns else 0.0
+    total_activations = float(frame[activation_col].sum()) if activation_col in frame.columns else 0.0
     
+    if "revenue" in frame.columns:
+        total_revenue = float(frame["revenue"].sum())
+    else:
+        total_revenue = total_activations * ACTIVATION_ARPU
+
     # Calculate Wasted Spend at the campaign level (<10% downstream activation rate)
-    campaign_groups = frame.groupby(campaign_col).agg(
-        spend=(spend_col, "sum"),
-        signups=(signup_col, "sum"),
-        activations=(activation_col, "sum")
-    ).reset_index()
-    
-    campaign_groups["activation_rate"] = campaign_groups["activations"] / campaign_groups["signups"]
-    wasted_spend = float(campaign_groups[campaign_groups["activation_rate"] < 0.10]["spend"].sum())
+    if campaign_col in frame.columns and signup_col in frame.columns and activation_col in frame.columns:
+        campaign_groups = frame.groupby(campaign_col).agg(
+            spend=(spend_col, "sum"),
+            signups=(signup_col, "sum"),
+            activations=(activation_col, "sum")
+        ).reset_index()
+        
+        campaign_groups["activation_rate"] = campaign_groups["activations"] / campaign_groups["signups"]
+        wasted_spend = float(campaign_groups[campaign_groups["activation_rate"] < 0.10]["spend"].sum())
+    else:
+        wasted_spend = 0.0
 
     return {
-        "totalCampaigns": float(frame[campaign_col].nunique()),
+        "totalCampaigns": float(frame[campaign_col].nunique()) if campaign_col in frame.columns else 0.0,
         "totalSpend": total_spend,
         "totalSignups": total_signups,
         "totalActivations": total_activations,
+        "totalRevenue": total_revenue,
         "wastedSpend": wasted_spend,
         "ctr": total_clicks / total_impressions if total_impressions else 0.0,
         "cpa": total_spend / total_signups if total_signups else 0.0,
         "cpau": total_spend / total_activations if total_activations else 0.0,
         "cvr": total_signups / total_clicks if total_clicks else 0.0,
         "activationRate": total_activations / total_signups if total_signups else 0.0,
+        "roas": total_revenue / total_spend if total_spend else 0.0,
+        "roi": ((total_revenue - total_spend) / total_spend * 100) if total_spend else 0.0,
+        "aov": total_revenue / total_activations if total_activations else 0.0,
+        "cpc": total_spend / total_clicks if total_clicks else 0.0,
+        "cpl": total_spend / total_signups if total_signups else 0.0,
     }
 
 def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
@@ -309,10 +331,10 @@ def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
         grouped["totalSpend"] = grouped["spend_usd"]
         if "revenue" in grouped.columns:
             grouped["totalRevenue"] = grouped["revenue"]
-            grouped["roas"] = grouped["revenue"] / grouped["spend_usd"]
         else:
-            grouped["totalRevenue"] = grouped["spend_usd"] * 1.5
-            grouped["roas"] = 1.5
+            grouped["revenue"] = grouped["activations_7d"] * ACTIVATION_ARPU
+            grouped["totalRevenue"] = grouped["revenue"]
+        grouped["roas"] = (grouped["totalRevenue"] / grouped["spend_usd"]).fillna(0.0)
         grouped["totalConversions"] = grouped["activations_7d"]
         grouped["cpa"] = grouped["spend_usd"] / grouped["activations_7d"]
         
