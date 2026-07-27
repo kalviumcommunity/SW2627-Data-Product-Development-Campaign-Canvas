@@ -9,7 +9,7 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data, fmt_num, fmt_currency, fmt_pct
+from src.utils.campaigns import load_campaign_data, compute_kpis, fmt_num, fmt_currency, fmt_pct
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
@@ -65,36 +65,27 @@ def main():
         st.info("No data available to calculate KPIs. Please run the ETL pipeline.")
         return
 
-    # Aggregate total figures
-    total_spend = float(df["spend_usd"].sum())
-    total_clicks = int(df["clicks"].sum())
-    total_impressions = int(df["impressions"].sum())
-    total_signups = int(df["signups"].sum())
-    total_conversions = int(df["activations_7d"].sum())
+    # Compute headline metrics via unified KPI engine
+    kpis = compute_kpis(df)
 
-    # Formulate metrics matching the screenshot ratios
-    total_revenue = total_spend * 2.6607
+    total_spend = kpis["totalSpend"]
+    total_clicks = int(df["clicks"].sum()) if "clicks" in df.columns else 0
+    total_impressions = int(df["impressions"].sum()) if "impressions" in df.columns else 0
+    total_signups = int(kpis["totalSignups"])
+    total_conversions = int(kpis["totalActivations"])
+    total_revenue = kpis["totalRevenue"]
     total_visits = int(total_clicks * 0.8260)
 
-    # CTR (clicks / impressions)
-    ctr_val = (total_clicks / total_impressions * 100) if total_impressions else 0.0
-    # Conversion Rate (conversions / clicks)
-    cvr_val = (total_conversions / total_clicks * 100) if total_clicks else 0.0
-    # CPA (spend / conversions)
-    cpa_val = (total_spend / total_conversions) if total_conversions else 0.0
-    # CPC (spend / clicks)
-    cpc_val = (total_spend / total_clicks) if total_clicks else 0.0
-    # CPL (spend / signups)
-    cpl_val = (total_spend / total_signups) if total_signups else 0.0
-    # ROI ((revenue - spend) / spend)
-    roi_val = ((total_revenue - total_spend) / total_spend * 100) if total_spend else 0.0
-    # ROAS (revenue / spend)
-    roas_val = (total_revenue / total_spend) if total_spend else 0.0
-    # AOV (revenue / conversions)
-    aov_val = (total_revenue / total_conversions) if total_conversions else 0.0
-    # Engagement Rate (visits / clicks)
+    # Metric rates
+    ctr_val = kpis["ctr"] * 100
+    cvr_val = kpis["cvr"] * 100
+    cpa_val = kpis["cpau"]
+    cpc_val = kpis["cpc"]
+    cpl_val = kpis["cpl"]
+    roi_val = kpis["roi"]
+    roas_val = kpis["roas"]
+    aov_val = kpis["aov"]
     eng_val = (total_visits / total_clicks * 100) if total_clicks else 0.0
-    # Bounce Rate ((clicks - visits) / clicks)
     bounce_val = ((total_clicks - total_visits) / total_clicks * 100) if total_clicks else 0.0
 
     # Layout: Grid of 4 columns, 3 rows

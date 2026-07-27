@@ -11,7 +11,7 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data
+from src.utils.campaigns import load_campaign_data, ACTIVATION_ARPU
 from src.utils.load_css import load_css, get_plotly_layout
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
@@ -125,10 +125,10 @@ def main():
             # Fallback
             return "Other"
 
-    df["platform_grouped"] = df.apply(map_platform, axis=1)
-
-    # 3. Revenue calculation
-    df["revenue"] = df["spend_usd"] * 2.6607
+    # 3. Revenue calculation (preserve activation-derived revenue if present)
+    if "revenue" not in df.columns or df["revenue"].isnull().all():
+        activation_col = "activations_7d" if "activations_7d" in df.columns else ("conversions" if "conversions" in df.columns else "signups")
+        df["revenue"] = df[activation_col] * ACTIVATION_ARPU
 
     # 4. Region mapping (deterministic based on campaign ID)
     def map_region(row):
