@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import sys
 from pathlib import Path
@@ -12,7 +12,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.utils.campaigns import aggregate_by, compute_kpis, fmt_currency, fmt_num, fmt_pct, load_campaign_data
+from src.utils.campaigns import aggregate_by, calculate_metrics, fmt_currency, fmt_num, fmt_pct, load_campaign_data
 from src.utils.load_css import load_css, get_plotly_layout
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
@@ -128,7 +128,7 @@ def main() -> None:
 
     frame, is_demo = load_campaign_data()
     by_date = _build_date_series(frame)
-    kpis = compute_kpis(frame)
+    kpis = calculate_metrics(frame)
     growth = _trend_revenue_delta(by_date)
 
     campaign_col = "campaign_id" if "campaign_id" in frame.columns else "campaign"
@@ -171,7 +171,7 @@ def main() -> None:
         )
 
     with col3:
-        total_revenue = float(frame["revenue"].sum()) if not frame.empty else 0.0
+        total_revenue = kpis["totalRevenue"]
         delta_color = "#10b981" if growth >= 0 else "#ef4444"
         delta_icon = "▲" if growth >= 0 else "▼"
         _render_card_shell(
@@ -211,7 +211,7 @@ def main() -> None:
         )
 
     with col7:
-        roas = total_revenue / total_spend if total_spend else 0.0
+        roas = kpis["roas"]
         _render_card_shell(
             "ROAS",
             f"{roas:.2f}x",

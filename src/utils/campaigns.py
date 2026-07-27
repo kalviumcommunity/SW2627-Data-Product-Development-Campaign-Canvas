@@ -196,11 +196,12 @@ def _build_demo_data() -> pd.DataFrame:
             
     return pd.DataFrame(rows)
 
-def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
-    """Computes high-level aggregated KPIs from the campaign dataframe."""
+def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
+    """Calculates high-level aggregated metrics from the campaign dataframe."""
     if frame.empty:
         return {
             "totalSpend": 0.0,
+            "totalRevenue": 0.0,
             "totalSignups": 0.0,
             "totalActivations": 0.0,
             "wastedSpend": 0.0,
@@ -209,7 +210,8 @@ def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
             "cpau": 0.0,
             "cvr": 0.0,
             "activationRate": 0.0,
-            "totalCampaigns": 0.0
+            "totalCampaigns": 0.0,
+            "roas": 0.0
         }
 
     # Column mappings to support both original schema and SQL join schema
@@ -223,6 +225,11 @@ def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
     total_impressions = float(frame["impressions"].sum())
     total_signups = float(frame[signup_col].sum())
     total_activations = float(frame[activation_col].sum())
+    total_revenue = (
+    float(frame["revenue"].sum())
+    if "revenue" in frame.columns
+    else 0.0
+)
     
     # Calculate Wasted Spend at the campaign level (<10% downstream activation rate)
     campaign_groups = frame.groupby(campaign_col).agg(
@@ -237,6 +244,7 @@ def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
     return {
         "totalCampaigns": float(frame[campaign_col].nunique()),
         "totalSpend": total_spend,
+        "totalRevenue": total_revenue,
         "totalSignups": total_signups,
         "totalActivations": total_activations,
         "wastedSpend": wasted_spend,
@@ -245,6 +253,7 @@ def compute_kpis(frame: pd.DataFrame) -> dict[str, float]:
         "cpau": total_spend / total_activations if total_activations else 0.0,
         "cvr": total_signups / total_clicks if total_clicks else 0.0,
         "activationRate": total_activations / total_signups if total_signups else 0.0,
+        "roas": total_revenue / total_spend if total_spend else 0.0,
     }
 
 def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
