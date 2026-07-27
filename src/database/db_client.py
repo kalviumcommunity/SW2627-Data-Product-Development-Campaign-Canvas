@@ -9,7 +9,14 @@ def get_connection():
     return sqlite3.connect(str(DB_PATH))
 
 def init_db():
-    """Initializes the database schema matching the PRD specifications."""
+    """Initializes the database schema matching the PRD specifications.
+
+    ad_campaign_metrics uses a composite PRIMARY KEY (campaign_id, sync_date)
+    so that each calendar day for a campaign is stored as a separate row,
+    preserving the full daily time-series of ad performance data.
+    A UNIQUE index on campaign_id alone is also created so that
+    hubspot_signups.utm_campaign can reference it via a foreign key.
+    """
     conn = get_connection()
     cursor = conn.cursor()
     
@@ -17,25 +24,51 @@ def init_db():
     cursor.execute("PRAGMA foreign_keys = ON;")
     
     # 1. Table: ad_campaign_metrics
+    #    Composite PK (campaign_id, sync_date) ensures one row per campaign per day,
+    #    enabling daily time-series queries (trend charts, day-over-day deltas, etc.).
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS ad_campaign_metrics (
-        campaign_id VARCHAR PRIMARY KEY,
+        campaign_id VARCHAR NOT NULL,
+        sync_date   DATE    NOT NULL,
         ad_platform VARCHAR CHECK(ad_platform IN ('google_ads', 'meta_ads', 'linkedin_ads', 'tiktok_ads', 'pinterest_ads')),
-        spend_usd DECIMAL(10, 2) NOT NULL CHECK(spend_usd >= 0),
-        clicks INTEGER NOT NULL CHECK(clicks >= 0),
-        impressions INTEGER NOT NULL CHECK(impressions >= 0),
-        sync_date DATE NOT NULL
+        spend_usd   DECIMAL(10, 2) NOT NULL CHECK(spend_usd >= 0),
+        clicks      INTEGER        NOT NULL CHECK(clicks >= 0),
+        impressions INTEGER        NOT NULL CHECK(impressions >= 0),
+        PRIMARY KEY (campaign_id, sync_date)
     );
+    """)
+
+    # Unique index on campaign_id so hubspot_signups.utm_campaign can FK-reference it.
+    # SQLite FK references must point to a PRIMARY KEY or a UNIQUE column/index.
+    cursor.execute("""
+    CREATE UNIQUE INDEX IF NOT EXISTS uix_adcm_campaign_id
+    ON ad_campaign_metrics (campaign_id);
+    """)
+
+    # Index to accelerate date-range and platform queries
+    cursor.execute("""
+    CREATE INDEX IF NOT EXISTS idx_acm_sync_date
+        ON ad_campaign_metrics (sync_date);
+    """)
+    cursor.execute("""
+    CREATE INDEX IF NOT EXISTS idx_acm_platform
+        ON ad_campaign_metrics (ad_platform, sync_date);
     """)
     
     # 2. Table: hubspot_signups
+    #    utm_campaign FK references the unique campaign_id index on ad_campaign_metrics.
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS hubspot_signups (
-        email VARCHAR PRIMARY KEY,
-        utm_campaign VARCHAR,
+        email            VARCHAR   PRIMARY KEY,
+        utm_campaign     VARCHAR,
         signup_timestamp TIMESTAMP NOT NULL,
         FOREIGN KEY (utm_campaign) REFERENCES ad_campaign_metrics(campaign_id)
     );
+    """)
+
+    cursor.execute("""
+    CREATE INDEX IF NOT EXISTS idx_hs_utm_campaign
+        ON hubspot_signups (utm_campaign);
     """)
     
     # 3. Table: product_activations
