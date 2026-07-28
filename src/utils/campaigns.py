@@ -16,6 +16,31 @@ DATA_ROOT = Path(__file__).resolve().parents[2] / "data"
 
 ACTIVATION_ARPU = 135.287876
 
+
+def calculate_revenue(frame: pd.DataFrame) -> pd.Series:
+    """Calculates standardized revenue derived from activations or returns existing revenue."""
+    if frame.empty:
+        return pd.Series(dtype=float)
+
+    if "revenue" in frame.columns and not frame["revenue"].isnull().all():
+        return frame["revenue"].fillna(0.0)
+
+    activation_col = (
+        "activations_7d"
+        if "activations_7d" in frame.columns
+        else "activations"
+        if "activations" in frame.columns
+        else "conversions"
+        if "conversions" in frame.columns
+        else "signups"
+    )
+
+    if activation_col in frame.columns:
+        return frame[activation_col].fillna(0.0) * ACTIVATION_ARPU
+
+    return pd.Series(0.0, index=frame.index)
+
+
 def load_campaign_data() -> tuple[pd.DataFrame, bool]:
     """Loads campaign activation daily dataset from the SQLite database.
     If the DB is not found, runs the ETL to populate it.
@@ -23,21 +48,21 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
         (DataFrame, is_demo)
     """
     db_path = DATA_ROOT / "processed" / "marketing.db"
-    
+
     if not db_path.exists():
         try:
             from src.etl_pipeline import run_etl
             run_etl()
         except Exception as e:
             print(f"Error running ETL pipeline: {e}")
-            
+
     if db_path.exists():
         try:
             conn = sqlite3.connect(str(db_path))
-            
+
             df = pd.read_sql_query(CAMPAIGN_OVERVIEW_QUERY, conn)
             conn.close()
-            
+
             campaign_names = {
                 "c_google_brand": "Search - Brand",
                 "c_google_nonbrand": "Search - Nonbrand",
@@ -47,14 +72,14 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
                 "c_display_remarketing": "Display - Remarketing",
             }
             df["campaign_name"] = df["campaign_id"].map(campaign_names).fillna(df["campaign_id"])
-            df["revenue"] = df["activations_7d"] * ACTIVATION_ARPU
+            df["revenue"] = calculate_revenue(df)
             return df, False
         except Exception as e:
             print(f"Error reading from SQLite database: {e}")
-            
+
     # Fallback to demo data if SQLite load fails
     df_demo = _build_demo_data()
-    df_demo["revenue"] = df_demo["activations_7d"] * ACTIVATION_ARPU
+    df_demo["revenue"] = calculate_revenue(df_demo)
     return df_demo, True
 
 
@@ -64,9 +89,21 @@ def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
         return frame.copy()
 
     enriched = frame.copy()
-    campaign_text = enriched["campaign_id"].astype(str).str.lower() if "campaign_id" in enriched.columns else pd.Series("", index=enriched.index)
-    campaign_name_text = enriched["campaign_name"].astype(str).str.lower() if "campaign_name" in enriched.columns else campaign_text
-    platform_text = enriched["ad_platform"].astype(str).str.lower() if "ad_platform" in enriched.columns else pd.Series("", index=enriched.index)
+    campaign_text = (
+        enriched["campaign_id"].astype(str).str.lower()
+        if "campaign_id" in enriched.columns
+        else pd.Series("", index=enriched.index)
+    )
+    campaign_name_text = (
+        enriched["campaign_name"].astype(str).str.lower()
+        if "campaign_name" in enriched.columns
+        else campaign_text
+    )
+    platform_text = (
+        enriched["ad_platform"].astype(str).str.lower()
+        if "ad_platform" in enriched.columns
+        else pd.Series("", index=enriched.index)
+    )
 
     def map_channel() -> pd.Series:
         values = []
@@ -99,7 +136,11 @@ def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
     def map_device() -> pd.Series:
         values = []
         for campaign_id in campaign_text:
-            values.append("Mobile" if any(token in campaign_id for token in ["brand", "prospect", "instagram", "tiktok"]) else "Desktop")
+            values.append(
+                "Mobile"
+                if any(token in campaign_id for token in ["brand", "prospect", "instagram", "tiktok"])
+                else "Desktop"
+            )
         return pd.Series(values, index=enriched.index)
 
     def map_platform_grouped() -> pd.Series:
@@ -129,15 +170,21 @@ def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
     enriched["device"] = map_device()
     return enriched
 
+
 def _build_demo_data() -> pd.DataFrame:
     """Builds a fallback demo DataFrame in case the database is completely empty."""
     import numpy as np
+
     rng = np.random.default_rng(7)
     dates = pd.date_range("2026-06-01", periods=14, freq="D")
     campaigns = [
-        "c_google_brand", "c_google_nonbrand", "c_meta_prospect", "c_meta_retarget", "c_youtube_awareness"
+        "c_google_brand",
+        "c_google_nonbrand",
+        "c_meta_prospect",
+        "c_meta_retarget",
+        "c_youtube_awareness",
     ]
-    
+
     rows = []
     for date in dates:
         for index, campaign in enumerate(campaigns):
@@ -147,7 +194,7 @@ def _build_demo_data() -> pd.DataFrame:
             signups = int(clicks * rng.uniform(0.04, 0.10))
             profile_completed = int(signups * rng.uniform(0.5, 0.8))
             activations = int(profile_completed * rng.uniform(0.4, 0.7))
-            
+
             rows.append({
                 "date": date.strftime("%Y-%m-%d"),
                 "campaign_id": campaign,
@@ -159,10 +206,11 @@ def _build_demo_data() -> pd.DataFrame:
                 "signups": signups,
                 "profile_completed": profile_completed,
                 "campaign_run": activations,
-                "activations_7d": activations
+                "activations_7d": activations,
             })
-            
+
     return pd.DataFrame(rows)
+
 
 def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
     """Calculates high-level aggregated metrics from the campaign dataframe."""
@@ -187,7 +235,6 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
             "totalCampaigns": 0.0,
         }
 
-    # Support both the original schema and SQL join schema
     spend_col = "spend_usd" if "spend_usd" in frame.columns else "spend"
 
     signup_col = (
@@ -201,6 +248,8 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
     activation_col = (
         "activations_7d"
         if "activations_7d" in frame.columns
+        else "activations"
+        if "activations" in frame.columns
         else "conversions"
         if "conversions" in frame.columns
         else "activation_count"
@@ -212,7 +261,6 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
         else "campaign"
     )
 
-    # Aggregate values safely
     total_spend = (
         float(frame[spend_col].sum())
         if spend_col in frame.columns
@@ -243,13 +291,9 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
         else 0.0
     )
 
-    if "revenue" in frame.columns:
-        total_revenue = float(frame["revenue"].sum())
-    else:
-        total_revenue = total_activations * ACTIVATION_ARPU
+    total_revenue = float(calculate_revenue(frame).sum())
 
-    # Calculate wasted spend for campaigns with
-    # less than 10% activation rate
+    # Calculate wasted spend for campaigns with less than 10% activation rate
     if (
         campaign_col in frame.columns
         and spend_col in frame.columns
@@ -345,82 +389,85 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
         ),
     }
 
+
 def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
     """Aggregates metrics by a key (e.g., 'campaign_id', 'ad_platform', or 'campaign_name')."""
     if frame.empty:
         return pd.DataFrame()
-        
-    spend_col = "spend_usd" if "spend_usd" in frame.columns else "spend"
-    signup_col = "signups" if "signups" in frame.columns else ("conversions" if "conversions" in frame.columns else "signup_count")
-    activation_col = "activations_7d" if "activations_7d" in frame.columns else ("conversions" if "conversions" in frame.columns else "activation_count")
-    
+
+    frame_copy = frame.copy()
+    frame_copy["revenue"] = calculate_revenue(frame_copy)
+
+    spend_col = "spend_usd" if "spend_usd" in frame_copy.columns else "spend"
+    signup_col = (
+        "signups"
+        if "signups" in frame_copy.columns
+        else ("conversions" if "conversions" in frame_copy.columns else "signup_count")
+    )
+    activation_col = (
+        "activations_7d"
+        if "activations_7d" in frame_copy.columns
+        else ("activations" if "activations" in frame_copy.columns else "activation_count")
+    )
+
     agg_dict = {
         spend_col: "sum",
         "clicks": "sum",
         "impressions": "sum",
         signup_col: "sum",
-        activation_col: "sum"
+        activation_col: "sum",
+        "revenue": "sum",
     }
-    
-    if "revenue" in frame.columns:
-        agg_dict["revenue"] = "sum"
-    if "profile_completed" in frame.columns:
+
+    if "profile_completed" in frame_copy.columns:
         agg_dict["profile_completed"] = "sum"
-    if "campaign_run" in frame.columns:
+    if "campaign_run" in frame_copy.columns:
         agg_dict["campaign_run"] = "sum"
-        
+
     group_keys = [key]
     if key in ["campaign_id", "campaign_name", "campaign"]:
         for extra in ["campaign_id", "campaign_name", "campaign", "ad_platform"]:
-            if extra in frame.columns and extra not in group_keys:
+            if extra in frame_copy.columns and extra not in group_keys:
                 group_keys.append(extra)
-                
-    grouped = frame.groupby(group_keys, dropna=False, as_index=False).agg(agg_dict)
-    
+
+    grouped = frame_copy.groupby(group_keys, dropna=False, as_index=False).agg(agg_dict)
+
     # Normalize column names for UI consistency
     grouped = grouped.rename(columns={
         key: "name",
         spend_col: "spend_usd",
         signup_col: "signups",
-        activation_col: "activations_7d"
+        activation_col: "activations_7d",
     })
-    
+
     if "campaign_name" in grouped.columns and key != "campaign_name":
         grouped["display_name"] = grouped["campaign_name"]
     else:
         grouped["display_name"] = grouped["name"]
-        
-    # Calculate rates
-    grouped["ctr"] = grouped["clicks"] / grouped["impressions"]
-    grouped["cvr"] = grouped["signups"] / grouped["clicks"]
-    grouped["activation_rate"] = grouped["activations_7d"] / grouped["signups"]
-    grouped["cpau"] = grouped["spend_usd"] / grouped["activations_7d"]
-    
-    # Fill division by zero nulls
-    grouped["ctr"] = grouped["ctr"].fillna(0.0)
-    grouped["cvr"] = grouped["cvr"].fillna(0.0)
-    grouped["activation_rate"] = grouped["activation_rate"].fillna(0.0)
-    grouped["cpau"] = grouped["cpau"].fillna(0.0)
-    
-    # Maintain column interfaces expected by original tests
-    if "spend" not in grouped.columns:
-        grouped["totalSpend"] = grouped["spend_usd"]
-        if "revenue" in grouped.columns:
-            grouped["totalRevenue"] = grouped["revenue"]
-        else:
-            grouped["revenue"] = grouped["activations_7d"] * ACTIVATION_ARPU
-            grouped["totalRevenue"] = grouped["revenue"]
-        grouped["roas"] = (grouped["totalRevenue"] / grouped["spend_usd"]).fillna(0.0)
-        grouped["totalConversions"] = grouped["activations_7d"]
-        grouped["cpa"] = grouped["spend_usd"] / grouped["activations_7d"]
-        
+
+    # Calculate rates safely
+    grouped["ctr"] = (grouped["clicks"] / grouped["impressions"]).fillna(0.0)
+    grouped["cvr"] = (grouped["signups"] / grouped["clicks"]).fillna(0.0)
+    grouped["activation_rate"] = (grouped["activations_7d"] / grouped["signups"]).fillna(0.0)
+    grouped["cpau"] = (grouped["spend_usd"] / grouped["activations_7d"]).fillna(0.0)
+
+    # Standardize column interfaces for downstream components
+    grouped["totalSpend"] = grouped["spend_usd"]
+    grouped["totalRevenue"] = grouped["revenue"]
+    grouped["roas"] = (grouped["totalRevenue"] / grouped["spend_usd"]).fillna(0.0)
+    grouped["totalConversions"] = grouped["activations_7d"]
+    grouped["cpa"] = (grouped["spend_usd"] / grouped["signups"]).fillna(0.0)
+
     return grouped.sort_values(["spend_usd", "activations_7d"], ascending=[False, False]).reset_index(drop=True)
+
 
 def fmt_currency(value: float) -> str:
     return f"${value:,.0f}" if abs(value) >= 1_000 else f"${value:,.2f}"
 
+
 def fmt_num(value: float) -> str:
     return f"{value:,.0f}"
+
 
 def fmt_pct(value: float) -> str:
     return f"{value * 100:.1f}%"
