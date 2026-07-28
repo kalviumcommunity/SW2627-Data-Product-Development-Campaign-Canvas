@@ -99,5 +99,9 @@ Automated validation checks run on pull requests and pushes via GitHub Actions:
 
 To run the tests locally:
 ```bash
+# Run test suite
 pytest tests/
+
+# Run with verbose output
+pytest tests/ -v
 ```
