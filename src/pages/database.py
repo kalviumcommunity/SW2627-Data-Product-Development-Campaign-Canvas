@@ -12,6 +12,7 @@ if root_dir not in sys.path:
 	sys.path.insert(0, root_dir)
 
 from src.database.db_client import get_connection, init_db
+from src.database.queries import count_rows_query, table_info_query
 from src.utils.campaigns import load_campaign_data
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
@@ -46,7 +47,7 @@ SCHEMA_TABLES = [
 
 def _table_row_count(connection, table_name: str) -> int:
 	try:
-		cursor = connection.execute(f"SELECT COUNT(*) FROM {table_name}")
+		cursor = connection.execute(count_rows_query(table_name))
 		result = cursor.fetchone()
 		return int(result[0]) if result else 0
 	except Exception:
@@ -55,7 +56,7 @@ def _table_row_count(connection, table_name: str) -> int:
 
 def _table_column_count(connection, table_name: str) -> int:
 	try:
-		cursor = connection.execute(f"PRAGMA table_info({table_name})")
+		cursor = connection.execute(table_info_query(table_name))
 		return len(cursor.fetchall())
 	except Exception:
 		return 0
