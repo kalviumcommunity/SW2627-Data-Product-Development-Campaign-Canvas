@@ -10,6 +10,13 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 from src.database.db_client import get_connection, init_db
+from src.database.queries import (
+    DELETE_AD_CAMPAIGN_METRICS,
+    DELETE_HUBSPOT_SIGNUPS,
+    DELETE_PRODUCT_ACTIVATIONS,
+    PRAGMA_FOREIGN_KEYS_OFF,
+    PRAGMA_FOREIGN_KEYS_ON,
+)
 
 def generate_mock_data():
     """Generates mock raw datasets corresponding to the PRD specifications."""
@@ -188,13 +195,13 @@ def run_etl():
     conn = get_connection()
     
     # Disable foreign keys temporarily during load to handle forward declarations easily
-    conn.execute("PRAGMA foreign_keys = OFF;")
+    conn.execute(PRAGMA_FOREIGN_KEYS_OFF)
     
     # Empty tables first to avoid unique constraint violations on re-run
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM product_activations;")
-    cursor.execute("DELETE FROM hubspot_signups;")
-    cursor.execute("DELETE FROM ad_campaign_metrics;")
+    cursor.execute(DELETE_PRODUCT_ACTIVATIONS)
+    cursor.execute(DELETE_HUBSPOT_SIGNUPS)
+    cursor.execute(DELETE_AD_CAMPAIGN_METRICS)
     conn.commit()
     
     # Write tables
@@ -202,7 +209,7 @@ def run_etl():
     df_signups_clean.to_sql("hubspot_signups", conn, if_exists="append", index=False)
     df_activations_clean.to_sql("product_activations", conn, if_exists="append", index=False)
     
-    conn.execute("PRAGMA foreign_keys = ON;")
+    conn.execute(PRAGMA_FOREIGN_KEYS_ON)
     conn.close()
     
     print("ETL successfully completed and loaded to SQLite!")

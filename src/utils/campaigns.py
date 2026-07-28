@@ -10,6 +10,8 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
+from src.database.queries import CAMPAIGN_OVERVIEW_QUERY
+
 DATA_ROOT = Path(__file__).resolve().parents[2] / "data"
 
 ACTIVATION_ARPU = 135.287876
@@ -33,43 +35,7 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
         try:
             conn = sqlite3.connect(str(db_path))
             
-            # Query with SQL Joins to generate the unified campaign overview
-            query = """
-            WITH campaign_signups AS (
-                SELECT 
-                    utm_campaign,
-                    COUNT(*) as signups
-                FROM hubspot_signups
-                GROUP BY utm_campaign
-            ),
-            campaign_activations AS (
-                SELECT 
-                    h.utm_campaign,
-                    SUM(p.profile_completed) as profile_completed,
-                    SUM(p.campaign_run) as campaign_run,
-                    SUM(CASE WHEN p.profile_completed = 1 AND p.campaign_run = 1 AND 
-                             (julianday(p.activation_timestamp) - julianday(p.signup_timestamp)) <= 7.0 THEN 1 ELSE 0 END) as activations_7d
-                FROM hubspot_signups h
-                JOIN product_activations p ON h.email = p.email
-                GROUP BY h.utm_campaign
-            )
-            SELECT 
-                a.sync_date as date,
-                a.campaign_id,
-                a.ad_platform,
-                a.spend_usd,
-                a.clicks,
-                a.impressions,
-                COALESCE(s.signups, 0) as signups,
-                COALESCE(c.profile_completed, 0) as profile_completed,
-                COALESCE(c.campaign_run, 0) as campaign_run,
-                COALESCE(c.activations_7d, 0) as activations_7d
-            FROM ad_campaign_metrics a
-            LEFT JOIN campaign_signups s ON a.campaign_id = s.utm_campaign
-            LEFT JOIN campaign_activations c ON a.campaign_id = c.utm_campaign
-            """
-            
-            df = pd.read_sql_query(query, conn)
+            df = pd.read_sql_query(CAMPAIGN_OVERVIEW_QUERY, conn)
             conn.close()
             
             campaign_names = {

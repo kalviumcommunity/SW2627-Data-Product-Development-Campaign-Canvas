@@ -9,6 +9,7 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
+from src.database.queries import SQL_WORKSPACE_DEFAULT_QUERY
 from src.utils.campaigns import load_campaign_data, ACTIVATION_ARPU
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
@@ -114,11 +115,7 @@ def main():
     # Layout: left column for querying, right column for saved queries
     col_query, col_saved = st.columns([5, 2], gap="large")
 
-    default_query = """SELECT channel, SUM(revenue) AS revenue, SUM(spend) AS spend,
-       ROUND(SUM(revenue)*1.0/NULLIF(SUM(spend),0), 2) AS roas
-FROM campaigns
-GROUP BY channel
-ORDER BY revenue DESC"""
+    default_query = SQL_WORKSPACE_DEFAULT_QUERY
 
     with col_query:
         with st.container(border=True):
