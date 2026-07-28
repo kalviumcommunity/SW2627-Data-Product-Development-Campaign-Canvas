@@ -11,35 +11,25 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data, ACTIVATION_ARPU
+from src.utils.campaigns import (
+    load_campaign_data,
+    add_marketing_dimensions,
+    calculate_revenue,
+)
 from src.utils.load_css import load_css, get_plotly_layout
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 
-st.set_page_config(page_title="Visualizations — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
+st.set_page_config(
+    page_title="Visualizations — CampaignCanvas",
+    page_icon=":material/bar_chart:",
+    layout="wide",
+)
 load_css()
 
 # Check if user is logged in
 if not st.session_state.get("logged_in", False):
     st.switch_page("pages/auth.py")
-
-# Custom Dark Theme configuration for Plotly Charts
-PLOTLY_THEME_LAYOUT = {
-    "paper_bgcolor": "rgba(0,0,0,0)",
-    "plot_bgcolor": "rgba(0,0,0,0)",
-    "font": {"family": "Inter, sans-serif", "color": "#94a3b8", "size": 11},
-    "margin": {"t": 40, "b": 40, "l": 40, "r": 40},
-    "xaxis": {
-        "gridcolor": "rgba(255,255,255,0.06)",
-        "zeroline": False,
-        "showline": False,
-    },
-    "yaxis": {
-        "gridcolor": "rgba(255,255,255,0.06)",
-        "zeroline": False,
-        "showline": False,
-    }
-}
 
 # Harmonious dark palette colors
 COLOR_PALETTE = [
@@ -51,8 +41,9 @@ COLOR_PALETTE = [
     "#10b981",  # Emerald
     "#f59e0b",  # Amber
     "#a855f7",  # Purple
-    "#06b6d4"   # Cyan
+    "#06b6d4",  # Cyan
 ]
+
 
 def main():
     # Sidebar
@@ -81,69 +72,23 @@ def main():
         st.info("No data available for visualization. Please run the ETL pipeline.")
         return
 
-    # Add dynamically mapped columns for visualization
-    # 1. Channel Mapping
-    def map_channel(row):
-        plat = str(row["ad_platform"]).lower()
-        camp = str(row["campaign_id"]).lower()
-        if "email" in camp or "mailchimp" in camp or "klaviyo" in camp:
-            return "Email"
-        elif "youtube" in camp or "video" in camp:
-            return "Video"
-        elif "display" in camp or "remarketing" in camp:
-            return "Display"
-        elif "brand" in camp or "search" in camp:
-            return "Search"
-        else:
-            return "Social"
+    # Add standardized dimensions and calculation attributes
+    df = add_marketing_dimensions(df)
+    df["revenue"] = calculate_revenue(df)
 
-    df["channel"] = df.apply(map_channel, axis=1)
-    
-    # Convert date column to datetime for proper sorting
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    # Standardize schema column names if needed
+    spend_col = "spend_usd" if "spend_usd" in df.columns else "spend"
+    activation_col = (
+        "activations_7d"
+        if "activations_7d" in df.columns
+        else "activations"
+        if "activations" in df.columns
+        else "conversions"
+    )
 
-    # 2. Platform Mapping for Pie Chart
-    def map_platform(row):
-        camp = str(row["campaign_id"]).lower()
-        if "google_brand" in camp or "google_nonbrand" in camp:
-            return "Google"
-        elif "youtube" in camp:
-            return "YouTube"
-        elif "display" in camp:
-            return "Programmatic"
-        elif "meta" in camp:
-            return "Meta"
-        elif "linkedin" in camp:
-            return "LinkedIn"
-        elif "tiktok" in camp:
-            return "TikTok"
-        elif "instagram" in camp:
-            return "Meta"
-        elif "pinterest" in camp:
-            return "Pinterest"
-        else:
-            # Fallback
-            return "Other"
-
-    # 3. Revenue calculation (preserve activation-derived revenue if present)
-    if "revenue" not in df.columns or df["revenue"].isnull().all():
-        activation_col = "activations_7d" if "activations_7d" in df.columns else ("conversions" if "conversions" in df.columns else "signups")
-        df["revenue"] = df[activation_col] * ACTIVATION_ARPU
-
-    # 4. Region mapping (deterministic based on campaign ID)
-    def map_region(row):
-        camp = str(row["campaign_id"]).lower()
-        # Spread campaign conversions across US, EU, LATAM, APAC
-        if "brand" in camp:
-            return "US"
-        elif "nonbrand" in camp or "retarget" in camp:
-            return "EU"
-        elif "prospect" in camp or "leadgen" in camp:
-            return "LATAM"
-        else:
-            return "APAC"
-
-    df["region"] = df.apply(map_region, axis=1)
+    # Convert date column to datetime for proper temporal sorting
+    if "date" in df.columns:
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
     # Layout Grid: 2 columns, 2 rows
     col_row1_left, col_row1_right = st.columns(2, gap="large")
@@ -152,11 +97,12 @@ def main():
     # 1. Bar Chart — Revenue by Channel
     with col_row1_left:
         with st.container(border=True):
-            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Bar — Revenue by Channel</span>", unsafe_allow_html=True)
-            
-            # Aggregate data
+            st.markdown(
+                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Bar — Revenue by Channel</span>",
+                unsafe_allow_html=True,
+            )
+
             bar_df = df.groupby("channel", as_index=False)["revenue"].sum()
-            # Sort to match screenshot order (Email, Search, Social, Video, Display)
             order_map = {"Email": 0, "Search": 1, "Social": 2, "Video": 3, "Display": 4}
             bar_df["order"] = bar_df["channel"].map(order_map).fillna(5)
             bar_df = bar_df.sort_values("order")
@@ -166,73 +112,101 @@ def main():
                 x="channel",
                 y="revenue",
                 labels={"channel": "Channel", "revenue": "Revenue ($)"},
-                color_discrete_sequence=["#38bdf8"]
+                color_discrete_sequence=["#38bdf8"],
             )
-            
-            # Apply styles
+
             fig_bar.update_layout(get_plotly_layout())
             fig_bar.update_traces(
                 marker_color="#38bdf8",
                 marker_line_color="#38bdf8",
                 marker_line_width=1,
-                opacity=0.9
+                opacity=0.9,
             )
-            st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(
+                fig_bar, use_container_width=True, config={"displayModeBar": False}
+            )
 
     # 2. Pie Chart — Spend distribution
     with col_row1_right:
         with st.container(border=True):
-            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Pie — Spend distribution</span>", unsafe_allow_html=True)
-            
-            spend_df = df.groupby("platform_grouped", as_index=False)["spend_usd"].sum()
-            
+            st.markdown(
+                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Pie — Spend distribution</span>",
+                unsafe_allow_html=True,
+            )
+
+            spend_df = df.groupby("platform_grouped", as_index=False)[spend_col].sum()
+
             fig_pie = px.pie(
                 spend_df,
                 names="platform_grouped",
-                values="spend_usd",
-                color_discrete_sequence=COLOR_PALETTE
+                values=spend_col,
+                color_discrete_sequence=COLOR_PALETTE,
             )
-            
+
             fig_pie.update_layout(get_plotly_layout())
-            fig_pie.update_traces(textposition='inside', textinfo='percent+label')
-            st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
+            fig_pie.update_traces(textposition="inside", textinfo="percent+label")
+            st.plotly_chart(
+                fig_pie, use_container_width=True, config={"displayModeBar": False}
+            )
 
     # 3. Donut Chart — Conversions by Region
     with col_row2_left:
         with st.container(border=True):
-            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Donut — Conversions by Region</span>", unsafe_allow_html=True)
-            
-            region_df = df.groupby("region", as_index=False)["activations_7d"].sum()
-            
-            fig_donut = go.Figure(data=[go.Pie(
-                labels=region_df["region"],
-                values=region_df["activations_7d"],
-                hole=.4,
-                marker=dict(colors=COLOR_PALETTE)
-            )])
-            
+            st.markdown(
+                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Donut — Conversions by Region</span>",
+                unsafe_allow_html=True,
+            )
+
+            region_df = df.groupby("region", as_index=False)[activation_col].sum()
+
+            fig_donut = go.Figure(
+                data=[
+                    go.Pie(
+                        labels=region_df["region"],
+                        values=region_df[activation_col],
+                        hole=0.4,
+                        marker=dict(colors=COLOR_PALETTE),
+                    )
+                ]
+            )
+
             fig_donut.update_layout(get_plotly_layout())
-            fig_donut.update_traces(textposition='inside', textinfo='percent+label')
-            st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
+            fig_donut.update_traces(textposition="inside", textinfo="percent+label")
+            st.plotly_chart(
+                fig_donut, use_container_width=True, config={"displayModeBar": False}
+            )
 
     # 4. Line Chart — Daily conversions
     with col_row2_right:
         with st.container(border=True):
-            st.markdown("<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Line — Daily conversions</span>", unsafe_allow_html=True)
-            
-            daily_df = df.groupby("date", as_index=False)["activations_7d"].sum().sort_values("date")
-            
+            st.markdown(
+                "<span style='font-family: var(--font-display); font-weight: 700; color: white;'>Line — Daily conversions</span>",
+                unsafe_allow_html=True,
+            )
+
+            if "date" in df.columns:
+                daily_df = (
+                    df.groupby("date", as_index=False)[activation_col]
+                    .sum()
+                    .sort_values("date")
+                )
+            else:
+                daily_df = pd.DataFrame(columns=["date", activation_col])
+
             fig_line = px.line(
                 daily_df,
                 x="date",
-                y="activations_7d",
-                labels={"date": "Date", "activations_7d": "Conversions"},
-                color_discrete_sequence=["#10b981"]
+                y=activation_col,
+                labels={"date": "Date", activation_col: "Conversions"},
+                color_discrete_sequence=["#10b981"],
             )
-            
+
             fig_line.update_layout(get_plotly_layout())
             fig_line.update_traces(line=dict(color="#10b981", width=2.5))
-            st.plotly_chart(fig_line, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(
+                fig_line, use_container_width=True, config={"displayModeBar": False}
+            )
+
 
 if __name__ == "__main__":
     main()
