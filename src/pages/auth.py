@@ -1,4 +1,8 @@
+import os
 import sys
+import time
+import urllib.parse
+import uuid
 from datetime import datetime
 from pathlib import Path
 
@@ -470,21 +474,21 @@ with col_form:
             unsafe_allow_html=True,
         )
 
+        is_debug_mode = os.getenv("DEBUG_MODE", "true").lower() in ("true", "1", "yes")
         client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
+        has_clerk_config = bool(client_id and client_secret and domain and "your-clerk-client" not in client_id)
+
         clerk_wrap = st.container(key="clerk_btn")
         with clerk_wrap:
-            if client_id and client_secret and domain:
+            if has_clerk_config:
                 st.session_state["clerk_redirect_uri"] = redirect_uri
                 endpoints = get_clerk_endpoints(domain)
-
-                import uuid
 
                 state = st.session_state.get("clerk_oauth_state")
                 if not state:
                     state = str(uuid.uuid4())
                     st.session_state["clerk_oauth_state"] = state
 
-                import urllib.parse
                 encoded_redirect_uri = urllib.parse.quote(redirect_uri, safe="")
 
                 auth_url = (
@@ -519,16 +523,17 @@ CLERK_REDIRECT_URI=http://localhost:8501/
                 unsafe_allow_html=True,
             )
 
-            if st.button("Proceed with Mock Clerk Login", key="mock_clerk_login_btn", use_container_width=True):
-                with st.spinner("Redirecting to Clerk mock login screen..."):
-                    import time
-
-                    time.sleep(1.0)
-                st.session_state.logged_in = True
-                st.session_state.email = "demo.clerk.user@gmail.com"
-                st.session_state.name = "Demo Clerk User"
-                st.success("Welcome back! Redirecting to dashboard...")
-                st.switch_page("pages/dashboard.py")
+            if is_debug_mode:
+                if st.button("Proceed with Mock Clerk Login", key="mock_clerk_login_btn", use_container_width=True):
+                    with st.spinner("Redirecting to Clerk mock login screen..."):
+                        time.sleep(1.0)
+                    st.session_state.logged_in = True
+                    st.session_state.email = "demo.clerk.user@gmail.com"
+                    st.session_state.name = "Demo Clerk User"
+                    st.success("Welcome back! Redirecting to dashboard...")
+                    st.switch_page("pages/dashboard.py")
+            else:
+                st.error("Mock authentication is disabled when DEBUG_MODE=false. Please configure valid Clerk API credentials.")
 
         st.markdown('<div class="auth-divider">or</div>', unsafe_allow_html=True)
 
@@ -542,6 +547,8 @@ CLERK_REDIRECT_URI=http://localhost:8501/
                 if submitted:
                     if not email or not password:
                         st.error("Please enter both email and password.")
+                    elif not is_debug_mode and not has_clerk_config:
+                        st.error("Password authentication requires DEBUG_MODE=true or active backend authentication.")
                     else:
                         st.session_state.logged_in = True
                         st.session_state.email = email
@@ -561,6 +568,8 @@ CLERK_REDIRECT_URI=http://localhost:8501/
                 if submitted_up:
                     if not name or not email_up or len(password_up) < 6:
                         st.error("Fill in all fields — password needs at least 6 characters.")
+                    elif not is_debug_mode and not has_clerk_config:
+                        st.error("Account creation requires DEBUG_MODE=true or active backend authentication.")
                     else:
                         st.session_state.logged_in = True
                         st.session_state.email = email_up

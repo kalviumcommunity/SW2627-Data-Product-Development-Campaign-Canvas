@@ -12,55 +12,33 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 import pandas as pd
 
-from src.utils.campaigns import calculate_revenue
+from src.utils.campaigns import calculate_metrics, calculate_revenue
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 
 def _compute_kpis(df: pd.DataFrame) -> dict:
-    """Return a dict of headline KPIs from the campaign DataFrame."""
-    spend = float(df["spend_usd"].sum()) if "spend_usd" in df.columns else (
-        float(df["spend"].sum()) if "spend" in df.columns else 0.0
-    )
+    """Return a dict of headline KPIs from the campaign DataFrame using central calculate_metrics."""
+    metrics = calculate_metrics(df)
     clicks = int(df["clicks"].sum()) if "clicks" in df.columns else 0
     impr = int(df["impressions"].sum()) if "impressions" in df.columns else 0
-    signups = int(df["signups"].sum()) if "signups" in df.columns else 0
-    
-    conversions = int(
-        df["activations_7d"].sum() if "activations_7d" in df.columns 
-        else df.get("activations", df.get("conversions", pd.Series([0]))).sum()
-    )
-    
-    if "revenue" in df.columns:
-        revenue = float(df["revenue"].sum())
-    else:
-        revenue = float(calculate_revenue(df).sum())
-
-    ctr = (clicks / impr * 100) if impr else 0.0
-    cvr = (conversions / clicks * 100) if clicks else 0.0
-    cpa = (spend / conversions) if conversions else 0.0
-    cpl = (spend / signups) if signups else 0.0
-    roas = (revenue / spend) if spend else 0.0
-    roi = ((revenue - spend) / spend * 100) if spend else 0.0
-    cpc = (spend / clicks) if clicks else 0.0
-    aov = (revenue / conversions) if conversions else 0.0
 
     return dict(
-        spend=spend,
+        spend=metrics["totalSpend"],
         clicks=clicks,
         impressions=impr,
-        signups=signups,
-        conversions=conversions,
-        revenue=revenue,
-        ctr=ctr,
-        cvr=cvr,
-        cpa=cpa,
-        cpl=cpl,
-        roas=roas,
-        roi=roi,
-        cpc=cpc,
-        aov=aov,
+        signups=int(metrics["totalSignups"]),
+        conversions=int(metrics["totalActivations"]),
+        revenue=metrics["totalRevenue"],
+        ctr=metrics["ctr"] * 100 if metrics["ctr"] <= 1.0 else metrics["ctr"],
+        cvr=metrics["cvr"] * 100 if metrics["cvr"] <= 1.0 else metrics["cvr"],
+        cpa=metrics["cpa"],
+        cpl=metrics["cpl"],
+        roas=metrics["roas"],
+        roi=metrics["roi"],
+        cpc=metrics["cpc"],
+        aov=metrics["aov"],
     )
 
 

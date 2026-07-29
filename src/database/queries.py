@@ -15,18 +15,25 @@ DELETE_HUBSPOT_SIGNUPS: Final = "DELETE FROM hubspot_signups;"
 DELETE_AD_CAMPAIGN_METRICS: Final = "DELETE FROM ad_campaign_metrics;"
 
 # ── Default Workspace Queries ────────────────────────────────────────────────
-SQL_WORKSPACE_DEFAULT_QUERY: Final = """SELECT 
+# NOTE: This query targets the in-memory SQLite `campaigns` view that
+# sql_workspace.py builds from the loaded DataFrame — it does NOT reference
+# the on-disk SQLite `ad_campaign_metrics` table.  The `campaigns` view has
+# columns: date, campaign, channel, platform, region, device, impressions,
+# clicks, visits, signups, conversions, spend, revenue.
+SQL_WORKSPACE_DEFAULT_QUERY: Final = """SELECT
     channel,
-    SUM(spend) AS total_spend,
-    SUM(revenue) AS total_revenue,
+    SUM(spend)       AS total_spend,
+    SUM(revenue)     AS total_revenue,
     ROUND(SUM(revenue) * 1.0 / NULLIF(SUM(spend), 0), 2) AS roas,
-    SUM(clicks) AS total_clicks,
+    SUM(clicks)      AS total_clicks,
     SUM(impressions) AS total_impressions,
     ROUND(SUM(clicks) * 100.0 / NULLIF(SUM(impressions), 0), 2) AS ctr_pct,
     ROUND(SUM(spend) * 1.0 / NULLIF(SUM(clicks), 0), 2) AS cpc
 FROM campaigns
 GROUP BY channel
+HAVING SUM(spend) > 0
 ORDER BY total_revenue DESC;"""
+
 
 # ── Campaign Overview & Activation Aggregations ─────────────────────────────
 CAMPAIGN_OVERVIEW_QUERY: Final = """WITH campaign_signups AS (
