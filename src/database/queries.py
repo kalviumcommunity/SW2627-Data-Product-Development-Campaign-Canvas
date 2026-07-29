@@ -80,7 +80,7 @@ CREATE_TABLE_AD_CAMPAIGN_METRICS: Final = """CREATE TABLE IF NOT EXISTS ad_campa
     PRIMARY KEY (campaign_id, sync_date)
 );"""
 
-CREATE_UNIQUE_INDEX_ADCM_CAMPAIGN_ID: Final = """CREATE UNIQUE INDEX IF NOT EXISTS uix_adcm_campaign_id
+CREATE_UNIQUE_INDEX_ADCM_CAMPAIGN_ID: Final = """CREATE INDEX IF NOT EXISTS idx_adcm_campaign_id
 ON ad_campaign_metrics (campaign_id);"""
 
 CREATE_INDEX_ACM_SYNC_DATE: Final = """CREATE INDEX IF NOT EXISTS idx_acm_sync_date
