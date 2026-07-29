@@ -18,6 +18,8 @@ from src.utils.campaigns import (
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
+from src.utils.sql_safety import validate_sql_query
+from src.utils.clerk_auth import require_authentication
 
 st.set_page_config(
     page_title="SQL Workspace — CampaignCanvas",
@@ -27,8 +29,7 @@ st.set_page_config(
 load_css()
 
 # Check if user is logged in
-if not st.session_state.get("logged_in", False):
-    st.switch_page("pages/auth.py")
+require_authentication()
 
 # Initialize saved queries in session state
 if "saved_queries" not in st.session_state:
@@ -165,14 +166,19 @@ def main():
                 if not save_name.strip():
                     st.error("Please enter a name for the query.")
                 else:
-                    st.session_state.saved_queries.append(
-                        {"name": save_name, "query": query_input}
-                    )
-                    st.toast(
-                        f"Query '{save_name}' successfully saved!",
-                        icon=":material/download:",
-                    )
-                    st.rerun()
+                    try:
+                        validate_sql_query(query_input)
+                    except ValueError as exc:
+                        st.error(str(exc))
+                    else:
+                        st.session_state.saved_queries.append(
+                            {"name": save_name, "query": query_input}
+                        )
+                        st.toast(
+                            f"Query '{save_name}' successfully saved!",
+                            icon=":material/download:",
+                        )
+                        st.rerun()
 
     with col_saved:
         with st.container(border=True):
@@ -231,8 +237,9 @@ def main():
             st.session_state.query_has_run = True
 
             try:
+                safe_query = validate_sql_query(query_input)
                 # Run query against in-memory DB
-                res_df = pd.read_sql_query(query_input, conn_mem)
+                res_df = pd.read_sql_query(safe_query, conn_mem)
 
                 if res_df.empty:
                     st.info("Query executed successfully but returned 0 rows.")

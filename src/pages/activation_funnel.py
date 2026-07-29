@@ -15,6 +15,7 @@ if root_dir not in sys.path:
 from src.components.navbar import render_navbar
 from src.components.sidebar import render_sidebar
 from src.utils.campaigns import fmt_num, load_campaign_data
+from src.utils.clerk_auth import require_authentication
 from src.utils.load_css import get_plotly_layout, load_css
 
 st.set_page_config(
@@ -25,8 +26,7 @@ st.set_page_config(
 load_css()
 
 # Check if user is logged in
-if not st.session_state.get("logged_in", False):
-    st.switch_page("pages/auth.py")
+require_authentication()
 
 
 def main() -> None:

@@ -10,6 +10,7 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 from src.utils.load_css import load_css
+from src.utils.clerk_auth import require_authentication
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 
@@ -17,8 +18,7 @@ st.set_page_config(page_title="Upload Dataset — CampaignCanvas", page_icon=":m
 load_css()
 
 # Check if user is logged in
-if not st.session_state.get("logged_in", False):
-    st.switch_page("pages/auth.py")
+require_authentication()
 
 # Initialize session state for upload history
 if "upload_history" not in st.session_state:

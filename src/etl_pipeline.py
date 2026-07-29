@@ -17,8 +17,6 @@ from src.database.queries import (
     DELETE_AD_CAMPAIGN_METRICS,
     DELETE_HUBSPOT_SIGNUPS,
     DELETE_PRODUCT_ACTIVATIONS,
-    PRAGMA_FOREIGN_KEYS_OFF,
-    PRAGMA_FOREIGN_KEYS_ON,
 )
 
 def generate_mock_data():
@@ -185,34 +183,44 @@ def run_etl():
     df_ads_clean["spend_usd"] = df_ads_clean["spend_usd"].clip(lower=0.0)
     df_ads_clean["clicks"] = df_ads_clean["clicks"].clip(lower=0)
     df_ads_clean["impressions"] = df_ads_clean["impressions"].clip(lower=0)
-    
-    df_ads_clean = df_ads_clean.groupby(["campaign_id", "ad_platform"], as_index=False).agg({
-        "spend_usd": "sum",
-        "clicks": "sum",
-        "impressions": "sum",
-        "sync_date": "max" # Keep the latest sync date
-    })
+    df_ads_clean["sync_date"] = pd.to_datetime(df_ads_clean["sync_date"], errors="coerce")
+    df_ads_clean = df_ads_clean.dropna(subset=["sync_date"])
+    df_ads_clean["sync_date"] = df_ads_clean["sync_date"].dt.strftime("%Y-%m-%d")
+
+    def _pick_platform(series: pd.Series) -> str | None:
+        if series.empty:
+            return None
+        mode = series.mode()
+        return mode.iloc[0] if not mode.empty else str(series.iloc[0])
+
+    df_ads_clean = (
+        df_ads_clean.groupby(["campaign_id", "sync_date"], as_index=False)
+        .agg(
+            spend_usd=("spend_usd", "sum"),
+            clicks=("clicks", "sum"),
+            impressions=("impressions", "sum"),
+            ad_platform=("ad_platform", _pick_platform),
+        )
+    )
     
     # Write to SQLite
     logger.info("Writing records to SQLite tables...")
     conn = get_connection()
     
-    # Disable foreign keys temporarily during load to handle forward declarations easily
-    conn.execute(PRAGMA_FOREIGN_KEYS_OFF)
-    
+    conn.execute("PRAGMA foreign_keys = ON")
+
     # Empty tables first to avoid unique constraint violations on re-run
     cursor = conn.cursor()
     cursor.execute(DELETE_PRODUCT_ACTIVATIONS)
     cursor.execute(DELETE_HUBSPOT_SIGNUPS)
     cursor.execute(DELETE_AD_CAMPAIGN_METRICS)
     conn.commit()
-    
-    # Write tables
+
+    # Write parent tables before children to honor foreign key constraints.
     df_ads_clean.to_sql("ad_campaign_metrics", conn, if_exists="append", index=False)
     df_signups_clean.to_sql("hubspot_signups", conn, if_exists="append", index=False)
     df_activations_clean.to_sql("product_activations", conn, if_exists="append", index=False)
-    
-    conn.execute(PRAGMA_FOREIGN_KEYS_ON)
+
     conn.close()
     
     logger.info("ETL successfully completed and loaded to SQLite!")

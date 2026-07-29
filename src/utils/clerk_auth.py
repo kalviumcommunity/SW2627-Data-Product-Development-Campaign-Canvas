@@ -6,6 +6,37 @@ from dotenv import load_dotenv
 # Load environment variables from .env if present
 load_dotenv(override=False)
 
+
+def initialize_auth_state(session_state=None):
+    """Populate auth state with safe defaults so pages do not rely on None/undefined values."""
+    if session_state is None:
+        session_state = st.session_state
+
+    if "logged_in" not in session_state:
+        session_state["logged_in"] = False
+    if "email" not in session_state:
+        session_state["email"] = ""
+    if "name" not in session_state:
+        session_state["name"] = ""
+    if "theme" not in session_state:
+        session_state["theme"] = "dark"
+
+    return session_state
+
+
+def require_authentication(redirect_page: str = "pages/auth.py") -> bool:
+    """Ensure the user is authenticated before rendering protected pages."""
+    initialize_auth_state()
+    if st.session_state.get("logged_in", False):
+        return True
+
+    try:
+        st.switch_page(redirect_page)
+    except Exception:
+        st.rerun()
+    return False
+
+
 def get_clerk_credentials():
     """
     Resolves Clerk credentials from streamlit secrets or environment variables.

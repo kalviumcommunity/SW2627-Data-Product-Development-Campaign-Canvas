@@ -1,6 +1,8 @@
 from pathlib import Path
 import streamlit as st
 
+from src.utils.clerk_auth import initialize_auth_state
+
 # src/utils/load_css.py -> parents[1] = src/  -> assets/styles/style.css
 _STYLE_PATH = Path(__file__).resolve().parents[1] / "assets" / "styles" / "style.css"
 
@@ -14,6 +16,8 @@ def load_css(path: Path = _STYLE_PATH) -> None:
     Streamlit re-runs the whole script per page, so CSS injected in
     app.py alone will NOT carry over to src/pages/*.py.
     """
+    initialize_auth_state(st.session_state)
+
     # Sync theme state from query parameters if provided
     theme_param = st.query_params.get("theme")
     if theme_param in ["light", "dark"]:
