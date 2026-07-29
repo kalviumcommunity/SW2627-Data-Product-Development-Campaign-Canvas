@@ -12,6 +12,7 @@ if root_dir not in sys.path:
 from src.database.db_client import get_connection, init_db
 from src.database.queries import (
     DELETE_AD_CAMPAIGN_METRICS,
+    DELETE_CAMPAIGNS,
     DELETE_HUBSPOT_SIGNUPS,
     DELETE_PRODUCT_ACTIVATIONS,
     PRAGMA_FOREIGN_KEYS_OFF,
@@ -177,17 +178,22 @@ def run_etl():
     df_activations_clean["signup_timestamp"] = df_activations_clean["signup_timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
     df_activations_clean["activation_timestamp"] = df_activations_clean["activation_timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S").replace({np.nan: None})
     
-    # 3. Clean Ad metrics: Aggregate by campaign_id to satisfy primary key constraint
+    # 3. Clean Ad metrics & extract campaigns dimension table
     df_ads_clean = df_ads.copy()
     df_ads_clean["spend_usd"] = df_ads_clean["spend_usd"].clip(lower=0.0)
     df_ads_clean["clicks"] = df_ads_clean["clicks"].clip(lower=0)
     df_ads_clean["impressions"] = df_ads_clean["impressions"].clip(lower=0)
     
-    df_ads_clean = df_ads_clean.groupby(["campaign_id", "ad_platform"], as_index=False).agg({
+    # Extract campaigns dimension table
+    df_campaigns = df_ads_clean[["campaign_id", "ad_platform"]].drop_duplicates().copy()
+    df_campaigns["campaign_name"] = df_campaigns["campaign_id"].str.replace("_", " ").str.title()
+    df_campaigns = df_campaigns[["campaign_id", "campaign_name", "ad_platform"]]
+
+    # Retain individual daily rows for ad_campaign_metrics (grouped by campaign_id, sync_date, ad_platform)
+    df_ads_clean = df_ads_clean.groupby(["campaign_id", "sync_date", "ad_platform"], as_index=False).agg({
         "spend_usd": "sum",
         "clicks": "sum",
-        "impressions": "sum",
-        "sync_date": "max" # Keep the latest sync date
+        "impressions": "sum"
     })
     
     # Write to SQLite
@@ -202,9 +208,11 @@ def run_etl():
     cursor.execute(DELETE_PRODUCT_ACTIVATIONS)
     cursor.execute(DELETE_HUBSPOT_SIGNUPS)
     cursor.execute(DELETE_AD_CAMPAIGN_METRICS)
+    cursor.execute(DELETE_CAMPAIGNS)
     conn.commit()
     
     # Write tables
+    df_campaigns.to_sql("campaigns", conn, if_exists="append", index=False)
     df_ads_clean.to_sql("ad_campaign_metrics", conn, if_exists="append", index=False)
     df_signups_clean.to_sql("hubspot_signups", conn, if_exists="append", index=False)
     df_activations_clean.to_sql("product_activations", conn, if_exists="append", index=False)
