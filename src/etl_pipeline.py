@@ -1,8 +1,11 @@
+import logging
 import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import sqlite3
+
+logger = logging.getLogger(__name__)
 
 # Add root directory to path
 root_dir = str(Path(__file__).resolve().parents[1])
@@ -20,7 +23,7 @@ from src.database.queries import (
 
 def generate_mock_data():
     """Generates mock raw datasets corresponding to the PRD specifications."""
-    print("Generating mock raw datasets...")
+    logger.info("Generating mock raw datasets...")
     rng = np.random.default_rng(42)
     
     # 1. Campaigns Definition
@@ -128,7 +131,7 @@ def generate_mock_data():
     df_ads.to_csv(raw_dir / "ad_campaign_metrics.csv", index=False)
     df_signups.to_csv(raw_dir / "hubspot_signups.csv", index=False)
     df_activations.to_csv(raw_dir / "product_activations.csv", index=False)
-    print(f"Generated raw data: {len(df_ads)} ads, {len(df_signups)} signups, {len(df_activations)} activations.")
+    logger.info(f"Generated raw data: {len(df_ads)} ads, {len(df_signups)} signups, {len(df_activations)} activations.")
 
 
 def run_etl():
@@ -138,10 +141,10 @@ def run_etl():
     if not (raw_dir / "ad_campaign_metrics.csv").exists():
         generate_mock_data()
         
-    print("Running database schema init...")
+    logger.info("Running database schema init...")
     init_db()
     
-    print("Loading raw files and cleaning...")
+    logger.info("Loading raw files and cleaning...")
     df_ads = pd.read_csv(raw_dir / "ad_campaign_metrics.csv")
     df_signups = pd.read_csv(raw_dir / "hubspot_signups.csv")
     df_activations = pd.read_csv(raw_dir / "product_activations.csv")
@@ -191,7 +194,7 @@ def run_etl():
     })
     
     # Write to SQLite
-    print("Writing records to SQLite tables...")
+    logger.info("Writing records to SQLite tables...")
     conn = get_connection()
     
     # Disable foreign keys temporarily during load to handle forward declarations easily
@@ -212,7 +215,7 @@ def run_etl():
     conn.execute(PRAGMA_FOREIGN_KEYS_ON)
     conn.close()
     
-    print("ETL successfully completed and loaded to SQLite!")
+    logger.info("ETL successfully completed and loaded to SQLite!")
 
 if __name__ == "__main__":
     run_etl()

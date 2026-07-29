@@ -87,7 +87,8 @@ def test_get_clerk_credentials_secrets_missing():
         assert redirect_uri == "http://localhost:8501/"
 
 def test_get_clerk_endpoints_fallback():
-    domain = "my-app.clerk.accounts.dev"
+    get_clerk_endpoints.clear()
+    domain = "my-app-fallback.clerk.accounts.dev"
     # When requests fail
     with patch("requests.get", side_effect=Exception("network error")):
         endpoints = get_clerk_endpoints(domain)
@@ -96,7 +97,8 @@ def test_get_clerk_endpoints_fallback():
         assert endpoints["userinfo_endpoint"] == f"https://{domain}/oauth/userinfo"
 
 def test_get_clerk_endpoints_success():
-    domain = "my-app.clerk.accounts.dev"
+    get_clerk_endpoints.clear()
+    domain = "my-app-success.clerk.accounts.dev"
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = {

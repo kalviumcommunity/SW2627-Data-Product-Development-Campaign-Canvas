@@ -4,7 +4,10 @@ from pathlib import Path
 from src.database.queries import (
     CREATE_INDEX_ACM_PLATFORM,
     CREATE_INDEX_ACM_SYNC_DATE,
+    CREATE_INDEX_HS_EMAIL,
     CREATE_INDEX_HS_UTM_CAMPAIGN,
+    CREATE_INDEX_PA_EMAIL,
+    CREATE_INDEX_PA_TIMESTAMPS,
     CREATE_TABLE_AD_CAMPAIGN_METRICS,
     CREATE_TABLE_HUBSPOT_SIGNUPS,
     CREATE_TABLE_PRODUCT_ACTIVATIONS,
@@ -15,10 +18,17 @@ from src.database.queries import (
 DB_PATH = Path(__file__).resolve().parents[2] / "data" / "processed" / "marketing.db"
 
 
-def get_connection():
-    """Returns a connection to the SQLite database."""
+def get_connection() -> sqlite3.Connection:
+    """Returns a connection to the SQLite database with foreign keys enabled.
+
+    SQLite disables foreign key enforcement by default and resets the setting
+    on every new connection. Enabling it here ensures all callers automatically
+    get constraint validation without having to remember to set the pragma.
+    """
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    return sqlite3.connect(str(DB_PATH))
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.execute(PRAGMA_FOREIGN_KEYS_ON)
+    return conn
 
 
 def init_db():
@@ -33,8 +43,7 @@ def init_db():
     conn = get_connection()
     cursor = conn.cursor()
 
-    # Enable foreign key support in SQLite
-    cursor.execute(PRAGMA_FOREIGN_KEYS_ON)
+    # get_connection() already enables PRAGMA foreign_keys = ON
 
     cursor.execute(CREATE_TABLE_AD_CAMPAIGN_METRICS)
     cursor.execute(CREATE_UNIQUE_INDEX_ADCM_CAMPAIGN_ID)
@@ -43,8 +52,11 @@ def init_db():
 
     cursor.execute(CREATE_TABLE_HUBSPOT_SIGNUPS)
     cursor.execute(CREATE_INDEX_HS_UTM_CAMPAIGN)
+    cursor.execute(CREATE_INDEX_HS_EMAIL)          # Speeds up JOIN on hubspot_signups.email
 
     cursor.execute(CREATE_TABLE_PRODUCT_ACTIVATIONS)
+    cursor.execute(CREATE_INDEX_PA_EMAIL)          # Speeds up JOIN on product_activations.email
+    cursor.execute(CREATE_INDEX_PA_TIMESTAMPS)     # Speeds up time-window activation queries
 
     conn.commit()
     conn.close()

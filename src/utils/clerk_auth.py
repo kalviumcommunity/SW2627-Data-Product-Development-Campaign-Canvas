@@ -55,10 +55,12 @@ def get_clerk_credentials():
     return client_id, client_secret, domain, redirect_uri
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_clerk_endpoints(domain: str):
     """
     Queries Clerk's well-known OpenID configuration endpoint to resolve standard OIDC endpoints.
     Falls back to constructing standard URLs if the query fails.
+    Results are cached for 1 hour to prevent HTTP roundtrips on every Streamlit rerun.
     """
     default_endpoints = {
         "authorization_endpoint": f"https://{domain}/oauth/authorize",

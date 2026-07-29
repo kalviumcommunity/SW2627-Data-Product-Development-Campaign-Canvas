@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import logging
 import sys
 from pathlib import Path
+import numpy as np
 import pandas as pd
 import sqlite3
+import streamlit as st
+
+logger = logging.getLogger(__name__)
 
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[2])
@@ -41,6 +46,7 @@ def calculate_revenue(frame: pd.DataFrame) -> pd.Series:
     return pd.Series(0.0, index=frame.index)
 
 
+@st.cache_data(show_spinner=False)
 def load_campaign_data() -> tuple[pd.DataFrame, bool]:
     """Loads campaign activation daily dataset from the SQLite database.
     If the DB is not found, runs the ETL to populate it.
@@ -54,7 +60,7 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
             from src.etl_pipeline import run_etl
             run_etl()
         except Exception as e:
-            print(f"Error running ETL pipeline: {e}")
+            logger.error(f"Error running ETL pipeline: {e}")
 
     if db_path.exists():
         try:
@@ -75,7 +81,7 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
             df["revenue"] = calculate_revenue(df)
             return df, False
         except Exception as e:
-            print(f"Error reading from SQLite database: {e}")
+            logger.error(f"Error reading from SQLite database: {e}")
 
     # Fallback to demo data if SQLite load fails
     df_demo = _build_demo_data()
@@ -84,90 +90,68 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
 
 
 def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
-    """Adds reusable audience and channel dimensions for charting."""
+    """Adds reusable audience and channel dimensions for charting using vectorized operations."""
     if frame.empty:
         return frame.copy()
 
     enriched = frame.copy()
-    campaign_text = (
+    c_id = (
         enriched["campaign_id"].astype(str).str.lower()
         if "campaign_id" in enriched.columns
         else pd.Series("", index=enriched.index)
     )
-    campaign_name_text = (
+    c_name = (
         enriched["campaign_name"].astype(str).str.lower()
         if "campaign_name" in enriched.columns
-        else campaign_text
+        else c_id
     )
-    platform_text = (
+    platform = (
         enriched["ad_platform"].astype(str).str.lower()
         if "ad_platform" in enriched.columns
         else pd.Series("", index=enriched.index)
     )
 
-    def map_channel() -> pd.Series:
-        values = []
-        for campaign_id, campaign_name in zip(campaign_text, campaign_name_text):
-            if any(token in campaign_id or token in campaign_name for token in ["email", "mailchimp", "klaviyo"]):
-                values.append("Email")
-            elif any(token in campaign_id or token in campaign_name for token in ["youtube", "video"]):
-                values.append("Video")
-            elif any(token in campaign_id or token in campaign_name for token in ["display", "remarketing"]):
-                values.append("Display")
-            elif any(token in campaign_id or token in campaign_name for token in ["brand", "search"]):
-                values.append("Search")
-            else:
-                values.append("Social")
-        return pd.Series(values, index=enriched.index)
+    combined_c = c_id + " " + c_name
 
-    def map_region() -> pd.Series:
-        values = []
-        for campaign_id in campaign_text:
-            if "brand" in campaign_id:
-                values.append("US")
-            elif "nonbrand" in campaign_id or "retarget" in campaign_id:
-                values.append("EU")
-            elif "prospect" in campaign_id or "leadgen" in campaign_id:
-                values.append("LATAM")
-            else:
-                values.append("APAC")
-        return pd.Series(values, index=enriched.index)
+    # Channel mapping
+    cond_channel = [
+        combined_c.str.contains("email|mailchimp|klaviyo", regex=True),
+        combined_c.str.contains("youtube|video", regex=True),
+        combined_c.str.contains("display|remarketing", regex=True),
+        combined_c.str.contains("brand|search", regex=True),
+    ]
+    choices_channel = ["Email", "Video", "Display", "Search"]
+    enriched["channel"] = np.select(cond_channel, choices_channel, default="Social")
 
-    def map_device() -> pd.Series:
-        values = []
-        for campaign_id in campaign_text:
-            values.append(
-                "Mobile"
-                if any(token in campaign_id for token in ["brand", "prospect", "instagram", "tiktok"])
-                else "Desktop"
-            )
-        return pd.Series(values, index=enriched.index)
+    # Platform grouped mapping
+    cond_platform = [
+        platform.str.contains("google", regex=False) | c_id.str.contains("google", regex=False),
+        c_id.str.contains("youtube", regex=False),
+        c_id.str.contains("display", regex=False),
+        platform.str.contains("meta", regex=False) | c_id.str.contains("meta|instagram", regex=True),
+        c_id.str.contains("linkedin", regex=False),
+        c_id.str.contains("tiktok", regex=False),
+        c_id.str.contains("pinterest", regex=False),
+    ]
+    choices_platform = ["Google", "YouTube", "Programmatic", "Meta", "LinkedIn", "TikTok", "Pinterest"]
+    enriched["platform_grouped"] = np.select(cond_platform, choices_platform, default="Other")
 
-    def map_platform_grouped() -> pd.Series:
-        values = []
-        for platform, campaign_id in zip(platform_text, campaign_text):
-            if "google" in platform or "google" in campaign_id:
-                values.append("Google")
-            elif "youtube" in campaign_id:
-                values.append("YouTube")
-            elif "display" in campaign_id:
-                values.append("Programmatic")
-            elif "meta" in platform or "meta" in campaign_id or "instagram" in campaign_id:
-                values.append("Meta")
-            elif "linkedin" in campaign_id:
-                values.append("LinkedIn")
-            elif "tiktok" in campaign_id:
-                values.append("TikTok")
-            elif "pinterest" in campaign_id:
-                values.append("Pinterest")
-            else:
-                values.append("Other")
-        return pd.Series(values, index=enriched.index)
+    # Region mapping
+    cond_region = [
+        c_id.str.contains("brand", regex=False),
+        c_id.str.contains("nonbrand|retarget", regex=True),
+        c_id.str.contains("prospect|leadgen", regex=True),
+    ]
+    choices_region = ["US", "EU", "LATAM"]
+    enriched["region"] = np.select(cond_region, choices_region, default="APAC")
 
-    enriched["channel"] = map_channel()
-    enriched["platform_grouped"] = map_platform_grouped()
-    enriched["region"] = map_region()
-    enriched["device"] = map_device()
+    # Device mapping
+    cond_device = [
+        c_id.str.contains("brand|prospect|instagram|tiktok", regex=True)
+    ]
+    choices_device = ["Mobile"]
+    enriched["device"] = np.select(cond_device, choices_device, default="Desktop")
+
     return enriched
 
 
