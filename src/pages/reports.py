@@ -70,7 +70,7 @@ def render_report_card(title: str, desc: str, key_id: str):
         if not st.session_state.get(ready_key, False):
             # ── Generate button ──────────────────────────────────────────
             if st.button(
-                "Generate",
+                f"Generate {title}",
                 icon=":material/description:",
                 key=f"gen_{key_id}",
                 use_container_width=True,
@@ -93,7 +93,8 @@ def render_report_card(title: str, desc: str, key_id: str):
             filename = f"campaigncanvas_{key_id}_{datetime.now().strftime('%Y%m%d_%H%M')}.{ext}"
             
             st.download_button(
-                label="Download File",
+                label=f"Download {title}",
+                icon=":material/download:",
                 data=st.session_state[data_key],
                 file_name=filename,
                 mime=mime,
@@ -104,7 +105,7 @@ def render_report_card(title: str, desc: str, key_id: str):
             
             st.markdown("<div style='margin-top: 0.35rem;'></div>", unsafe_allow_html=True)
             if st.button(
-                "Re-generate",
+                f"Re-generate",
                 icon=":material/refresh:",
                 key=f"regen_{key_id}",
                 use_container_width=True,

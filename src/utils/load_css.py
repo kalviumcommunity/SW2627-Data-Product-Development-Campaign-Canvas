@@ -224,9 +224,7 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         div[data-testid="stDownloadButton"] a,
         .stDownloadButton button,
         .stDownloadButton a,
-        [data-testid="stBaseButton-secondary"],
-        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] button,
-        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] a {
+        [data-testid="stBaseButton-secondary"] {
             background-color: #f1f5f9 !important;
             background-image: none !important;
             color: #334155 !important;
@@ -239,16 +237,22 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         div[data-testid="stDownloadButton"] a *,
         .stDownloadButton button *,
         .stDownloadButton a *,
-        [data-testid="stBaseButton-secondary"] *,
-        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] * {
+        [data-testid="stBaseButton-secondary"] * {
             color: #334155 !important;
         }
 
-        /* Streamlit Primary Button styling in Light Theme (e.g. Run query, Submit, Upload data) */
+        /* Streamlit Primary Button & Primary Download Button styling in Light Theme */
         [data-testid="stBaseButton-primary"],
         button[kind="primary"],
+        a[kind="primary"],
         .stButton button[kind="primary"],
         div[data-testid="stFormSubmitButton"] button[kind="primary"],
+        div[data-testid="stDownloadButton"] button[kind="primary"],
+        div[data-testid="stDownloadButton"] a[kind="primary"],
+        .stDownloadButton button[kind="primary"],
+        .stDownloadButton a[kind="primary"],
+        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] button[kind="primary"],
+        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] a[kind="primary"],
         .stMain div[data-testid="stPageLink"] a,
         [data-testid="stMain"] div[data-testid="stPageLink"] a {
             background-color: #0284c7 !important;
@@ -260,8 +264,15 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         }
         [data-testid="stBaseButton-primary"] *,
         button[kind="primary"] *,
+        a[kind="primary"] *,
         .stButton button[kind="primary"] *,
         div[data-testid="stFormSubmitButton"] button[kind="primary"] *,
+        div[data-testid="stDownloadButton"] button[kind="primary"] *,
+        div[data-testid="stDownloadButton"] a[kind="primary"] *,
+        .stDownloadButton button[kind="primary"] *,
+        .stDownloadButton a[kind="primary"] *,
+        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] button[kind="primary"] *,
+        [data-testid="stElementContainer"] [data-testid="stDownloadButton"] a[kind="primary"] *,
         .stMain div[data-testid="stPageLink"] a *,
         .stMain div[data-testid="stPageLink"] a p,
         .stMain div[data-testid="stPageLink"] a span,
