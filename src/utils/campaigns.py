@@ -5,8 +5,6 @@ from pathlib import Path
 import pandas as pd
 import sqlite3
 
-import streamlit as st
-
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
@@ -43,7 +41,6 @@ def calculate_revenue(frame: pd.DataFrame) -> pd.Series:
     return pd.Series(0.0, index=frame.index)
 
 
-@st.cache_data(ttl=300)
 def load_campaign_data() -> tuple[pd.DataFrame, bool]:
     """Loads campaign activation daily dataset from the SQLite database.
     If the DB is not found, runs the ETL to populate it.

@@ -6,7 +6,6 @@ from src.database.queries import (
     CREATE_INDEX_ACM_SYNC_DATE,
     CREATE_INDEX_HS_UTM_CAMPAIGN,
     CREATE_TABLE_AD_CAMPAIGN_METRICS,
-    CREATE_TABLE_CAMPAIGNS,
     CREATE_TABLE_HUBSPOT_SIGNUPS,
     CREATE_TABLE_PRODUCT_ACTIVATIONS,
     CREATE_UNIQUE_INDEX_ADCM_CAMPAIGN_ID,
@@ -25,10 +24,11 @@ def get_connection():
 def init_db():
     """Initializes the database schema matching the PRD specifications.
 
-    campaigns table acts as the dimension table for campaign metadata.
     ad_campaign_metrics uses a composite PRIMARY KEY (campaign_id, sync_date)
     so that each calendar day for a campaign is stored as a separate row,
     preserving the full daily time-series of ad performance data.
+    A UNIQUE index on campaign_id alone is also created so that
+    hubspot_signups.utm_campaign can reference it via a foreign key.
     """
     conn = get_connection()
     cursor = conn.cursor()
@@ -36,7 +36,6 @@ def init_db():
     # Enable foreign key support in SQLite
     cursor.execute(PRAGMA_FOREIGN_KEYS_ON)
 
-    cursor.execute(CREATE_TABLE_CAMPAIGNS)
     cursor.execute(CREATE_TABLE_AD_CAMPAIGN_METRICS)
     cursor.execute(CREATE_UNIQUE_INDEX_ADCM_CAMPAIGN_ID)
     cursor.execute(CREATE_INDEX_ACM_SYNC_DATE)

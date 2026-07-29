@@ -97,7 +97,7 @@ def safe_switch_page(page_path: str):
         try:
             st.switch_page(alt_path)
         except Exception:
-            pass
+            st.rerun()
 
 
 def handle_clerk_callback():
@@ -138,12 +138,9 @@ def handle_clerk_callback():
                         if userinfo_res.status_code == 200:
                             user_data = userinfo_res.json()
                             email = user_data.get("email") or user_data.get("email_address")
-                            # Handle OIDC list format or Clerk REST API email_addresses dict array format
+                            # Sometimes OIDC payload returns email as first item in list or nested
                             if not email and "emails" in user_data and len(user_data["emails"]) > 0:
                                 email = user_data["emails"][0]
-                            if not email and "email_addresses" in user_data and len(user_data["email_addresses"]) > 0:
-                                first_addr = user_data["email_addresses"][0]
-                                email = first_addr.get("email_address") if isinstance(first_addr, dict) else str(first_addr)
                             
                             if email:
                                 name = user_data.get("name") or f"{user_data.get('given_name', '')} {user_data.get('family_name', '')}".strip()
@@ -181,21 +178,18 @@ def check_and_restore_session():
     if st.session_state.get("logged_in") is None:
         try:
             cookies = st.context.cookies
-            email_cookie = cookies.get("email", "").strip()
-            # Require valid email cookie to prevent unauthenticated cookie bypass (logged_in=true without valid email)
-            if cookies.get("logged_in") == "true" and email_cookie and "@" in email_cookie:
+            if cookies.get("logged_in") == "true":
                 st.session_state.logged_in = True
-                st.session_state.email = email_cookie
+                email = cookies.get("email", "")
+                st.session_state.email = email
                 
                 name_cookie = cookies.get("name", "")
                 if name_cookie:
                     st.session_state.name = name_cookie
                 else:
-                    st.session_state.name = " ".join([w.capitalize() for w in email_cookie.split("@")[0].replace(".", " ").replace("_", " ").split()])
-            else:
-                st.session_state.logged_in = False
+                    st.session_state.name = " ".join([w.capitalize() for w in email.split("@")[0].replace(".", " ").replace("_", " ").split()])
         except Exception:
-            st.session_state.logged_in = False
+            pass
 
     # 2. If logged in in session state, make sure cookies are set
     if st.session_state.get("logged_in") is True:
