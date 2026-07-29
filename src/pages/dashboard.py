@@ -25,6 +25,7 @@ from src.utils.campaigns import (
     load_campaign_data,
 )
 from src.utils.load_css import get_plotly_layout, load_css
+from src.utils.clerk_auth import require_authentication
 
 st.set_page_config(
     page_title="CampaignCanvas — Dashboard",
@@ -34,8 +35,7 @@ st.set_page_config(
 load_css()
 
 # Check if user is logged in
-if not st.session_state.get("logged_in", False):
-    st.switch_page("pages/auth.py")
+require_authentication()
 
 
 def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:

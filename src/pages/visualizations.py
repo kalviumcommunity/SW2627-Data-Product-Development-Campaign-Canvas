@@ -28,8 +28,7 @@ st.set_page_config(
 load_css()
 
 # Check if user is logged in
-if not st.session_state.get("logged_in", False):
-    st.switch_page("pages/auth.py")
+require_authentication()
 
 # Harmonious dark palette colors
 COLOR_PALETTE = [

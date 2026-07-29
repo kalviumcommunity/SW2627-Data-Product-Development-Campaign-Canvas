@@ -10,6 +10,7 @@ if root_dir not in sys.path:
 
 from src.utils.load_css import load_css
 from src.components.sidebar import render_sidebar
+from src.utils.clerk_auth import require_authentication
 from src.components.navbar import render_navbar
 from src.utils.campaigns import load_campaign_data, add_marketing_dimensions
 from src.utils.report_generator import (
@@ -28,8 +29,7 @@ st.set_page_config(
 load_css()
 
 # Check if user is logged in
-if not st.session_state.get("logged_in", False):
-    st.switch_page("pages/auth.py")
+require_authentication()
 
 # Map each card key to its generator function, mime type, and file extension
 _REPORT_MAP = {
