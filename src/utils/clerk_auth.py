@@ -27,6 +27,7 @@ def initialize_auth_state(session_state=None):
 def require_authentication(redirect_page: str = "pages/auth.py") -> bool:
     """Ensure the user is authenticated before rendering protected pages."""
     initialize_auth_state()
+    check_and_restore_session()
     if st.session_state.get("logged_in", False):
         return True
 
@@ -207,8 +208,8 @@ def check_and_restore_session():
     Checks for authentication cookies and restores or updates session state/cookies accordingly.
     Call this at the beginning of each page rendering to persist authentication.
     """
-    # 1. Restore session from cookies if session state is uninitialized
-    if st.session_state.get("logged_in") is None:
+    # 1. Restore session from cookies if session state logged_in is not True
+    if not st.session_state.get("logged_in") and not st.session_state.get("explicitly_logged_out"):
         try:
             cookies = st.context.cookies
             if cookies.get("logged_in") == "true":
@@ -250,7 +251,7 @@ def check_and_restore_session():
             pass
 
     # 3. If explicitly logged out, ensure cookies are cleared
-    elif st.session_state.get("logged_in") is False:
+    elif st.session_state.get("explicitly_logged_out") is True:
         try:
             cookies = st.context.cookies
             if cookies.get("logged_in") == "true" and not st.session_state.get("cookie_cleared"):

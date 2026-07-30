@@ -16,7 +16,9 @@ from src.utils.campaigns import (
     fmt_currency,
     fmt_pct,
 )
+from src.utils.clerk_auth import require_authentication
 from src.utils.load_css import load_css
+
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
 

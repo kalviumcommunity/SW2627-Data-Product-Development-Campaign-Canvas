@@ -183,6 +183,7 @@ def render_sidebar(current_page: str):
         # Sign Out Button
         if st.button("Sign out", key="sign_out_btn", use_container_width=True):
             st.session_state.logged_in = False
+            st.session_state.explicitly_logged_out = True
             st.session_state.email = ""
             st.switch_page("app.py")
         st.markdown("</div>", unsafe_allow_html=True)
