@@ -148,9 +148,11 @@ def run_etl():
     df_activations = pd.read_csv(raw_dir / "product_activations.csv")
     
     # 1. Clean Signups: Filter out test signups
+    df_signups = df_signups.copy()
+    df_signups["email"] = df_signups["email"].fillna("").astype(str)
     df_signups_clean = df_signups[
-        (~df_signups["email"].str.endswith("@company.com")) & 
-        (~df_signups["email"].str.contains("test", case=False))
+        (~df_signups["email"].str.endswith("@company.com")) &
+        (~df_signups["email"].str.contains("test", case=False, na=False))
     ].copy()
     
     # Handle attribution fallback: null utm_campaign -> 'Organic/Unknown'
@@ -160,18 +162,27 @@ def run_etl():
     df_signups_clean["utm_campaign"] = df_signups_clean["utm_campaign"].replace({np.nan: None})
     
     # 2. Clean Activations: Filter out test activations
+    df_activations = df_activations.copy()
+    df_activations["email"] = df_activations["email"].fillna("").astype(str)
     df_activations_clean = df_activations[
-        (~df_activations["email"].str.endswith("@company.com")) & 
-        (~df_activations["email"].str.contains("test", case=False))
+        (~df_activations["email"].str.endswith("@company.com")) &
+        (~df_activations["email"].str.contains("test", case=False, na=False))
     ].copy()
-    
-    # Convert timestamps
-    df_activations_clean["signup_timestamp"] = pd.to_datetime(df_activations_clean["signup_timestamp"])
-    df_activations_clean["activation_timestamp"] = pd.to_datetime(df_activations_clean["activation_timestamp"])
-    
-    # Ensure signup_timestamp <= activation_timestamp
-    invalid_mask = (df_activations_clean["activation_timestamp"] < df_activations_clean["signup_timestamp"])
-    # Set activation_timestamp to None or shift it for invalid records
+
+    # Convert timestamps safely and preserve invalid values as nulls.
+    df_activations_clean["signup_timestamp"] = pd.to_datetime(
+        df_activations_clean["signup_timestamp"], errors="coerce"
+    )
+    df_activations_clean["activation_timestamp"] = pd.to_datetime(
+        df_activations_clean["activation_timestamp"], errors="coerce"
+    )
+
+    # Ensure signup_timestamp <= activation_timestamp only when both values exist.
+    invalid_mask = (
+        df_activations_clean["activation_timestamp"].notna()
+        & df_activations_clean["signup_timestamp"].notna()
+        & (df_activations_clean["activation_timestamp"] < df_activations_clean["signup_timestamp"])
+    )
     df_activations_clean.loc[invalid_mask, "activation_timestamp"] = None
     
     # Format back to ISO strings for SQLite storage
