@@ -87,7 +87,7 @@ CREATE_TABLE_AD_CAMPAIGN_METRICS: Final = """CREATE TABLE IF NOT EXISTS ad_campa
     PRIMARY KEY (campaign_id, sync_date)
 );"""
 
-CREATE_UNIQUE_INDEX_ADCM_CAMPAIGN_ID: Final = """CREATE INDEX IF NOT EXISTS idx_adcm_campaign_id
+CREATE_INDEX_ADCM_CAMPAIGN_ID: Final = """CREATE INDEX IF NOT EXISTS idx_adcm_campaign_id
 ON ad_campaign_metrics (campaign_id);"""
 
 CREATE_INDEX_ACM_SYNC_DATE: Final = """CREATE INDEX IF NOT EXISTS idx_acm_sync_date
@@ -100,8 +100,7 @@ CREATE_INDEX_ACM_PLATFORM: Final = """CREATE INDEX IF NOT EXISTS idx_acm_platfor
 CREATE_TABLE_HUBSPOT_SIGNUPS: Final = """CREATE TABLE IF NOT EXISTS hubspot_signups (
     email            VARCHAR   PRIMARY KEY,
     utm_campaign     VARCHAR,
-    signup_timestamp TIMESTAMP NOT NULL,
-    FOREIGN KEY (utm_campaign) REFERENCES ad_campaign_metrics(campaign_id)
+    signup_timestamp TIMESTAMP NOT NULL
 );"""
 
 CREATE_INDEX_HS_UTM_CAMPAIGN: Final = """CREATE INDEX IF NOT EXISTS idx_hs_utm_campaign

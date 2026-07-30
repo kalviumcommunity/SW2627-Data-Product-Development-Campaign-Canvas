@@ -140,7 +140,7 @@ def run_etl():
         generate_mock_data()
         
     logger.info("Running database schema init...")
-    init_db()
+    init_db(drop_existing=True)
     
     logger.info("Loading raw files and cleaning...")
     df_ads = pd.read_csv(raw_dir / "ad_campaign_metrics.csv")
