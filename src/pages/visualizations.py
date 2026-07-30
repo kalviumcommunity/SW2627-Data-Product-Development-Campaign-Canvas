@@ -16,6 +16,7 @@ from src.utils.campaigns import (
     add_marketing_dimensions,
     calculate_revenue,
 )
+from src.utils.clerk_auth import require_authentication
 from src.utils.load_css import load_css, get_plotly_layout
 from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
@@ -101,10 +102,10 @@ def main():
                 unsafe_allow_html=True,
             )
 
-            bar_df = df.groupby("channel", as_index=False)["revenue"].sum()
+            bar_df = df.groupby("channel", as_index=False)[["revenue"]].sum()
             order_map = {"Email": 0, "Search": 1, "Social": 2, "Video": 3, "Display": 4}
             bar_df["order"] = bar_df["channel"].map(order_map).fillna(5)
-            bar_df = bar_df.sort_values("order")
+            bar_df = bar_df.sort_values(by="order")
 
             fig_bar = px.bar(
                 bar_df,
@@ -133,7 +134,7 @@ def main():
                 unsafe_allow_html=True,
             )
 
-            spend_df = df.groupby("platform_grouped", as_index=False)[spend_col].sum()
+            spend_df = df.groupby("platform_grouped", as_index=False)[[spend_col]].sum()
 
             fig_pie = px.pie(
                 spend_df,
@@ -156,7 +157,7 @@ def main():
                 unsafe_allow_html=True,
             )
 
-            region_df = df.groupby("region", as_index=False)[activation_col].sum()
+            region_df = df.groupby("region", as_index=False)[[activation_col]].sum()
 
             fig_donut = go.Figure(
                 data=[
@@ -185,9 +186,9 @@ def main():
 
             if "date" in df.columns:
                 daily_df = (
-                    df.groupby("date", as_index=False)[activation_col]
+                    df.groupby("date", as_index=False)[[activation_col]]
                     .sum()
-                    .sort_values("date")
+                    .sort_values(by="date")
                 )
             else:
                 daily_df = pd.DataFrame(columns=["date", activation_col])

@@ -115,44 +115,51 @@ def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
 
     # Channel mapping
     cond_channel = [
-        combined_c.str.contains("email|mailchimp|klaviyo", regex=True),
-        combined_c.str.contains("youtube|video", regex=True),
-        combined_c.str.contains("display|remarketing", regex=True),
-        combined_c.str.contains("brand|search", regex=True),
+        combined_c.str.contains("email|mailchimp|klaviyo", regex=True, na=False).to_numpy(),
+        combined_c.str.contains("youtube|video", regex=True, na=False).to_numpy(),
+        combined_c.str.contains("display|remarketing", regex=True, na=False).to_numpy(),
+        combined_c.str.contains("brand|search", regex=True, na=False).to_numpy(),
     ]
     choices_channel = ["Email", "Video", "Display", "Search"]
-    enriched["channel"] = np.select(cond_channel, choices_channel, default="Social")
+    enriched["channel"] = np.select(cond_channel, choices_channel, default="Social")  # type: ignore[call-overload]
 
     # Platform grouped mapping
     cond_platform = [
-        platform.str.contains("google", regex=False) | c_id.str.contains("google", regex=False),
-        c_id.str.contains("youtube", regex=False),
-        c_id.str.contains("display", regex=False),
-        platform.str.contains("meta", regex=False) | c_id.str.contains("meta|instagram", regex=True),
-        c_id.str.contains("linkedin", regex=False),
-        c_id.str.contains("tiktok", regex=False),
-        c_id.str.contains("pinterest", regex=False),
+        (platform.str.contains("google", regex=False, na=False) | c_id.str.contains("google", regex=False, na=False)).to_numpy(),
+        c_id.str.contains("youtube", regex=False, na=False).to_numpy(),
+        c_id.str.contains("display", regex=False, na=False).to_numpy(),
+        (platform.str.contains("meta", regex=False, na=False) | c_id.str.contains("meta|instagram", regex=True, na=False)).to_numpy(),
+        c_id.str.contains("linkedin", regex=False, na=False).to_numpy(),
+        c_id.str.contains("tiktok", regex=False, na=False).to_numpy(),
+        c_id.str.contains("pinterest", regex=False, na=False).to_numpy(),
     ]
     choices_platform = ["Google", "YouTube", "Programmatic", "Meta", "LinkedIn", "TikTok", "Pinterest"]
-    enriched["platform_grouped"] = np.select(cond_platform, choices_platform, default="Other")
+    enriched["platform_grouped"] = np.select(cond_platform, choices_platform, default="Other")  # type: ignore[call-overload]
+
+    if "platform" not in enriched.columns:
+        if "ad_platform" in enriched.columns:
+            enriched["platform"] = enriched["ad_platform"]
+        else:
+            enriched["platform"] = enriched["platform_grouped"]
 
     # Region mapping
     cond_region = [
-        c_id.str.contains("brand", regex=False),
-        c_id.str.contains("nonbrand|retarget", regex=True),
-        c_id.str.contains("prospect|leadgen", regex=True),
+        c_id.str.contains("brand", regex=False, na=False).to_numpy(),
+        c_id.str.contains("nonbrand|retarget", regex=True, na=False).to_numpy(),
+        c_id.str.contains("prospect|leadgen", regex=True, na=False).to_numpy(),
     ]
     choices_region = ["US", "EU", "LATAM"]
-    enriched["region"] = np.select(cond_region, choices_region, default="APAC")
+    enriched["region"] = np.select(cond_region, choices_region, default="APAC")  # type: ignore[call-overload]
 
     # Device mapping
     cond_device = [
-        c_id.str.contains("brand|prospect|instagram|tiktok", regex=True)
+        c_id.str.contains("brand|prospect|instagram|tiktok", regex=True, na=False).to_numpy()
     ]
     choices_device = ["Mobile"]
-    enriched["device"] = np.select(cond_device, choices_device, default="Desktop")
+    enriched["device"] = np.select(cond_device, choices_device, default="Desktop")  # type: ignore[call-overload]
 
     return enriched
+
 
 
 def _build_demo_data() -> pd.DataFrame:
@@ -172,7 +179,7 @@ def _build_demo_data() -> pd.DataFrame:
     rows = []
     for date in dates:
         for index, campaign in enumerate(campaigns):
-            spend = float(rng.uniform(120, 900) * (1 + index * 0.08))
+            spend = rng.uniform(120, 900) * (1 + index * 0.08)
             clicks = int(rng.uniform(120, 1900) * (1 + index * 0.05))
             impressions = int(clicks * rng.uniform(9.0, 20.0))
             signups = int(clicks * rng.uniform(0.04, 0.10))
@@ -407,6 +414,17 @@ def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
         agg_dict["profile_completed"] = "sum"
     if "campaign_run" in frame_copy.columns:
         agg_dict["campaign_run"] = "sum"
+
+    if key not in frame_copy.columns:
+        if key == "platform":
+            if "ad_platform" in frame_copy.columns:
+                frame_copy["platform"] = frame_copy["ad_platform"]
+            elif "platform_grouped" in frame_copy.columns:
+                frame_copy["platform"] = frame_copy["platform_grouped"]
+            else:
+                frame_copy["platform"] = "Unknown"
+        else:
+            frame_copy[key] = "Unknown"
 
     group_keys = [key]
     if key in ["campaign_id", "campaign_name", "campaign"]:
