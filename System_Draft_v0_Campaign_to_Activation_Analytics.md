@@ -26,6 +26,28 @@ Compared to the original system promise, the project evolved from simple campaig
 | **Process** | Validate incoming data → Standardize campaign identifiers → Join marketing and product datasets → Calculate activation metrics → Store processed analytics → Generate dashboard response. |
 | **Output** | Dashboard displaying Campaign Name, Total Signups, Activated Users, Activation Rate, Cost per Activation, and ROI. |
 
+## Data Validation Rules
+
+Before analytics are generated, the system validates:
+
+- campaign_id must exist.
+- start_date must be before end_date.
+- spend values cannot be negative.
+- activation counts cannot exceed signup counts.
+- Missing UTM identifiers are excluded from attribution.
+
+## Logging
+
+The application records:
+
+- API request timestamps
+- Validation failures
+- Dataset import status
+- ETL execution status
+- Dashboard generation events
+
+These logs simplify debugging and monitoring.
+
 ## Critical Failure Point
 
 If campaign identifiers (UTM parameters) are missing or inconsistent between HubSpot and product data, the system cannot correctly attribute users to campaigns.
