@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import logging
+import sqlite3
 import sys
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
-import sqlite3
 import streamlit as st
 
 logger = logging.getLogger(__name__)
@@ -58,6 +59,7 @@ def load_campaign_data() -> tuple[pd.DataFrame, bool]:
     if not db_path.exists():
         try:
             from src.etl_pipeline import run_etl
+
             run_etl()
         except Exception as e:
             logger.error(f"Error running ETL pipeline: {e}")
@@ -161,11 +163,8 @@ def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
     return enriched
 
 
-
 def _build_demo_data() -> pd.DataFrame:
     """Builds a fallback demo DataFrame in case the database is completely empty."""
-    import numpy as np
-
     rng = np.random.default_rng(7)
     dates = pd.date_range("2026-06-01", periods=14, freq="D")
     campaigns = [
