@@ -260,7 +260,7 @@ def run_etl() -> None:
 
     # Handle attribution fallback: null utm_campaign -> None
     utm_col = pd.Series(df_signups_clean["utm_campaign"])
-    df_signups_clean["utm_campaign"] = utm_col.replace({np.nan: None})
+    df_signups_clean["utm_campaign"] = utm_col.mask(utm_col.isna(), None)
 
 
     # 2. Clean Activations: Filter out test activations
@@ -285,7 +285,7 @@ def run_etl() -> None:
     # Format back to ISO strings for SQLite storage
     df_activations_clean["signup_timestamp"] = pd.DatetimeIndex(signup_ts).strftime("%Y-%m-%d %H:%M:%S")
     formatted_act = pd.Series(pd.DatetimeIndex(activation_ts).strftime("%Y-%m-%d %H:%M:%S"))
-    df_activations_clean["activation_timestamp"] = formatted_act.replace({np.nan: None})
+    df_activations_clean["activation_timestamp"] = formatted_act.where(formatted_act.notna(), None)
 
 
     # 3. Clean Ad metrics: Aggregate by campaign_id to satisfy primary key constraint
