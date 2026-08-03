@@ -1,7 +1,6 @@
 ﻿from __future__ import annotations
 
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -20,12 +19,10 @@ from src.utils.campaigns import (
     aggregate_by,
     calculate_metrics,
     fmt_currency,
-    fmt_num,
-    fmt_pct,
     load_campaign_data,
 )
-from src.utils.load_css import get_plotly_layout, load_css
 from src.utils.clerk_auth import require_authentication
+from src.utils.load_css import get_plotly_layout, load_css
 
 st.set_page_config(
     page_title="CampaignCanvas — Dashboard",

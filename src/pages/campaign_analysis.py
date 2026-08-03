@@ -21,8 +21,8 @@ from src.utils.campaigns import (
     fmt_currency,
     load_campaign_data,
 )
-from src.utils.load_css import get_plotly_layout, load_css
 from src.utils.clerk_auth import require_authentication
+from src.utils.load_css import get_plotly_layout, load_css
 
 st.set_page_config(
     page_title="Analytics — CampaignCanvas",

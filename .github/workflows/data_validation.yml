@@ -44,10 +44,13 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install -e .
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov ruff
 
       - name: Validate Python syntax
         run: python -m compileall src tests
+
+      - name: Lint code with Ruff
+        run: ruff check src tests
 
       - name: Run tests with pytest
         run: |

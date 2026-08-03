@@ -1,14 +1,16 @@
 import sys
 from pathlib import Path
+
 import pandas as pd
-import pytest
 
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[1])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data, aggregate_by, calculate_metrics
+from src.utils.campaigns import aggregate_by, calculate_metrics, load_campaign_data
+
+
 def test_load_campaign_data():
     """Test that campaign dataset load function returns a DataFrame and a boolean indicator."""
     df, is_demo = load_campaign_data()

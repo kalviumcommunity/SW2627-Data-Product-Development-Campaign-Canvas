@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import io
 from datetime import datetime
-from typing import TYPE_CHECKING
+
 import pandas as pd
 
 from src.utils.campaigns import calculate_metrics, calculate_revenue
@@ -108,9 +108,9 @@ def _hex(h: str):
 
 
 def _base_doc(buf: io.BytesIO, title: str):
-    from reportlab.platypus import SimpleDocTemplate
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import cm
+    from reportlab.platypus import SimpleDocTemplate
     return SimpleDocTemplate(
         buf,
         pagesize=A4,
@@ -124,7 +124,7 @@ def _base_doc(buf: io.BytesIO, title: str):
 
 
 def _styles():
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     ss = getSampleStyleSheet()
 
     heading = ParagraphStyle(
@@ -177,8 +177,8 @@ def _styles():
 
 def _kpi_table(kpis: dict, cols: int = 4):
     """Build a clean KPI grid table."""
-    from reportlab.platypus import Table, TableStyle, Paragraph
     from reportlab.lib.styles import ParagraphStyle
+    from reportlab.platypus import Paragraph, Table, TableStyle
 
     items = [
         ("Total Spend", f"${kpis['spend']:,.0f}"),
@@ -266,8 +266,8 @@ def _kpi_table(kpis: dict, cols: int = 4):
 
 
 def _campaign_table(summary: pd.DataFrame):
-    from reportlab.platypus import Table, TableStyle, Paragraph
     from reportlab.lib.styles import ParagraphStyle
+    from reportlab.platypus import Paragraph, Table, TableStyle
 
     display_cols = []
     rename = {}
@@ -371,7 +371,7 @@ def _footer_canvas(canvas, doc):
 
 def generate_executive_pdf(df: pd.DataFrame) -> bytes:
     """One-page executive summary with top KPI table only."""
-    from reportlab.platypus import Paragraph, Spacer, HRFlowable
+    from reportlab.platypus import HRFlowable, Paragraph, Spacer
 
     buf = io.BytesIO()
     doc = _base_doc(buf, "Executive Summary")
@@ -409,7 +409,7 @@ def generate_executive_pdf(df: pd.DataFrame) -> bytes:
 
 def generate_summary_pdf(df: pd.DataFrame) -> bytes:
     """KPIs + top 10 campaign breakdown."""
-    from reportlab.platypus import Paragraph, Spacer, HRFlowable
+    from reportlab.platypus import HRFlowable, Paragraph, Spacer
 
     buf = io.BytesIO()
     doc = _base_doc(buf, "Summary Report")
@@ -445,7 +445,7 @@ def generate_summary_pdf(df: pd.DataFrame) -> bytes:
 
 def generate_detailed_pdf(df: pd.DataFrame) -> bytes:
     """Full campaign table + KPIs across all campaigns."""
-    from reportlab.platypus import Paragraph, Spacer, HRFlowable
+    from reportlab.platypus import HRFlowable, Paragraph, Spacer
 
     buf = io.BytesIO()
     doc = _base_doc(buf, "Detailed Report")
@@ -531,7 +531,7 @@ def generate_excel(df: pd.DataFrame) -> bytes:
 
 def _style_excel_sheet(ws, df: pd.DataFrame):
     """Apply minimal styling to an openpyxl sheet."""
-    from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
 
     header_fill = PatternFill("solid", fgColor="0EA5E9")

@@ -1,25 +1,25 @@
 import sys
 from pathlib import Path
-import streamlit as st
-import numpy as np
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import streamlit as st
 
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
+from src.components.navbar import render_navbar
+from src.components.sidebar import render_sidebar
 from src.utils.campaigns import (
-    load_campaign_data,
     add_marketing_dimensions,
     calculate_revenue,
+    load_campaign_data,
 )
 from src.utils.clerk_auth import require_authentication
-from src.utils.load_css import load_css, get_plotly_layout
-from src.components.sidebar import render_sidebar
-from src.components.navbar import render_navbar
+from src.utils.load_css import get_plotly_layout, load_css
 
 st.set_page_config(
     page_title="Visualizations — CampaignCanvas",

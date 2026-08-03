@@ -1,5 +1,6 @@
 ﻿import sys
 from pathlib import Path
+
 import streamlit as st
 
 # Add project root to sys.path
@@ -7,10 +8,10 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.load_css import load_css
-from src.utils.clerk_auth import require_authentication
-from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
+from src.components.sidebar import render_sidebar
+from src.utils.clerk_auth import require_authentication
+from src.utils.load_css import load_css
 
 st.set_page_config(page_title="Settings — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()

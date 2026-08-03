@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -9,11 +10,10 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data, fmt_num
+from src.components.navbar import render_navbar
+from src.components.sidebar import render_sidebar
 from src.utils.clerk_auth import require_authentication
 from src.utils.load_css import load_css
-from src.components.sidebar import render_sidebar
-from src.components.navbar import render_navbar
 
 st.set_page_config(page_title="Data Cleaning — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()

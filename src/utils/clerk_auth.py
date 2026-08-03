@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+
 import requests
 import streamlit as st
 import streamlit.components.v1 as components

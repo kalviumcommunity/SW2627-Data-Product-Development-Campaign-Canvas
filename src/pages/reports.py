@@ -1,6 +1,7 @@
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 import streamlit as st
 
 # Add project root to sys.path
@@ -8,17 +9,17 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.load_css import load_css
-from src.components.sidebar import render_sidebar
-from src.utils.clerk_auth import require_authentication
 from src.components.navbar import render_navbar
-from src.utils.campaigns import load_campaign_data, add_marketing_dimensions
+from src.components.sidebar import render_sidebar
+from src.utils.campaigns import add_marketing_dimensions, load_campaign_data
+from src.utils.clerk_auth import require_authentication
+from src.utils.load_css import load_css
 from src.utils.report_generator import (
+    generate_csv,
+    generate_detailed_pdf,
+    generate_excel,
     generate_executive_pdf,
     generate_summary_pdf,
-    generate_detailed_pdf,
-    generate_csv,
-    generate_excel,
 )
 
 st.set_page_config(
@@ -105,7 +106,7 @@ def render_report_card(title: str, desc: str, key_id: str):
             
             st.markdown("<div style='margin-top: 0.35rem;'></div>", unsafe_allow_html=True)
             if st.button(
-                f"Re-generate",
+                "Re-generate",
                 icon=":material/refresh:",
                 key=f"regen_{key_id}",
                 use_container_width=True,

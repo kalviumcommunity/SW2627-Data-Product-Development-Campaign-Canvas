@@ -11,13 +11,13 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
 	sys.path.insert(0, root_dir)
 
+from src.components.navbar import render_navbar
+from src.components.sidebar import render_sidebar
 from src.database.db_client import get_connection, init_db
 from src.database.queries import count_rows_query, table_info_query
 from src.utils.campaigns import load_campaign_data
 from src.utils.clerk_auth import require_authentication
 from src.utils.load_css import load_css
-from src.components.sidebar import render_sidebar
-from src.components.navbar import render_navbar
 
 st.set_page_config(page_title="Database — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
@@ -81,7 +81,7 @@ def _build_dataset_summary(connection) -> pd.DataFrame:
 		{
 			"Name": "unified_campaign_view",
 			"Source": "In-app join",
-			"Rows": int(len(frame)),
+			"Rows": len(frame),
 			"Columns": int(frame.shape[1]),
 			"Cleaned": "✓",
 		}

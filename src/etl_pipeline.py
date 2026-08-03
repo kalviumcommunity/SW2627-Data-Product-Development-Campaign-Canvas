@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -19,6 +20,7 @@ from src.database.queries import (
     DELETE_HUBSPOT_SIGNUPS,
     DELETE_PRODUCT_ACTIVATIONS,
 )
+
 
 
 def generate_mock_data() -> None:
@@ -158,7 +160,10 @@ def run_etl() -> None:
     ].copy()
 
     # Handle attribution fallback: null utm_campaign -> None
-    df_signups_clean["utm_campaign"] = df_signups_clean["utm_campaign"].replace({np.nan: None})
+    df_signups_clean["utm_campaign"] = (
+        df_signups_clean["utm_campaign"]
+        .where(df_signups_clean["utm_campaign"].notna(), None)
+    )
 
     # 2. Clean Activations: Filter out test activations
     df_activations = df_activations.copy()
@@ -186,9 +191,8 @@ def run_etl() -> None:
 
     # Format back to ISO strings for SQLite storage
     df_activations_clean["signup_timestamp"] = df_activations_clean["signup_timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
-    df_activations_clean["activation_timestamp"] = (
-        df_activations_clean["activation_timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S").replace({np.nan: None})
-    )
+    activation_timestamp = df_activations_clean["activation_timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
+    df_activations_clean["activation_timestamp"] = activation_timestamp.where(activation_timestamp.notna(), None)
 
     # 3. Clean Ad metrics: Aggregate by campaign_id to satisfy primary key constraint
     df_ads_clean = df_ads.copy()

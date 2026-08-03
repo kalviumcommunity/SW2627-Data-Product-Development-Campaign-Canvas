@@ -1,13 +1,14 @@
-import pytest
-from unittest.mock import patch, MagicMock
-import streamlit as st
 import os
+from unittest.mock import MagicMock, patch
+
+import streamlit as st
 
 from src.utils.clerk_auth import (
     get_clerk_credentials,
     get_clerk_endpoints,
-    handle_clerk_callback
+    handle_clerk_callback,
 )
+
 
 class MockSessionState(dict):
     def __getattr__(self, key):

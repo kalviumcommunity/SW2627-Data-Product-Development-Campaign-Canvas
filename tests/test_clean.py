@@ -1,7 +1,7 @@
-import sys
-import os
 import sqlite3
+import sys
 from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -10,7 +10,8 @@ root_dir = str(Path(__file__).resolve().parents[1])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.database.db_client import init_db, get_connection, DB_PATH
+from src.database.db_client import DB_PATH, get_connection, init_db
+
 
 def test_db_initialization():
     """Test that the database schema initialized correctly with the required tables and constraints."""
