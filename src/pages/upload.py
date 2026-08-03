@@ -29,23 +29,24 @@ if "upload_history" not in st.session_state:
             "size": "42.5 KB",
             "type": "CSV",
             "status": "Processed",
-            "timestamp": "2026-07-16 10:14"
+            "timestamp": "2026-07-16 10:14",
         },
         {
             "filename": "hubspot_signups.csv",
             "size": "112.8 KB",
             "type": "CSV",
             "status": "Processed",
-            "timestamp": "2026-07-16 10:14"
+            "timestamp": "2026-07-16 10:14",
         },
         {
             "filename": "product_activations.csv",
             "size": "84.1 KB",
             "type": "CSV",
             "status": "Processed",
-            "timestamp": "2026-07-16 10:14"
-        }
+            "timestamp": "2026-07-16 10:14",
+        },
     ]
+
 
 def format_size(bytes_size):
     if bytes_size < 1024:
@@ -54,6 +55,7 @@ def format_size(bytes_size):
         return f"{bytes_size / 1024:.1f} KB"
     else:
         return f"{bytes_size / (1024 * 1024):.1f} MB"
+
 
 def main():
     # Sidebar
@@ -88,11 +90,13 @@ def main():
                 <p style="margin: 0.4rem 0 1.2rem 0; font-size: 0.85rem; color: var(--muted-foreground);">CSV, Excel (.xlsx/.xls), or JSON — up to a few MBs</p>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
-        
-        uploaded_file = st.file_uploader("Upload dataset", type=["csv", "xlsx", "xls", "json"], label_visibility="collapsed")
-        
+
+        uploaded_file = st.file_uploader(
+            "Upload dataset", type=["csv", "xlsx", "xls", "json"], label_visibility="collapsed"
+        )
+
         if uploaded_file is not None:
             exists = any(item["filename"] == uploaded_file.name for item in st.session_state.upload_history)
             if not exists:
@@ -111,21 +115,29 @@ def main():
                     status = "Failed"
 
                 file_ext = uploaded_file.name.split(".")[-1].upper()
-                st.session_state.upload_history.insert(0, {
-                    "filename": uploaded_file.name,
-                    "size": format_size(uploaded_file.size),
-                    "type": file_ext,
-                    "status": status,
-                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M")
-                })
+                st.session_state.upload_history.insert(
+                    0,
+                    {
+                        "filename": uploaded_file.name,
+                        "size": format_size(uploaded_file.size),
+                        "type": file_ext,
+                        "status": status,
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    },
+                )
                 if status == "Processed":
-                    st.toast(f"File {uploaded_file.name} successfully uploaded and parsed!", icon=":material/check_circle:")
+                    st.toast(
+                        f"File {uploaded_file.name} successfully uploaded and parsed!", icon=":material/check_circle:"
+                    )
                 else:
                     st.toast(f"File {uploaded_file.name} failed to parse.", icon=":material/error:")
 
     # History Table Panel
-    st.markdown("<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground);'>Upload history</div>", unsafe_allow_html=True)
-    
+    st.markdown(
+        "<div style='margin-top: 2rem; margin-bottom: 0.5rem; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--foreground);'>Upload history</div>",
+        unsafe_allow_html=True,
+    )
+
     if not st.session_state.upload_history:
         st.markdown(
             """
@@ -133,18 +145,18 @@ def main():
                 No uploads yet.
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
     else:
         rows_html = ""
         for item in st.session_state.upload_history:
             rows_html += f"""
             <tr>
-                <td>{item.get('filename', '')}</td>
-                <td>{item.get('size', '')}</td>
-                <td>{item.get('type', '')}</td>
-                <td>{item.get('status', '')}</td>
-                <td>{item.get('timestamp', '')}</td>
+                <td>{item.get("filename", "")}</td>
+                <td>{item.get("size", "")}</td>
+                <td>{item.get("type", "")}</td>
+                <td>{item.get("status", "")}</td>
+                <td>{item.get("timestamp", "")}</td>
             </tr>"""
 
         st.markdown(
@@ -166,6 +178,7 @@ def main():
             """,
             unsafe_allow_html=True,
         )
+
 
 if __name__ == "__main__":
     main()

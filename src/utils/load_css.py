@@ -78,7 +78,7 @@ def load_css(path: Path = _STYLE_PATH) -> None:
           --sidebar-border: #cbd5e1 !important;
           --shadow-glow: 0 12px 30px -10px rgba(56, 189, 248, 0.2) !important;
           --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 12px -4px rgba(2, 6, 23, 0.05) !important;
-          
+
           /* Map to Streamlit native theme properties */
           --background-color: var(--background) !important;
           --text-color: var(--foreground) !important;
@@ -143,7 +143,7 @@ def load_css(path: Path = _STYLE_PATH) -> None:
         h1, h2, h3, h4, span, p, div {
             color: inherit;
         }
-        
+
         .logo-text {
             color: var(--foreground) !important;
         }
@@ -179,13 +179,13 @@ def load_css(path: Path = _STYLE_PATH) -> None:
             background-color: var(--accent) !important;
             color: var(--accent-foreground) !important;
         }
-        
+
         /* Toggle outer area */
         div[data-testid="stToggle"] {
             opacity: 1 !important;
             visibility: visible !important;
         }
-        
+
         /* OFF toggle track */
         div[data-testid="stToggle"] [role="switch"] {
             background: #94a3b8 !important;
@@ -194,7 +194,7 @@ def load_css(path: Path = _STYLE_PATH) -> None:
             opacity: 1 !important;
             visibility: visible !important;
         }
-        
+
         /* ON toggle track */
         div[data-testid="stToggle"] [role="switch"][aria-checked="true"] {
             background: #38bdf8 !important;
@@ -202,7 +202,7 @@ def load_css(path: Path = _STYLE_PATH) -> None:
             border-color: #0284c7 !important;
             opacity: 1 !important;
         }
-        
+
         /* Toggle knob */
         div[data-testid="stToggle"] [role="switch"] > div {
             background: #ffffff !important;
@@ -489,15 +489,17 @@ input:disabled,
 """
 
     import textwrap
+
     theme_variables = textwrap.dedent(theme_variables).strip()
     extra_overrides = textwrap.dedent(extra_overrides).strip()
 
     # Combine everything inside a single style block to avoid markdown rendering bugs
     combined_css = f"{theme_variables}\n{css}\n{extra_overrides}"
     st.markdown(f"<style>{combined_css}</style>", unsafe_allow_html=True)
-    
+
     # Initialize and restore authentication state via cookies
     from src.utils.clerk_auth import check_and_restore_session
+
     check_and_restore_session()
 
     # Make sure browser theme cookie is set correctly to prevent theme reset on page redirects
@@ -505,6 +507,7 @@ input:disabled,
         cookies = st.context.cookies
         if cookies.get("theme") != theme:
             import streamlit.components.v1 as components
+
             components.html(
                 f"""
                 <script>
@@ -523,7 +526,7 @@ def get_plotly_layout() -> dict:
     theme = st.session_state.get("theme", "dark")
     text_color = "#0f172a" if theme == "light" else "#f8fafc"
     grid_color = "rgba(15, 23, 42, 0.08)" if theme == "light" else "rgba(255,255,255,0.08)"
-    
+
     return {
         "paper_bgcolor": "rgba(0,0,0,0)",
         "plot_bgcolor": "rgba(0,0,0,0)",
@@ -543,7 +546,5 @@ def get_plotly_layout() -> dict:
             "tickfont": {"color": text_color},
             "title": {"font": {"color": text_color}},
         },
-        "legend": {
-            "font": {"color": text_color}
-        }
+        "legend": {"font": {"color": text_color}},
     }

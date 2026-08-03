@@ -17,12 +17,7 @@ load_dotenv(override=False)
 
 def is_production_environment() -> bool:
     """Checks whether the application is running in a strict production environment."""
-    env = (
-        os.getenv("ENVIRONMENT")
-        or os.getenv("APP_ENV")
-        or os.getenv("STREAMLIT_ENV")
-        or "development"
-    ).lower()
+    env = (os.getenv("ENVIRONMENT") or os.getenv("APP_ENV") or os.getenv("STREAMLIT_ENV") or "development").lower()
     return env in ("production", "prod")
 
 
@@ -106,7 +101,7 @@ def get_clerk_credentials():
 
 def initialize_auth() -> bool:
     """Environment-aware authentication initializer.
-    
+
     Guards authentication fallbacks based on environment configuration to prevent
     unauthorized bypasses in production environments.
     """
@@ -124,9 +119,7 @@ def initialize_auth() -> bool:
             logger.critical("Production auth initialization failed: Missing Clerk credentials.")
             st.stop()
         else:
-            st.warning(
-                "⚠️ Clerk credentials not configured. Running in Local Development / Demo Auth Mode."
-            )
+            st.warning("⚠️ Clerk credentials not configured. Running in Local Development / Demo Auth Mode.")
             return False
 
     return True
@@ -135,7 +128,7 @@ def initialize_auth() -> bool:
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_clerk_endpoints(domain: str):
     """Queries Clerk's well-known OpenID configuration endpoint to resolve standard OIDC endpoints.
-    
+
     Results are cached for 1 hour to prevent HTTP roundtrips on every Streamlit rerun.
     """
     default_endpoints = {
@@ -156,12 +149,8 @@ def get_clerk_endpoints(domain: str):
                 "authorization_endpoint": config.get(
                     "authorization_endpoint", default_endpoints["authorization_endpoint"]
                 ),
-                "token_endpoint": config.get(
-                    "token_endpoint", default_endpoints["token_endpoint"]
-                ),
-                "userinfo_endpoint": config.get(
-                    "userinfo_endpoint", default_endpoints["userinfo_endpoint"]
-                ),
+                "token_endpoint": config.get("token_endpoint", default_endpoints["token_endpoint"]),
+                "userinfo_endpoint": config.get("userinfo_endpoint", default_endpoints["userinfo_endpoint"]),
             }
     except Exception as err:
         logger.warning("Could not reach Clerk OpenID configuration endpoint: %s", err)
@@ -174,11 +163,7 @@ def safe_switch_page(page_path: str):
     try:
         st.switch_page(page_path)
     except Exception:
-        alt_path = (
-            f"src/{page_path}"
-            if not page_path.startswith("src/")
-            else page_path.replace("src/", "", 1)
-        )
+        alt_path = f"src/{page_path}" if not page_path.startswith("src/") else page_path.replace("src/", "", 1)
         try:
             st.switch_page(alt_path)
         except Exception:
@@ -187,7 +172,7 @@ def safe_switch_page(page_path: str):
 
 def handle_clerk_callback():
     """Checks for a Clerk authentication redirect code in query params.
-    
+
     Exchanges it for user info, establishes the session, and redirects to the dashboard.
     """
     query_params = st.query_params
@@ -237,10 +222,7 @@ def handle_clerk_callback():
                                     name = " ".join(
                                         [
                                             word.capitalize()
-                                            for word in email.split("@")[0]
-                                            .replace(".", " ")
-                                            .replace("_", " ")
-                                            .split()
+                                            for word in email.split("@")[0].replace(".", " ").replace("_", " ").split()
                                         ]
                                     )
                                 st.session_state.logged_in = True
@@ -276,7 +258,7 @@ def handle_clerk_callback():
 
 def check_and_restore_session():
     """Checks for authentication cookies and restores or updates session state/cookies accordingly.
-    
+
     Call this at the beginning of each page rendering to persist authentication.
     """
     # 1. Restore session from cookies if session state logged_in is not True
@@ -293,13 +275,7 @@ def check_and_restore_session():
                     st.session_state.name = name_cookie
                 else:
                     st.session_state.name = " ".join(
-                        [
-                            w.capitalize()
-                            for w in email.split("@")[0]
-                            .replace(".", " ")
-                            .replace("_", " ")
-                            .split()
-                        ]
+                        [w.capitalize() for w in email.split("@")[0].replace(".", " ").replace("_", " ").split()]
                     )
         except Exception:
             pass

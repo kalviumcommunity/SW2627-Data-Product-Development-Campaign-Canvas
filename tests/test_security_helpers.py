@@ -35,4 +35,3 @@ def test_validate_sql_query_rejects_dangerous_statements():
 def test_validate_sql_query_rejects_multiple_statements():
     with pytest.raises(ValueError, match="single read-only statement"):
         validate_sql_query("SELECT 1; DROP TABLE campaigns;")
-

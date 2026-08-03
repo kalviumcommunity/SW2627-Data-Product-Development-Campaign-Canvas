@@ -74,9 +74,7 @@ def main():
     df["campaign"] = df["campaign_name"] if "campaign_name" in df.columns else df.get("campaign_id", "")
     df["platform"] = df["ad_platform"] if "ad_platform" in df.columns else df.get("platform_grouped", "")
     df["conversions"] = (
-        df["activations_7d"]
-        if "activations_7d" in df.columns
-        else df.get("activations", df.get("conversions", 0))
+        df["activations_7d"] if "activations_7d" in df.columns else df.get("activations", df.get("conversions", 0))
     )
     df["spend"] = df["spend_usd"] if "spend_usd" in df.columns else df.get("spend", 0)
     df["revenue"] = calculate_revenue(df)
@@ -101,7 +99,7 @@ def main():
         "spend",
         "revenue",
     ]
-    
+
     # Filter available columns dynamically to prevent key errors
     available_cols = [c for c in final_cols if c in df.columns]
     df_db = df[available_cols].copy()
@@ -135,9 +133,7 @@ def main():
             )
 
             # Action controls row
-            st.markdown(
-                "<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True
-            )
+            st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
             col_run_btn, col_save_name, col_save_btn = st.columns([1, 2, 1])
 
             with col_run_btn:
@@ -172,9 +168,7 @@ def main():
                     except ValueError as exc:
                         st.error(str(exc))
                     else:
-                        st.session_state.saved_queries.append(
-                            {"name": save_name, "query": query_input}
-                        )
+                        st.session_state.saved_queries.append({"name": save_name, "query": query_input})
                         st.toast(
                             f"Query '{save_name}' successfully saved!",
                             icon=":material/download:",
@@ -202,9 +196,7 @@ def main():
                 for idx, sq in enumerate(st.session_state.saved_queries):
                     col_sq_name, col_sq_del = st.columns([5, 1])
                     with col_sq_name:
-                        if st.button(
-                            sq["name"], key=f"load_sq_{idx}", use_container_width=True
-                        ):
+                        if st.button(sq["name"], key=f"load_sq_{idx}", use_container_width=True):
                             st.session_state.sql_editor_content = sq["query"]
                             st.toast(
                                 f"Loaded '{sq['name']}' into query editor.",

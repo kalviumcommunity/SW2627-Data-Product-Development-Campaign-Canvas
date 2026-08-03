@@ -130,9 +130,7 @@ def main() -> None:
     ).fillna(0.0)
 
     spend_col = (
-        "spend_usd"
-        if "spend_usd" in grouped.columns
-        else ("spend" if "spend" in grouped.columns else "totalSpend")
+        "spend_usd" if "spend_usd" in grouped.columns else ("spend" if "spend" in grouped.columns else "totalSpend")
     )
     revenue_col = (
         "totalRevenue"
@@ -292,9 +290,7 @@ def main() -> None:
 
             if daily_df.empty or daily_df["date"].nunique() < 3:
                 campaign_df = (
-                    grouped[["name", "signups", "activations_7d"]]
-                    .head(8)
-                    .sort_values("signups", ascending=False)
+                    grouped[["name", "signups", "activations_7d"]].head(8).sort_values("signups", ascending=False)
                 )
                 fig_line = go.Figure()
                 fig_line.add_trace(
@@ -318,9 +314,18 @@ def main() -> None:
                     barmode="group",
                     height=300,
                     margin=dict(l=10, r=10, t=10, b=10),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color=text_color, size=10)),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        font=dict(color=text_color, size=10),
+                    ),
                     xaxis=dict(showgrid=False, title=None, tickfont=dict(color=text_color, size=10)),
-                    yaxis=dict(showgrid=True, gridcolor=grid_color, title=None, tickfont=dict(color=text_color, size=10)),
+                    yaxis=dict(
+                        showgrid=True, gridcolor=grid_color, title=None, tickfont=dict(color=text_color, size=10)
+                    ),
                 )
                 fig_line.update_layout(layout_line)
             else:
@@ -347,9 +352,18 @@ def main() -> None:
                 layout_line.update(
                     height=300,
                     margin=dict(l=10, r=10, t=10, b=10),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color=text_color, size=10)),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        font=dict(color=text_color, size=10),
+                    ),
                     xaxis=dict(showgrid=False, title=None, tickfont=dict(color=text_color, size=10)),
-                    yaxis=dict(showgrid=True, gridcolor=grid_color, title=None, tickfont=dict(color=text_color, size=10)),
+                    yaxis=dict(
+                        showgrid=True, gridcolor=grid_color, title=None, tickfont=dict(color=text_color, size=10)
+                    ),
                 )
                 fig_line.update_layout(layout_line)
 
@@ -385,8 +399,12 @@ def main() -> None:
             layout_scatter.update(
                 height=300,
                 margin=dict(l=10, r=10, t=10, b=10),
-                xaxis=dict(showgrid=True, gridcolor=grid_color, title="Spend ($)", tickfont=dict(color=text_color, size=10)),
-                yaxis=dict(showgrid=True, gridcolor=grid_color, title="Activations", tickfont=dict(color=text_color, size=10)),
+                xaxis=dict(
+                    showgrid=True, gridcolor=grid_color, title="Spend ($)", tickfont=dict(color=text_color, size=10)
+                ),
+                yaxis=dict(
+                    showgrid=True, gridcolor=grid_color, title="Activations", tickfont=dict(color=text_color, size=10)
+                ),
             )
             fig_scatter.update_layout(layout_scatter)
             fig_scatter.update_traces(

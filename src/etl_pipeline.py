@@ -22,7 +22,6 @@ from src.database.queries import (
 )
 
 
-
 def generate_mock_data() -> None:
     """Generates mock raw datasets corresponding to the PRD specifications."""
     logger.info("Generating mock raw datasets...")
@@ -30,16 +29,76 @@ def generate_mock_data() -> None:
 
     # 1. Campaigns Definition
     campaigns = [
-        {"id": "c_google_brand", "name": "Search - Brand", "platform": "google_ads", "quality_coef": 1.2, "cost_coef": 1.0},
-        {"id": "c_google_nonbrand", "name": "Search - Nonbrand", "platform": "google_ads", "quality_coef": 0.8, "cost_coef": 1.1},
-        {"id": "c_meta_prospect", "name": "Paid Social - Prospecting", "platform": "meta_ads", "quality_coef": 0.55, "cost_coef": 1.3},
-        {"id": "c_meta_retarget", "name": "Paid Social - Retargeting", "platform": "meta_ads", "quality_coef": 1.4, "cost_coef": 0.9},
-        {"id": "c_youtube_awareness", "name": "YouTube - Awareness", "platform": "google_ads", "quality_coef": 0.08, "cost_coef": 1.5},
-        {"id": "c_display_remarketing", "name": "Display - Remarketing", "platform": "google_ads", "quality_coef": 0.05, "cost_coef": 1.2},
-        {"id": "c_linkedin_leadgen", "name": "LinkedIn - Lead Gen", "platform": "linkedin_ads", "quality_coef": 0.6, "cost_coef": 1.4},
-        {"id": "c_tiktok_awareness", "name": "TikTok - Awareness", "platform": "tiktok_ads", "quality_coef": 0.3, "cost_coef": 0.8},
-        {"id": "c_instagram_shoppable", "name": "Instagram - Shoppable", "platform": "meta_ads", "quality_coef": 0.7, "cost_coef": 1.0},
-        {"id": "c_pinterest_pins", "name": "Pinterest - Pins", "platform": "pinterest_ads", "quality_coef": 0.4, "cost_coef": 0.9},
+        {
+            "id": "c_google_brand",
+            "name": "Search - Brand",
+            "platform": "google_ads",
+            "quality_coef": 1.2,
+            "cost_coef": 1.0,
+        },
+        {
+            "id": "c_google_nonbrand",
+            "name": "Search - Nonbrand",
+            "platform": "google_ads",
+            "quality_coef": 0.8,
+            "cost_coef": 1.1,
+        },
+        {
+            "id": "c_meta_prospect",
+            "name": "Paid Social - Prospecting",
+            "platform": "meta_ads",
+            "quality_coef": 0.55,
+            "cost_coef": 1.3,
+        },
+        {
+            "id": "c_meta_retarget",
+            "name": "Paid Social - Retargeting",
+            "platform": "meta_ads",
+            "quality_coef": 1.4,
+            "cost_coef": 0.9,
+        },
+        {
+            "id": "c_youtube_awareness",
+            "name": "YouTube - Awareness",
+            "platform": "google_ads",
+            "quality_coef": 0.08,
+            "cost_coef": 1.5,
+        },
+        {
+            "id": "c_display_remarketing",
+            "name": "Display - Remarketing",
+            "platform": "google_ads",
+            "quality_coef": 0.05,
+            "cost_coef": 1.2,
+        },
+        {
+            "id": "c_linkedin_leadgen",
+            "name": "LinkedIn - Lead Gen",
+            "platform": "linkedin_ads",
+            "quality_coef": 0.6,
+            "cost_coef": 1.4,
+        },
+        {
+            "id": "c_tiktok_awareness",
+            "name": "TikTok - Awareness",
+            "platform": "tiktok_ads",
+            "quality_coef": 0.3,
+            "cost_coef": 0.8,
+        },
+        {
+            "id": "c_instagram_shoppable",
+            "name": "Instagram - Shoppable",
+            "platform": "meta_ads",
+            "quality_coef": 0.7,
+            "cost_coef": 1.0,
+        },
+        {
+            "id": "c_pinterest_pins",
+            "name": "Pinterest - Pins",
+            "platform": "pinterest_ads",
+            "quality_coef": 0.4,
+            "cost_coef": 0.9,
+        },
     ]
 
     dates = pd.date_range("2026-06-01", "2026-06-30", freq="D")
@@ -52,14 +111,16 @@ def generate_mock_data() -> None:
             impressions = int(spend * rng.uniform(80, 150))
             clicks = int(impressions * rng.uniform(0.01, 0.05))
 
-            ad_rows.append({
-                "campaign_id": c["id"],
-                "ad_platform": c["platform"],
-                "spend_usd": max(0.0, round(spend, 2)),
-                "clicks": max(0, clicks),
-                "impressions": max(0, impressions),
-                "sync_date": date.strftime("%Y-%m-%d"),
-            })
+            ad_rows.append(
+                {
+                    "campaign_id": c["id"],
+                    "ad_platform": c["platform"],
+                    "spend_usd": max(0.0, round(spend, 2)),
+                    "clicks": max(0, clicks),
+                    "impressions": max(0, impressions),
+                    "sync_date": date.strftime("%Y-%m-%d"),
+                }
+            )
 
     df_ads = pd.DataFrame(ad_rows)
 
@@ -93,11 +154,13 @@ def generate_mock_data() -> None:
             if rng.uniform(0, 1) < 0.04:
                 utm_campaign = None
 
-            signup_rows.append({
-                "email": email,
-                "utm_campaign": utm_campaign,
-                "signup_timestamp": signup_time.isoformat(),
-            })
+            signup_rows.append(
+                {
+                    "email": email,
+                    "utm_campaign": utm_campaign,
+                    "signup_timestamp": signup_time.isoformat(),
+                }
+            )
 
             activation_rate = 0.58 * c_info["quality_coef"]
             if c_id in ["c_youtube_awareness", "c_display_remarketing"]:
@@ -113,14 +176,16 @@ def generate_mock_data() -> None:
                 act_time = signup_time + pd.to_timedelta(days_to_activate, unit="d")
                 activation_time = act_time.isoformat()
 
-            activation_rows.append({
-                "user_id": user_id,
-                "email": email,
-                "signup_timestamp": signup_time.isoformat(),
-                "activation_timestamp": activation_time,
-                "profile_completed": int(is_profile_completed),
-                "campaign_run": int(is_campaign_run),
-            })
+            activation_rows.append(
+                {
+                    "user_id": user_id,
+                    "email": email,
+                    "signup_timestamp": signup_time.isoformat(),
+                    "activation_timestamp": activation_time,
+                    "profile_completed": int(is_profile_completed),
+                    "campaign_run": int(is_campaign_run),
+                }
+            )
 
             user_idx += 1
 
@@ -155,28 +220,25 @@ def run_etl() -> None:
     df_signups = df_signups.copy()
     df_signups["email"] = df_signups["email"].fillna("").astype(str)
     df_signups_clean = df_signups[
-        (~df_signups["email"].str.endswith("@company.com")) &
-        (~df_signups["email"].str.contains("test", case=False, na=False))
+        (~df_signups["email"].str.endswith("@company.com"))
+        & (~df_signups["email"].str.contains("test", case=False, na=False))
     ].copy()
 
     # Handle attribution fallback: null utm_campaign -> None
-    df_signups_clean["utm_campaign"] = (
-        df_signups_clean["utm_campaign"]
-        .where(df_signups_clean["utm_campaign"].notna(), None)
+    df_signups_clean["utm_campaign"] = df_signups_clean["utm_campaign"].where(
+        df_signups_clean["utm_campaign"].notna(), None
     )
 
     # 2. Clean Activations: Filter out test activations
     df_activations = df_activations.copy()
     df_activations["email"] = df_activations["email"].fillna("").astype(str)
     df_activations_clean = df_activations[
-        (~df_activations["email"].str.endswith("@company.com")) &
-        (~df_activations["email"].str.contains("test", case=False, na=False))
+        (~df_activations["email"].str.endswith("@company.com"))
+        & (~df_activations["email"].str.contains("test", case=False, na=False))
     ].copy()
 
     # Convert timestamps safely and preserve invalid values as nulls.
-    df_activations_clean["signup_timestamp"] = pd.to_datetime(
-        df_activations_clean["signup_timestamp"], errors="coerce"
-    )
+    df_activations_clean["signup_timestamp"] = pd.to_datetime(df_activations_clean["signup_timestamp"], errors="coerce")
     df_activations_clean["activation_timestamp"] = pd.to_datetime(
         df_activations_clean["activation_timestamp"], errors="coerce"
     )
@@ -209,14 +271,11 @@ def run_etl() -> None:
         mode = series.mode()
         return str(mode.iloc[0]) if not mode.empty else str(series.iloc[0])
 
-    df_ads_clean = (
-        df_ads_clean.groupby(["campaign_id", "sync_date"], as_index=False)
-        .agg(
-            spend_usd=("spend_usd", "sum"),
-            clicks=("clicks", "sum"),
-            impressions=("impressions", "sum"),
-            ad_platform=("ad_platform", _pick_platform),
-        )
+    df_ads_clean = df_ads_clean.groupby(["campaign_id", "sync_date"], as_index=False).agg(
+        spend_usd=("spend_usd", "sum"),
+        clicks=("clicks", "sum"),
+        impressions=("impressions", "sum"),
+        ad_platform=("ad_platform", _pick_platform),
     )
 
     # Write to SQLite

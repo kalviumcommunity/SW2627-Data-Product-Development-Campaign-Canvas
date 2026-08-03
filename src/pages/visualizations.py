@@ -122,9 +122,7 @@ def main():
                 marker_line_width=1,
                 opacity=0.9,
             )
-            st.plotly_chart(
-                fig_bar, use_container_width=True, config={"displayModeBar": False}
-            )
+            st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
 
     # 2. Pie Chart — Spend distribution
     with col_row1_right:
@@ -145,9 +143,7 @@ def main():
 
             fig_pie.update_layout(get_plotly_layout())
             fig_pie.update_traces(textposition="inside", textinfo="percent+label")
-            st.plotly_chart(
-                fig_pie, use_container_width=True, config={"displayModeBar": False}
-            )
+            st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
 
     # 3. Donut Chart — Conversions by Region
     with col_row2_left:
@@ -172,9 +168,7 @@ def main():
 
             fig_donut.update_layout(get_plotly_layout())
             fig_donut.update_traces(textposition="inside", textinfo="percent+label")
-            st.plotly_chart(
-                fig_donut, use_container_width=True, config={"displayModeBar": False}
-            )
+            st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
 
     # 4. Line Chart — Daily conversions
     with col_row2_right:
@@ -185,11 +179,7 @@ def main():
             )
 
             if "date" in df.columns:
-                daily_df = (
-                    df.groupby("date", as_index=False)[[activation_col]]
-                    .sum()
-                    .sort_values(by="date")
-                )
+                daily_df = df.groupby("date", as_index=False)[[activation_col]].sum().sort_values(by="date")
             else:
                 daily_df = pd.DataFrame(columns=["date", activation_col])
 
@@ -203,9 +193,7 @@ def main():
 
             fig_line.update_layout(get_plotly_layout())
             fig_line.update_traces(line=dict(color="#10b981", width=2.5))
-            st.plotly_chart(
-                fig_line, use_container_width=True, config={"displayModeBar": False}
-            )
+            st.plotly_chart(fig_line, use_container_width=True, config={"displayModeBar": False})
 
 
 if __name__ == "__main__":
