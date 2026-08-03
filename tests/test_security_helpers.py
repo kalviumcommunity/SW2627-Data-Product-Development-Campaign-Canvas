@@ -24,3 +24,15 @@ def test_validate_sql_query_allows_read_only_select():
 def test_validate_sql_query_rejects_dangerous_statements():
     with pytest.raises(ValueError, match="read-only"):
         validate_sql_query("DELETE FROM campaigns")
+
+    with pytest.raises(ValueError, match="read-only"):
+        validate_sql_query("ALTER TABLE campaigns ADD COLUMN hacker INT")
+
+    with pytest.raises(ValueError, match="read-only"):
+        validate_sql_query("DROP TABLE campaigns")
+
+
+def test_validate_sql_query_rejects_multiple_statements():
+    with pytest.raises(ValueError, match="single read-only statement"):
+        validate_sql_query("SELECT 1; DROP TABLE campaigns;")
+

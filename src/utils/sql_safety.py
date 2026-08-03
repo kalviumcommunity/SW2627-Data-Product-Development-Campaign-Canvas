@@ -2,35 +2,38 @@ from __future__ import annotations
 
 import os
 import sqlite3
-from typing import Any, Final
+from typing import Any
+
 import pandas as pd
 
 try:
     import sqlglot
     from sqlglot import exp
+
+    _ALLOWED_ROOT_TYPES: tuple[type[exp.Expression], ...] = (
+        exp.Select,
+        exp.Expression,  # Fallback for general expressions if fully safe
+    )
+
+    # Explicit list of non-read-only expressions to reject during AST traversal
+    _FORBIDDEN_AST_NODES: tuple[type[exp.Expression], ...] = (
+        exp.Insert,
+        exp.Update,
+        exp.Delete,
+        exp.Create,
+        exp.Drop,
+        exp.Alter,
+        exp.Pragma,
+        exp.Command,
+        exp.Transaction,
+        exp.Commit,
+        exp.Rollback,
+    )
 except ImportError:
     sqlglot = None  # Fallback gracefully if library is missing
-
-
-_ALLOWED_ROOT_TYPES: Final[tuple[type[exp.Expression], ...]] = (
-    exp.Select,
-    exp.Expression,  # Fallback for general expressions if fully safe
-)
-
-# Explicit list of non-read-only expressions to reject during AST traversal
-_FORBIDDEN_AST_NODES: Final[tuple[type[exp.Expression], ...]] = (
-    exp.Insert,
-    exp.Update,
-    exp.Delete,
-    exp.Create,
-    exp.Drop,
-    exp.AlterTable,
-    exp.Pragma,
-    exp.Command,
-    exp.Transaction,
-    exp.Commit,
-    exp.Rollback,
-)
+    exp = None
+    _ALLOWED_ROOT_TYPES = ()
+    _FORBIDDEN_AST_NODES = ()
 
 
 def validate_sql_query(query: str) -> str:
@@ -51,7 +54,7 @@ def validate_sql_query(query: str) -> str:
         raise ValueError("SQL query cannot be empty")
 
     # If sqlglot is installed, perform AST-level parsing and validation
-    if sqlglot is not None:
+    if sqlglot is not None and exp is not None:
         try:
             parsed_statements = sqlglot.parse(cleaned, read="sqlite")
         except Exception as err:
@@ -74,7 +77,7 @@ def validate_sql_query(query: str) -> str:
             if isinstance(ast, exp.Expression) and ast.key == "select":
                 pass
             else:
-                raise ValueError("Only SELECT or CTE (WITH ... SELECT) queries are allowed")
+                raise ValueError("Only SELECT or CTE (WITH ... SELECT) read-only queries are allowed")
 
         # Walk full AST tree to catch nested mutation operations (e.g. inside CTEs or subqueries)
         for node in ast.walk():
