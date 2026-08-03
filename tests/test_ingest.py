@@ -1,14 +1,16 @@
 import sys
 from pathlib import Path
+
 import pandas as pd
-import pytest
 
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[1])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data, aggregate_by, calculate_metrics
+from src.utils.campaigns import aggregate_by, calculate_metrics, load_campaign_data
+
+
 def test_load_campaign_data():
     """Test that campaign dataset load function returns a DataFrame and a boolean indicator."""
     df, is_demo = load_campaign_data()
@@ -19,19 +21,40 @@ def test_load_campaign_data():
         for col in required_cols:
             assert col in df.columns
 
+
 def test_calculate_metrics():
     """Test calculation of marketing and activation metrics."""
-    mock_data = pd.DataFrame([
-        {
-            "campaign_id": "c1", "campaign_name": "Camp 1", "ad_platform": "google_ads", "date": "2026-06-01",
-            "spend_usd": 100.0, "clicks": 200, "impressions": 1000, "signups": 20, "profile_completed": 5, "campaign_run": 5, "activations_7d": 5
-        },
-        {
-            "campaign_id": "c2", "campaign_name": "Camp 2", "ad_platform": "meta_ads", "date": "2026-06-01",
-            "spend_usd": 200.0, "clicks": 100, "impressions": 500, "signups": 5, "profile_completed": 0, "campaign_run": 0, "activations_7d": 0
-        }
-    ])
-    
+    mock_data = pd.DataFrame(
+        [
+            {
+                "campaign_id": "c1",
+                "campaign_name": "Camp 1",
+                "ad_platform": "google_ads",
+                "date": "2026-06-01",
+                "spend_usd": 100.0,
+                "clicks": 200,
+                "impressions": 1000,
+                "signups": 20,
+                "profile_completed": 5,
+                "campaign_run": 5,
+                "activations_7d": 5,
+            },
+            {
+                "campaign_id": "c2",
+                "campaign_name": "Camp 2",
+                "ad_platform": "meta_ads",
+                "date": "2026-06-01",
+                "spend_usd": 200.0,
+                "clicks": 100,
+                "impressions": 500,
+                "signups": 5,
+                "profile_completed": 0,
+                "campaign_run": 0,
+                "activations_7d": 0,
+            },
+        ]
+    )
+
     kpis = calculate_metrics(mock_data)
     assert kpis["totalCampaigns"] == 2.0
     assert kpis["totalSpend"] == 300.0
@@ -48,19 +71,40 @@ def test_calculate_metrics():
     # Camp 1 has 5 activations / 20 signups = 25% activation rate (>=10%). Not wasted.
     assert kpis["wastedSpend"] == 200.0
 
+
 def test_aggregate_by_campaign():
     """Test aggregation groupings."""
-    mock_data = pd.DataFrame([
-        {
-            "campaign_id": "c1", "campaign_name": "Camp 1", "ad_platform": "google_ads", "date": "2026-06-01",
-            "spend_usd": 100.0, "clicks": 200, "impressions": 1000, "signups": 20, "profile_completed": 5, "campaign_run": 5, "activations_7d": 5
-        },
-        {
-            "campaign_id": "c1", "campaign_name": "Camp 1", "ad_platform": "google_ads", "date": "2026-06-02",
-            "spend_usd": 50.0, "clicks": 100, "impressions": 500, "signups": 10, "profile_completed": 2, "campaign_run": 2, "activations_7d": 2
-        }
-    ])
-    
+    mock_data = pd.DataFrame(
+        [
+            {
+                "campaign_id": "c1",
+                "campaign_name": "Camp 1",
+                "ad_platform": "google_ads",
+                "date": "2026-06-01",
+                "spend_usd": 100.0,
+                "clicks": 200,
+                "impressions": 1000,
+                "signups": 20,
+                "profile_completed": 5,
+                "campaign_run": 5,
+                "activations_7d": 5,
+            },
+            {
+                "campaign_id": "c1",
+                "campaign_name": "Camp 1",
+                "ad_platform": "google_ads",
+                "date": "2026-06-02",
+                "spend_usd": 50.0,
+                "clicks": 100,
+                "impressions": 500,
+                "signups": 10,
+                "profile_completed": 2,
+                "campaign_run": 2,
+                "activations_7d": 2,
+            },
+        ]
+    )
+
     aggregated = aggregate_by(mock_data, "campaign_id")
     assert not aggregated.empty
     assert aggregated.loc[0, "name"] == "c1"

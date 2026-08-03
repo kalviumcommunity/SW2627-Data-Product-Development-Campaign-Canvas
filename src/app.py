@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 from pathlib import Path
 
 # Add project root to sys.path
@@ -7,6 +7,7 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 from datetime import datetime
+
 # pyrefly: ignore [missing-import]
 import streamlit as st
 
@@ -19,16 +20,20 @@ load_css()
 
 current_theme = st.session_state.get("theme", "dark")
 next_theme = "light" if current_theme == "dark" else "dark"
-theme_icon = """
+theme_icon = (
+    """
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 3a1 1 0 0 1 1 1v1.08a7 7 0 1 1-3.08 12.91 1 1 0 0 1 1.14-1.64A5 5 0 1 0 12 5V4a1 1 0 0 1 1-1Z"/>
     <path d="M12 1.75v2.5M12 19.75v2.5M4.22 4.22l1.77 1.77M17.99 17.99l1.77 1.77M1.75 12h2.5M19.75 12h2.5M4.22 19.78l1.77-1.77M17.99 6.01l1.77-1.77"/>
 </svg>
-""" if current_theme == "dark" else """
+"""
+    if current_theme == "dark"
+    else """
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
     <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z"/>
 </svg>
 """
+)
 
 # Process any Clerk authentication callback parameters
 handle_clerk_callback()
@@ -92,15 +97,15 @@ landing_html = f"""
 * {{ box-sizing: border-box; }}
 
 :root {{
-    --landing-background: {'linear-gradient(180deg, #f8fbff 0%, #eef6ff 45%, #eaf1ff 100%)' if current_theme == 'light' else 'radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), #030712'};
-    --landing-foreground: {'#0f172a' if current_theme == 'light' else '#f8fafc'};
-    --landing-muted: {'#475569' if current_theme == 'light' else '#9ca3af'};
-    --landing-surface: {'rgba(255, 255, 255, 0.78)' if current_theme == 'light' else 'rgba(30, 41, 59, 0.4)'};
-    --landing-border: {'rgba(148, 163, 184, 0.22)' if current_theme == 'light' else 'rgba(255, 255, 255, 0.1)'};
-    --landing-card: {'rgba(255, 255, 255, 0.9)' if current_theme == 'light' else 'rgba(15, 23, 42, 0.4)'};
-    --landing-card-border: {'rgba(148, 163, 184, 0.2)' if current_theme == 'light' else 'rgba(255, 255, 255, 0.05)'};
-    --landing-footer: {'rgba(255, 255, 255, 0.72)' if current_theme == 'light' else 'rgba(15, 23, 42, 0.3)'};
-    --landing-glow: {'rgba(56, 189, 248, 0.18)' if current_theme == 'light' else 'rgba(56, 189, 248, 0.4)'};
+    --landing-background: {"linear-gradient(180deg, #f8fbff 0%, #eef6ff 45%, #eaf1ff 100%)" if current_theme == "light" else "radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), #030712"};
+    --landing-foreground: {"#0f172a" if current_theme == "light" else "#f8fafc"};
+    --landing-muted: {"#475569" if current_theme == "light" else "#9ca3af"};
+    --landing-surface: {"rgba(255, 255, 255, 0.78)" if current_theme == "light" else "rgba(30, 41, 59, 0.4)"};
+    --landing-border: {"rgba(148, 163, 184, 0.22)" if current_theme == "light" else "rgba(255, 255, 255, 0.1)"};
+    --landing-card: {"rgba(255, 255, 255, 0.9)" if current_theme == "light" else "rgba(15, 23, 42, 0.4)"};
+    --landing-card-border: {"rgba(148, 163, 184, 0.2)" if current_theme == "light" else "rgba(255, 255, 255, 0.05)"};
+    --landing-footer: {"rgba(255, 255, 255, 0.72)" if current_theme == "light" else "rgba(15, 23, 42, 0.3)"};
+    --landing-glow: {"rgba(56, 189, 248, 0.18)" if current_theme == "light" else "rgba(56, 189, 248, 0.4)"};
 }}
 
 .landing-container {{

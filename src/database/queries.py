@@ -37,7 +37,7 @@ ORDER BY total_revenue DESC;"""
 
 # ── Campaign Overview & Activation Aggregations ─────────────────────────────
 CAMPAIGN_OVERVIEW_QUERY: Final = """WITH campaign_signups AS (
-    SELECT 
+    SELECT
         DATE(signup_timestamp) AS signup_date,
         utm_campaign,
         COUNT(*) AS signups
@@ -46,23 +46,23 @@ CAMPAIGN_OVERVIEW_QUERY: Final = """WITH campaign_signups AS (
     GROUP BY DATE(signup_timestamp), utm_campaign
 ),
 campaign_activations AS (
-    SELECT 
+    SELECT
         DATE(h.signup_timestamp) AS signup_date,
         h.utm_campaign,
         SUM(p.profile_completed) AS profile_completed,
         SUM(p.campaign_run) AS campaign_run,
-        SUM(CASE 
-            WHEN p.profile_completed = 1 
-                 AND p.campaign_run = 1 
-                 AND (julianday(p.activation_timestamp) - julianday(p.signup_timestamp)) <= 7.0 
-            THEN 1 ELSE 0 
+        SUM(CASE
+            WHEN p.profile_completed = 1
+                 AND p.campaign_run = 1
+                 AND (julianday(p.activation_timestamp) - julianday(p.signup_timestamp)) <= 7.0
+            THEN 1 ELSE 0
         END) AS activations_7d
     FROM hubspot_signups h
     JOIN product_activations p ON h.email = p.email
     WHERE h.utm_campaign IS NOT NULL
     GROUP BY DATE(h.signup_timestamp), h.utm_campaign
 )
-SELECT 
+SELECT
     a.sync_date AS date,
     a.campaign_id,
     a.ad_platform,
@@ -74,9 +74,9 @@ SELECT
     COALESCE(c.campaign_run, 0) AS campaign_run,
     COALESCE(c.activations_7d, 0) AS activations_7d
 FROM ad_campaign_metrics a
-LEFT JOIN campaign_signups s 
+LEFT JOIN campaign_signups s
     ON a.campaign_id = s.utm_campaign AND a.sync_date = s.signup_date
-LEFT JOIN campaign_activations c 
+LEFT JOIN campaign_activations c
     ON a.campaign_id = c.utm_campaign AND a.sync_date = c.signup_date
 ORDER BY a.sync_date DESC, a.campaign_id ASC;"""
 

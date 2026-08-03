@@ -1,7 +1,6 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -20,12 +19,10 @@ from src.utils.campaigns import (
     aggregate_by,
     calculate_metrics,
     fmt_currency,
-    fmt_num,
-    fmt_pct,
     load_campaign_data,
 )
-from src.utils.load_css import get_plotly_layout, load_css
 from src.utils.clerk_auth import require_authentication
+from src.utils.load_css import get_plotly_layout, load_css
 
 st.set_page_config(
     page_title="CampaignCanvas — Dashboard",
@@ -71,12 +68,7 @@ def _build_date_series(frame: pd.DataFrame) -> pd.DataFrame:
     agg_dict["signups"] = ("signups", "sum") if "signups" in dated.columns else ("date", lambda x: 0)
     agg_dict["activations_7d"] = (activation_col, "sum") if activation_col else ("date", lambda x: 0)
 
-    grouped = (
-        dated.groupby("date", as_index=False)
-        .agg(**agg_dict)
-        .sort_values("date")
-        .reset_index(drop=True)
-    )
+    grouped = dated.groupby("date", as_index=False).agg(**agg_dict).sort_values("date").reset_index(drop=True)
     return grouped
 
 
@@ -142,9 +134,7 @@ def _render_card_shell(
     )
 
 
-def _render_campaign_card(
-    title: str, campaign: pd.Series | None, positive: bool
-) -> None:
+def _render_campaign_card(title: str, campaign: pd.Series | None, positive: bool) -> None:
     """Renders top/worst campaign performance summary card."""
     if campaign is None or campaign.empty:
         return
@@ -185,9 +175,7 @@ def main() -> None:
     kpis = calculate_metrics(frame)
     growth = _trend_revenue_delta(by_date)
 
-    campaign_col = (
-        "campaign_id" if "campaign_id" in frame.columns else "campaign"
-    )
+    campaign_col = "campaign_id" if "campaign_id" in frame.columns else "campaign"
     by_campaign = aggregate_by(frame, campaign_col)
     best = by_campaign.iloc[0] if not by_campaign.empty else None
     worst = by_campaign.iloc[-1] if len(by_campaign) > 1 else None
@@ -248,9 +236,7 @@ def main() -> None:
         )
 
     with col4:
-        total_conversions = int(
-            kpis.get("totalActivations", kpis.get("totalSignups", 0))
-        )
+        total_conversions = int(kpis.get("totalActivations", kpis.get("totalSignups", 0)))
         _render_card_shell(
             "Conversions",
             f"{total_conversions:,}",
@@ -265,7 +251,7 @@ def main() -> None:
     with col5:
         _render_card_shell(
             "CTR",
-            f"{kpis.get('ctr', 0.0)*100:.2f}%",
+            f"{kpis.get('ctr', 0.0) * 100:.2f}%",
             '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></polygon>',
             "accent-violet",
         )
@@ -290,7 +276,7 @@ def main() -> None:
     with col8:
         _render_card_shell(
             "Conversion rate",
-            f"{kpis.get('cvr', 0.0)*100:.2f}%",
+            f"{kpis.get('cvr', 0.0) * 100:.2f}%",
             '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="1" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></path>',
             "accent-cyan",
         )
@@ -378,9 +364,7 @@ def main() -> None:
                 unsafe_allow_html=True,
             )
             _render_campaign_card("Best", best, True)
-            if worst is not None and (
-                best is None or _campaign_name(worst) != _campaign_name(best)
-            ):
+            if worst is not None and (best is None or _campaign_name(worst) != _campaign_name(best)):
                 _render_campaign_card("Worst", worst, False)
 
     st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
@@ -403,23 +387,13 @@ def main() -> None:
             spend_col = (
                 "spend_usd"
                 if "spend_usd" in campaign_perf.columns
-                else (
-                    "totalSpend" if "totalSpend" in campaign_perf.columns else "spend"
-                )
+                else ("totalSpend" if "totalSpend" in campaign_perf.columns else "spend")
             )
-            revenue_col = (
-                "totalRevenue"
-                if "totalRevenue" in campaign_perf.columns
-                else "revenue"
-            )
+            revenue_col = "totalRevenue" if "totalRevenue" in campaign_perf.columns else "revenue"
             label_col = (
                 "display_name"
                 if "display_name" in campaign_perf.columns
-                else (
-                    "name"
-                    if "name" in campaign_perf.columns
-                    else campaign_col
-                )
+                else ("name" if "name" in campaign_perf.columns else campaign_col)
             )
 
             fig_perf = go.Figure()

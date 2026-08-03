@@ -1,5 +1,6 @@
-﻿import sys
+import sys
 from pathlib import Path
+
 import streamlit as st
 
 # Add project root to sys.path
@@ -7,10 +8,10 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.load_css import load_css
-from src.utils.clerk_auth import require_authentication
-from src.components.sidebar import render_sidebar
 from src.components.navbar import render_navbar
+from src.components.sidebar import render_sidebar
+from src.utils.clerk_auth import require_authentication
+from src.utils.load_css import load_css
 
 st.set_page_config(page_title="Settings — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
@@ -22,7 +23,7 @@ require_authentication()
 def main():
     # Sidebar
     render_sidebar("settings")
-    
+
     # Navbar
     render_navbar("Settings")
 
@@ -39,21 +40,22 @@ def main():
                     <span class="settings-section-title">Profile</span>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
-            
+
             default_name = st.session_state.get("name", "")
             fullname = st.text_input("Full name", value=default_name, key="settings_fullname")
-            
+
             # Default email value from session state
             default_email = st.session_state.get("email", "")
-            email = st.text_input("Email", value=default_email, key="settings_email", disabled=True)
-            
+            st.text_input("Email", value=default_email, key="settings_email", disabled=True)
+
             st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
             save_clicked = st.button("Save", key="save_profile_btn")
             if save_clicked:
                 st.session_state.name = fullname
                 import streamlit.components.v1 as components
+
                 components.html(
                     f"""
                     <script>
@@ -64,7 +66,7 @@ def main():
                     width=0,
                 )
                 st.toast("Profile settings saved successfully!", icon=":material/check_circle:")
-        
+
     with col_right:
         # 2. Appearance Settings
         with st.container(border=True):
@@ -75,23 +77,18 @@ def main():
                     <span class="settings-section-title">Appearance</span>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
-            
+
             current_theme = st.session_state.get("theme", "dark")
-            is_dark = (current_theme == "dark")
-            
+            is_dark = current_theme == "dark"
+
             def on_theme_toggle_change():
                 new_theme = "dark" if st.session_state["settings_dark_mode"] else "light"
                 st.session_state["theme"] = new_theme
                 st.query_params["theme"] = new_theme
 
-            st.toggle(
-                "Dark mode",
-                value=is_dark,
-                key="settings_dark_mode",
-                on_change=on_theme_toggle_change
-            )
+            st.toggle("Dark mode", value=is_dark, key="settings_dark_mode", on_change=on_theme_toggle_change)
             st.caption("Switch between light and dark themes.")
 
 

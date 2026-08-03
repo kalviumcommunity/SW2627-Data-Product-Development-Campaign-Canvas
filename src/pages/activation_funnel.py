@@ -3,7 +3,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -66,7 +65,9 @@ def main() -> None:
         if "activations_7d" in df.columns
         else (int(df["conversions"].sum()) if "conversions" in df.columns else 0)
     )
-    total_retained = int(df["profile_completed"].sum()) if "profile_completed" in df.columns else int(total_conversions * 0.65)
+    total_retained = (
+        int(df["profile_completed"].sum()) if "profile_completed" in df.columns else int(total_conversions * 0.65)
+    )
 
     # Calculate Conversion & Drop-off Rates
     click_conv = (total_clicks / total_impressions) if total_impressions else 0.0

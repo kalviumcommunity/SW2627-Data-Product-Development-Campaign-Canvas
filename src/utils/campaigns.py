@@ -102,11 +102,7 @@ def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
         if "campaign_id" in enriched.columns
         else pd.Series("", index=enriched.index)
     )
-    c_name = (
-        enriched["campaign_name"].astype(str).str.lower()
-        if "campaign_name" in enriched.columns
-        else c_id
-    )
+    c_name = enriched["campaign_name"].astype(str).str.lower() if "campaign_name" in enriched.columns else c_id
     platform = (
         enriched["ad_platform"].astype(str).str.lower()
         if "ad_platform" in enriched.columns
@@ -127,10 +123,15 @@ def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
 
     # Platform grouped mapping
     cond_platform = [
-        (platform.str.contains("google", regex=False, na=False) | c_id.str.contains("google", regex=False, na=False)).to_numpy(),
+        (
+            platform.str.contains("google", regex=False, na=False) | c_id.str.contains("google", regex=False, na=False)
+        ).to_numpy(),
         c_id.str.contains("youtube", regex=False, na=False).to_numpy(),
         c_id.str.contains("display", regex=False, na=False).to_numpy(),
-        (platform.str.contains("meta", regex=False, na=False) | c_id.str.contains("meta|instagram", regex=True, na=False)).to_numpy(),
+        (
+            platform.str.contains("meta", regex=False, na=False)
+            | c_id.str.contains("meta|instagram", regex=True, na=False)
+        ).to_numpy(),
         c_id.str.contains("linkedin", regex=False, na=False).to_numpy(),
         c_id.str.contains("tiktok", regex=False, na=False).to_numpy(),
         c_id.str.contains("pinterest", regex=False, na=False).to_numpy(),
@@ -154,9 +155,7 @@ def add_marketing_dimensions(frame: pd.DataFrame) -> pd.DataFrame:
     enriched["region"] = np.select(cond_region, choices_region, default="APAC")  # type: ignore[call-overload]
 
     # Device mapping
-    cond_device = [
-        c_id.str.contains("brand|prospect|instagram|tiktok", regex=True, na=False).to_numpy()
-    ]
+    cond_device = [c_id.str.contains("brand|prospect|instagram|tiktok", regex=True, na=False).to_numpy()]
     choices_device = ["Mobile"]
     enriched["device"] = np.select(cond_device, choices_device, default="Desktop")  # type: ignore[call-overload]
 
@@ -185,19 +184,21 @@ def _build_demo_data() -> pd.DataFrame:
             profile_completed = int(signups * rng.uniform(0.5, 0.8))
             activations = int(profile_completed * rng.uniform(0.4, 0.7))
 
-            rows.append({
-                "date": date.strftime("%Y-%m-%d"),
-                "campaign_id": campaign,
-                "campaign_name": campaign.replace("_", " ").title(),
-                "ad_platform": "google_ads" if "google" in campaign else "meta_ads",
-                "spend_usd": round(spend, 2),
-                "clicks": clicks,
-                "impressions": impressions,
-                "signups": signups,
-                "profile_completed": profile_completed,
-                "campaign_run": activations,
-                "activations_7d": activations,
-            })
+            rows.append(
+                {
+                    "date": date.strftime("%Y-%m-%d"),
+                    "campaign_id": campaign,
+                    "campaign_name": campaign.replace("_", " ").title(),
+                    "ad_platform": "google_ads" if "google" in campaign else "meta_ads",
+                    "spend_usd": round(spend, 2),
+                    "clicks": clicks,
+                    "impressions": impressions,
+                    "signups": signups,
+                    "profile_completed": profile_completed,
+                    "campaign_run": activations,
+                    "activations_7d": activations,
+                }
+            )
 
     return pd.DataFrame(rows)
 
@@ -228,11 +229,7 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
     spend_col = "spend_usd" if "spend_usd" in frame.columns else "spend"
 
     signup_col = (
-        "signups"
-        if "signups" in frame.columns
-        else "conversions"
-        if "conversions" in frame.columns
-        else "signup_count"
+        "signups" if "signups" in frame.columns else "conversions" if "conversions" in frame.columns else "signup_count"
     )
 
     activation_col = (
@@ -245,41 +242,17 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
         else "activation_count"
     )
 
-    campaign_col = (
-        "campaign_id"
-        if "campaign_id" in frame.columns
-        else "campaign"
-    )
+    campaign_col = "campaign_id" if "campaign_id" in frame.columns else "campaign"
 
-    total_spend = (
-        float(frame[spend_col].sum())
-        if spend_col in frame.columns
-        else 0.0
-    )
+    total_spend = float(frame[spend_col].sum()) if spend_col in frame.columns else 0.0
 
-    total_clicks = (
-        float(frame["clicks"].sum())
-        if "clicks" in frame.columns
-        else 0.0
-    )
+    total_clicks = float(frame["clicks"].sum()) if "clicks" in frame.columns else 0.0
 
-    total_impressions = (
-        float(frame["impressions"].sum())
-        if "impressions" in frame.columns
-        else 0.0
-    )
+    total_impressions = float(frame["impressions"].sum()) if "impressions" in frame.columns else 0.0
 
-    total_signups = (
-        float(frame[signup_col].sum())
-        if signup_col in frame.columns
-        else 0.0
-    )
+    total_signups = float(frame[signup_col].sum()) if signup_col in frame.columns else 0.0
 
-    total_activations = (
-        float(frame[activation_col].sum())
-        if activation_col in frame.columns
-        else 0.0
-    )
+    total_activations = float(frame[activation_col].sum()) if activation_col in frame.columns else 0.0
 
     total_revenue = float(calculate_revenue(frame).sum())
 
@@ -300,9 +273,8 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
             .reset_index()
         )
 
-        campaign_groups["activation_rate"] = (
-            campaign_groups["activations"]
-            / campaign_groups["signups"].replace(0, pd.NA)
+        campaign_groups["activation_rate"] = campaign_groups["activations"] / campaign_groups["signups"].replace(
+            0, pd.NA
         )
 
         wasted_spend = float(
@@ -314,11 +286,7 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
     else:
         wasted_spend = 0.0
 
-    total_campaigns = (
-        float(frame[campaign_col].nunique())
-        if campaign_col in frame.columns
-        else 0.0
-    )
+    total_campaigns = float(frame[campaign_col].nunique()) if campaign_col in frame.columns else 0.0
 
     return {
         "totalCampaigns": total_campaigns,
@@ -327,56 +295,16 @@ def calculate_metrics(frame: pd.DataFrame) -> dict[str, float]:
         "totalSignups": total_signups,
         "totalActivations": total_activations,
         "wastedSpend": wasted_spend,
-        "ctr": (
-            total_clicks / total_impressions
-            if total_impressions
-            else 0.0
-        ),
-        "cpa": (
-            total_spend / total_signups
-            if total_signups
-            else 0.0
-        ),
-        "cpau": (
-            total_spend / total_activations
-            if total_activations
-            else 0.0
-        ),
-        "cvr": (
-            total_signups / total_clicks
-            if total_clicks
-            else 0.0
-        ),
-        "activationRate": (
-            total_activations / total_signups
-            if total_signups
-            else 0.0
-        ),
-        "roas": (
-            total_revenue / total_spend
-            if total_spend
-            else 0.0
-        ),
-        "roi": (
-            (total_revenue - total_spend) / total_spend * 100
-            if total_spend
-            else 0.0
-        ),
-        "aov": (
-            total_revenue / total_activations
-            if total_activations
-            else 0.0
-        ),
-        "cpc": (
-            total_spend / total_clicks
-            if total_clicks
-            else 0.0
-        ),
-        "cpl": (
-            total_spend / total_signups
-            if total_signups
-            else 0.0
-        ),
+        "ctr": (total_clicks / total_impressions if total_impressions else 0.0),
+        "cpa": (total_spend / total_signups if total_signups else 0.0),
+        "cpau": (total_spend / total_activations if total_activations else 0.0),
+        "cvr": (total_signups / total_clicks if total_clicks else 0.0),
+        "activationRate": (total_activations / total_signups if total_signups else 0.0),
+        "roas": (total_revenue / total_spend if total_spend else 0.0),
+        "roi": ((total_revenue - total_spend) / total_spend * 100 if total_spend else 0.0),
+        "aov": (total_revenue / total_activations if total_activations else 0.0),
+        "cpc": (total_spend / total_clicks if total_clicks else 0.0),
+        "cpl": (total_spend / total_signups if total_signups else 0.0),
     }
 
 
@@ -434,12 +362,14 @@ def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
     grouped = frame_copy.groupby(group_keys, dropna=False, as_index=False).agg(agg_dict)
 
     # Normalize column names for UI consistency
-    grouped = grouped.rename(columns={
-        key: "name",
-        spend_col: "spend_usd",
-        signup_col: "signups",
-        activation_col: "activations_7d",
-    })
+    grouped = grouped.rename(
+        columns={
+            key: "name",
+            spend_col: "spend_usd",
+            signup_col: "signups",
+            activation_col: "activations_7d",
+        }
+    )
 
     if "campaign_name" in grouped.columns and key != "campaign_name":
         grouped["display_name"] = grouped["campaign_name"]

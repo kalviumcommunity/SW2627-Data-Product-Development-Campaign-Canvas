@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -9,17 +10,17 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data, fmt_num
+from src.components.navbar import render_navbar
+from src.components.sidebar import render_sidebar
 from src.utils.clerk_auth import require_authentication
 from src.utils.load_css import load_css
-from src.components.sidebar import render_sidebar
-from src.components.navbar import render_navbar
 
 st.set_page_config(page_title="Data Cleaning — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
 load_css()
 
 # Check if user is logged in
 require_authentication()
+
 
 def main():
     # Sidebar
@@ -45,21 +46,21 @@ def main():
     # Scan raw CSV files dynamically
     raw_dir = Path(root_dir) / "data" / "raw"
     raw_files = sorted([f.name for f in raw_dir.glob("*.csv")]) if raw_dir.exists() else []
-    
+
     # Check if there is an uploaded file in session state
     uploaded_options = []
     if "uploaded_df" in st.session_state and st.session_state.uploaded_df is not None:
         uploaded_options = [f"[Uploaded] {st.session_state.uploaded_filename}"]
 
     all_options = uploaded_options + raw_files
-    
+
     if not all_options:
         st.info("No datasets available to clean. Please upload a dataset or place CSV files in data/raw.")
         return
 
     # User selection for dataset to clean
     selected_option = st.selectbox("Select dataset to clean", all_options)
-    
+
     if selected_option.startswith("[Uploaded]"):
         df = st.session_state.uploaded_df
     else:
@@ -82,9 +83,9 @@ def main():
                     <span style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: white;">Cleaning rules</span>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
-            
+
             remove_dup = st.toggle("Remove duplicates", value=True, key="rule_dup")
             fill_num = st.toggle("Fill numeric nulls", value=True, key="rule_num")
             fill_str = st.toggle("Fill string nulls", value=True, key="rule_str")
@@ -92,7 +93,7 @@ def main():
             lower_text = st.toggle("Lowercase text", value=False, key="rule_lower")
             remove_outliers = st.toggle("Remove outliers", value=False, key="rule_outliers")
             normalize_dates = st.toggle("Normalize dates", value=True, key="rule_dates")
-            
+
             st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
             save_clicked = st.button("Save cleaned dataset", use_container_width=True, type="primary")
             if save_clicked:
@@ -136,10 +137,7 @@ def main():
             if len(col_clean) > 0 and col_clean.std() > 0:
                 mean = col_clean.mean()
                 std = col_clean.std()
-                df_cleaned = df_cleaned[
-                    (df_cleaned[col] >= mean - 3 * std) & 
-                    (df_cleaned[col] <= mean + 3 * std)
-                ]
+                df_cleaned = df_cleaned[(df_cleaned[col] >= mean - 3 * std) & (df_cleaned[col] <= mean + 3 * std)]
 
     # Normalize Dates
     if normalize_dates and "date" in df_cleaned.columns:
@@ -159,17 +157,18 @@ def main():
             <div style="margin-bottom: 0.75rem;">
                 <h4 style="margin: 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: white;">Cleaning preview</h4>
                 <div style="font-size: 0.85rem; color: var(--muted-foreground); margin-top: 0.2rem;">
-                    Original: <strong style="color: white;">{original_rows} rows</strong> &nbsp;·&nbsp; 
+                    Original: <strong style="color: white;">{original_rows} rows</strong> &nbsp;·&nbsp;
                     Cleaned: <strong style="color: #38bdf8;">{cleaned_rows} rows</strong>
                 </div>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
         # Show Table
         st.table(df_cleaned.head(15))
         st.caption("Showing preview of first 15 rows.")
+
 
 if __name__ == "__main__":
     main()

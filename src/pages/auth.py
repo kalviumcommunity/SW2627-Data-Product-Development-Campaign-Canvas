@@ -34,23 +34,31 @@ theme = st.session_state.get("theme", "dark")
 is_light = theme == "light"
 next_theme = "light" if theme == "dark" else "dark"
 
-theme_icon = """
+theme_icon = (
+    """
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 3a1 1 0 0 1 1 1v1.08a7 7 0 1 1-3.08 12.91 1 1 0 0 1 1.14-1.64A5 5 0 1 0 12 5V4a1 1 0 0 1 1-1Z"/>
     <path d="M12 1.75v2.5M12 19.75v2.5M4.22 4.22l1.77 1.77M17.99 17.99l1.77 1.77M1.75 12h2.5M19.75 12h2.5M4.22 19.78l1.77-1.77M17.99 6.01l1.77-1.77"/>
 </svg>
-""" if theme == "dark" else """
+"""
+    if theme == "dark"
+    else """
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
     <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z"/>
 </svg>
 """
+)
 
 page_bg = (
     "linear-gradient(180deg, #f8fbff 0%, #eef6ff 45%, #eaf1ff 100%)"
     if is_light
     else "radial-gradient(circle at top, color-mix(in oklab, var(--card) 86%, transparent) 0%, var(--background) 100%)"
 )
-left_bg = "linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%)" if is_light else "linear-gradient(180deg, #38bdf8 0%, #7dd3fc 100%)"
+left_bg = (
+    "linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%)"
+    if is_light
+    else "linear-gradient(180deg, #38bdf8 0%, #7dd3fc 100%)"
+)
 left_text = "#0f172a" if is_light else "#030712"
 left_muted = "rgba(15, 23, 42, 0.72)" if is_light else "rgba(9, 13, 22, 0.8)"
 left_soft = "rgba(15, 23, 42, 0.56)" if is_light else "rgba(9, 13, 22, 0.6)"
@@ -499,7 +507,10 @@ with col_form:
                     "&scope=openid%20profile%20email"
                     f"&state={state}"
                 )
-                st.markdown(f'<a href="{auth_url}" target="_self" class="clerk-btn">Continue with Clerk</a>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<a href="{auth_url}" target="_self" class="clerk-btn">Continue with Clerk</a>',
+                    unsafe_allow_html=True,
+                )
             else:
                 if st.button("Continue with Clerk", use_container_width=True, key="clerk_setup_trigger_btn"):
                     st.session_state["show_clerk_setup"] = True
@@ -533,7 +544,9 @@ CLERK_REDIRECT_URI=http://localhost:8501/
                     st.success("Welcome back! Redirecting to dashboard...")
                     st.switch_page("pages/dashboard.py")
             else:
-                st.error("Mock authentication is disabled when DEBUG_MODE=false. Please configure valid Clerk API credentials.")
+                st.error(
+                    "Mock authentication is disabled when DEBUG_MODE=false. Please configure valid Clerk API credentials."
+                )
 
         st.markdown('<div class="auth-divider">or</div>', unsafe_allow_html=True)
 
@@ -553,7 +566,10 @@ CLERK_REDIRECT_URI=http://localhost:8501/
                         st.session_state.logged_in = True
                         st.session_state.email = email
                         derived_name = " ".join(
-                            [word.capitalize() for word in email.split("@")[0].replace(".", " ").replace("_", " ").split()]
+                            [
+                                word.capitalize()
+                                for word in email.split("@")[0].replace(".", " ").replace("_", " ").split()
+                            ]
                         )
                         st.session_state.name = derived_name
                         st.success("Welcome back! Redirecting to dashboard...")

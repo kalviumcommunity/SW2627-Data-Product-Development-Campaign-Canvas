@@ -53,11 +53,11 @@ def init_db(drop_existing: bool = False):
 
     cursor.execute(CREATE_TABLE_HUBSPOT_SIGNUPS)
     cursor.execute(CREATE_INDEX_HS_UTM_CAMPAIGN)
-    cursor.execute(CREATE_INDEX_HS_EMAIL)          # Speeds up JOIN on hubspot_signups.email
+    cursor.execute(CREATE_INDEX_HS_EMAIL)  # Speeds up JOIN on hubspot_signups.email
 
     cursor.execute(CREATE_TABLE_PRODUCT_ACTIVATIONS)
-    cursor.execute(CREATE_INDEX_PA_EMAIL)          # Speeds up JOIN on product_activations.email
-    cursor.execute(CREATE_INDEX_PA_TIMESTAMPS)     # Speeds up time-window activation queries
+    cursor.execute(CREATE_INDEX_PA_EMAIL)  # Speeds up JOIN on product_activations.email
+    cursor.execute(CREATE_INDEX_PA_TIMESTAMPS)  # Speeds up time-window activation queries
 
     conn.commit()
     conn.close()

@@ -1,26 +1,23 @@
 import sys
 from pathlib import Path
+
 import streamlit as st
-import numpy as np
-import pandas as pd
 
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
+from src.components.navbar import render_navbar
+from src.components.sidebar import render_sidebar
 from src.utils.campaigns import (
-    load_campaign_data,
     calculate_metrics,
-    fmt_num,
     fmt_currency,
-    fmt_pct,
+    fmt_num,
+    load_campaign_data,
 )
 from src.utils.clerk_auth import require_authentication
 from src.utils.load_css import load_css
-
-from src.components.sidebar import render_sidebar
-from src.components.navbar import render_navbar
 
 st.set_page_config(
     page_title="KPI Engine — CampaignCanvas",
@@ -81,12 +78,10 @@ def main():
     # Compute headline metrics via unified KPI engine
     kpis = calculate_metrics(df)
 
-    total_spend = kpis["totalSpend"]
+    kpis["totalSpend"]
     total_clicks = int(df["clicks"].sum()) if "clicks" in df.columns else 0
-    total_impressions = (
-        int(df["impressions"].sum()) if "impressions" in df.columns else 0
-    )
-    total_signups = int(kpis["totalSignups"])
+    (int(df["impressions"].sum()) if "impressions" in df.columns else 0)
+    int(kpis["totalSignups"])
     total_conversions = int(kpis["totalActivations"])
     total_revenue = kpis["totalRevenue"]
     total_visits = int(total_clicks * 0.8260)
@@ -95,18 +90,14 @@ def main():
     ctr_val = kpis["ctr"] * 100
     cvr_val = kpis["cvr"] * 100
     cpau_val = kpis["cpau"]
-    cpa_val = kpis["cpa"]
+    kpis["cpa"]
     cpc_val = kpis["cpc"]
     cpl_val = kpis["cpl"]
     roi_val = kpis["roi"]
     roas_val = kpis["roas"]
     aov_val = kpis["aov"]
     eng_val = (total_visits / total_clicks * 100) if total_clicks else 0.0
-    bounce_val = (
-        ((total_clicks - total_visits) / total_clicks * 100)
-        if total_clicks
-        else 0.0
-    )
+    bounce_val = ((total_clicks - total_visits) / total_clicks * 100) if total_clicks else 0.0
 
     # Layout: Grid of 4 columns, 3 rows
     col1, col2, col3, col4 = st.columns(4, gap="medium")
@@ -127,25 +118,17 @@ def main():
     with col1:
         render_kpi_card("CTR", f"{ctr_val:.2f}%", "clicks / impressions", mouse_svg)
         render_kpi_card("CPL", fmt_currency(cpl_val), "spend / signups", heart_svg)
-        render_kpi_card(
-            "REVENUE", fmt_currency(total_revenue), "sum(revenue)", dollar_svg
-        )
+        render_kpi_card("REVENUE", fmt_currency(total_revenue), "sum(revenue)", dollar_svg)
 
     with col2:
-        render_kpi_card(
-            "CONVERSION RATE", f"{cvr_val:.2f}%", "conversions / clicks", chart_svg
-        )
+        render_kpi_card("CONVERSION RATE", f"{cvr_val:.2f}%", "conversions / clicks", chart_svg)
         render_kpi_card("ROI", f"{roi_val:.2f}%", "(revenue - spend) / spend", trend_svg)
-        render_kpi_card(
-            "ENGAGEMENT RATE", f"{eng_val:.2f}%", "visits / clicks", globe_svg
-        )
+        render_kpi_card("ENGAGEMENT RATE", f"{eng_val:.2f}%", "visits / clicks", globe_svg)
 
     with col3:
         render_kpi_card("CPA", fmt_currency(cpau_val), "spend / conversions", users_svg)
         render_kpi_card("ROAS", f"{roas_val:.2f}x", "revenue / spend", flash_svg)
-        render_kpi_card(
-            "BOUNCE RATE", f"{bounce_val:.2f}%", "(clicks - visits) / clicks", waves_svg
-        )
+        render_kpi_card("BOUNCE RATE", f"{bounce_val:.2f}%", "(clicks - visits) / clicks", waves_svg)
 
     with col4:
         render_kpi_card("CPC", fmt_currency(cpc_val), "spend / clicks", dollar_svg)

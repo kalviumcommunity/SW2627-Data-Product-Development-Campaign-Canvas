@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-import numpy as np
+
 import pandas as pd
 import streamlit as st
 
@@ -9,11 +9,11 @@ root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.utils.campaigns import load_campaign_data, fmt_num
+from src.components.navbar import render_navbar
+from src.components.sidebar import render_sidebar
+from src.utils.campaigns import fmt_num
 from src.utils.clerk_auth import require_authentication
 from src.utils.load_css import load_css
-from src.components.sidebar import render_sidebar
-from src.components.navbar import render_navbar
 
 st.set_page_config(
     page_title="Data Profiling — CampaignCanvas",
@@ -49,25 +49,16 @@ def main():
 
     # Dynamic Raw CSV File Scanner
     raw_dir = Path(root_dir) / "data" / "raw"
-    raw_files = (
-        sorted([f.name for f in raw_dir.glob("*.csv")]) if raw_dir.exists() else []
-    )
+    raw_files = sorted([f.name for f in raw_dir.glob("*.csv")]) if raw_dir.exists() else []
 
     uploaded_options = []
-    if (
-        "uploaded_df" in st.session_state
-        and st.session_state.uploaded_df is not None
-    ):
-        uploaded_options = [
-            f"[Uploaded] {st.session_state.uploaded_filename}"
-        ]
+    if "uploaded_df" in st.session_state and st.session_state.uploaded_df is not None:
+        uploaded_options = [f"[Uploaded] {st.session_state.uploaded_filename}"]
 
     all_options = uploaded_options + raw_files
 
     if not all_options:
-        st.info(
-            "No datasets available to profile. Please upload a dataset or place CSV files in data/raw."
-        )
+        st.info("No datasets available to profile. Please upload a dataset or place CSV files in data/raw.")
         return
 
     # Select Dataset Box (Light/Dark Theme Supported via load_css)
@@ -90,11 +81,7 @@ def main():
     memory_usage_kb = df.memory_usage(deep=True).sum() / 1024
 
     total_elements = df.size
-    completeness_ratio = (
-        (total_elements - missing_cells) / total_elements
-        if total_elements > 0
-        else 1.0
-    )
+    completeness_ratio = (total_elements - missing_cells) / total_elements if total_elements > 0 else 1.0
 
     numeric_cols = df.select_dtypes(include="number").columns
     outliers_count = 0
@@ -104,20 +91,12 @@ def main():
         if len(col_clean) > 0 and col_clean.std() > 0:
             mean = col_clean.mean()
             std = col_clean.std()
-            outliers = col_clean[
-                (col_clean < mean - 3 * std) | (col_clean > mean + 3 * std)
-            ]
+            outliers = col_clean[(col_clean < mean - 3 * std) | (col_clean > mean + 3 * std)]
             outliers_count += len(outliers)
             total_numeric_elements += len(col_clean)
 
-    outlier_ratio = (
-        outliers_count / total_numeric_elements
-        if total_numeric_elements > 0
-        else 0.0
-    )
-    quality_score = int(
-        max(0.0, min(100.0, (completeness_ratio - outlier_ratio) * 100))
-    )
+    outlier_ratio = outliers_count / total_numeric_elements if total_numeric_elements > 0 else 0.0
+    quality_score = int(max(0.0, min(100.0, (completeness_ratio - outlier_ratio) * 100)))
 
     # Key Metrics Cards Display
     col1, col2, col3, col4 = st.columns(4)
@@ -183,14 +162,7 @@ def main():
                 mean = col_clean.mean()
                 std = col_clean.std()
                 if std > 0:
-                    c_outliers = str(
-                        len(
-                            col_clean[
-                                (col_clean < mean - 3 * std)
-                                | (col_clean > mean + 3 * std)
-                            ]
-                        )
-                    )
+                    c_outliers = str(len(col_clean[(col_clean < mean - 3 * std) | (col_clean > mean + 3 * std)]))
                 else:
                     c_outliers = "0"
             else:
