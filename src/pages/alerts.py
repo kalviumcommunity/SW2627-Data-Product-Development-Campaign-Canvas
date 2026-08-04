@@ -27,7 +27,7 @@ if "active_alerts" not in st.session_state:
 def main():
     # Sidebar
     render_sidebar("alerts")
-    
+
     # Navbar
     render_navbar("Alerts")
 
@@ -43,35 +43,31 @@ def main():
                     <span style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--foreground);">Create alert</span>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
-            
+
             with st.form("create_alert_form", border=False):
                 alert_name = st.text_input("Name", value="High CPA warning", placeholder="Enter alert name")
                 metric = st.selectbox(
-                    "Metric",
-                    ["CPA ($)", "Spend ($)", "Conversions", "CTR (%)", "Clicks", "Impressions"]
+                    "Metric", ["CPA ($)", "Spend ($)", "Conversions", "CTR (%)", "Clicks", "Impressions"]
                 )
-                
+
                 col_op, col_val = st.columns(2)
                 with col_op:
                     operator = st.selectbox("Operator", ["Above (>)", "Below (<)", "Equals (=)"])
                 with col_val:
                     threshold = st.number_input("Threshold", value=50.0, step=1.0)
-                
+
                 st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
                 create_submitted = st.form_submit_button("+ Create", use_container_width=True, type="primary")
-                
+
                 if create_submitted:
                     if not alert_name.strip():
                         st.error("Please enter a name for the alert.")
                     else:
-                        st.session_state.active_alerts.append({
-                            "name": alert_name,
-                            "metric": metric,
-                            "operator": operator,
-                            "threshold": threshold
-                        })
+                        st.session_state.active_alerts.append(
+                            {"name": alert_name, "metric": metric, "operator": operator, "threshold": threshold}
+                        )
                         st.toast(f"Alert '{alert_name}' successfully created!", icon="🔔")
                         st.rerun()
 
@@ -84,16 +80,22 @@ def main():
                     No alerts yet — create one on the right to monitor a KPI threshold.
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
         else:
             # Display active alerts as beautiful custom panels
             for idx, alert in enumerate(st.session_state.active_alerts):
                 # Map operator string to icon representation
                 op_icon = ">" if ">" in alert["operator"] else "<" if "<" in alert["operator"] else "="
-                
+
                 # Check metric formats for display
-                fmt_val = f"${alert['threshold']:.2f}" if "$" in alert["metric"] or alert["metric"] == "CPA ($)" else f"{alert['threshold']:.2f}%" if "%" in alert["metric"] else f"{int(alert['threshold'])}"
+                fmt_val = (
+                    f"${alert['threshold']:.2f}"
+                    if "$" in alert["metric"] or alert["metric"] == "CPA ($)"
+                    else f"{alert['threshold']:.2f}%"
+                    if "%" in alert["metric"]
+                    else f"{int(alert['threshold'])}"
+                )
 
                 with st.container(border=True):
                     col_info, col_action = st.columns([6, 1])
@@ -101,13 +103,13 @@ def main():
                         st.markdown(
                             f"""
                             <div style="display: flex; flex-direction: column;">
-                                <span style="font-family: var(--font-display); font-weight: 700; color: var(--foreground); font-size: 1.05rem;">{alert['name']}</span>
+                                <span style="font-family: var(--font-display); font-weight: 700; color: var(--foreground); font-size: 1.05rem;">{alert["name"]}</span>
                                 <span style="font-size: 0.85rem; color: var(--muted-foreground); margin-top: 0.25rem;">
-                                    Monitors: <strong style="color: #38bdf8;">{alert['metric']}</strong> {op_icon} <strong style="color: #38bdf8;">{fmt_val}</strong>
+                                    Monitors: <strong style="color: #38bdf8;">{alert["metric"]}</strong> {op_icon} <strong style="color: #38bdf8;">{fmt_val}</strong>
                                 </span>
                             </div>
                             """,
-                            unsafe_allow_html=True
+                            unsafe_allow_html=True,
                         )
                     with col_action:
                         # Add some margin spacing
@@ -120,4 +122,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

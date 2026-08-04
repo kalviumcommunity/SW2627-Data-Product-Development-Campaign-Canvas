@@ -18,6 +18,7 @@ from src.utils.campaigns import calculate_metrics, calculate_revenue
 # Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def _compute_kpis(df: pd.DataFrame) -> dict:
     """Return a dict of headline KPIs from the campaign DataFrame using central calculate_metrics."""
     metrics = calculate_metrics(df)
@@ -48,13 +49,15 @@ def _campaign_summary(df: pd.DataFrame) -> pd.DataFrame:
     if "revenue" not in df_temp.columns:
         df_temp["revenue"] = calculate_revenue(df_temp)
 
-    name_col = "campaign_name" if "campaign_name" in df_temp.columns else (
-        "campaign" if "campaign" in df_temp.columns else "campaign_id"
+    name_col = (
+        "campaign_name"
+        if "campaign_name" in df_temp.columns
+        else ("campaign" if "campaign" in df_temp.columns else "campaign_id")
     )
-    
+
     grp_cols = [name_col]
-    platform_col = "ad_platform" if "ad_platform" in df_temp.columns else (
-        "platform" if "platform" in df_temp.columns else None
+    platform_col = (
+        "ad_platform" if "ad_platform" in df_temp.columns else ("platform" if "platform" in df_temp.columns else None)
     )
     if platform_col:
         grp_cols.append(platform_col)
@@ -88,11 +91,11 @@ def _campaign_summary(df: pd.DataFrame) -> pd.DataFrame:
     # CTR
     if "clicks" in summary.columns and "impressions" in summary.columns:
         summary["ctr_%"] = (summary["clicks"] / summary["impressions"] * 100).fillna(0.0).round(2)
-    
+
     # ROAS
     if "revenue" in summary.columns and "spend_usd" in summary.columns:
         summary["roas"] = (summary["revenue"] / summary["spend_usd"]).fillna(0.0).round(2)
-        
+
     sort_col = "spend_usd" if "spend_usd" in summary.columns else summary.columns[0]
     return summary.sort_values(sort_col, ascending=False).reset_index(drop=True)
 
@@ -101,9 +104,11 @@ def _campaign_summary(df: pd.DataFrame) -> pd.DataFrame:
 # PDF generators (ReportLab)
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def _hex(h: str):
     """Convert '#rrggbb' to reportlab Color."""
     from reportlab.lib.colors import HexColor
+
     return HexColor(h)
 
 
@@ -111,6 +116,7 @@ def _base_doc(buf: io.BytesIO, title: str):
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import cm
     from reportlab.platypus import SimpleDocTemplate
+
     return SimpleDocTemplate(
         buf,
         pagesize=A4,
@@ -125,6 +131,7 @@ def _base_doc(buf: io.BytesIO, title: str):
 
 def _styles():
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+
     ss = getSampleStyleSheet()
 
     heading = ParagraphStyle(
@@ -272,14 +279,16 @@ def _campaign_table(summary: pd.DataFrame):
     display_cols = []
     rename = {}
 
-    name_col = "campaign_name" if "campaign_name" in summary.columns else (
-        "campaign" if "campaign" in summary.columns else "campaign_id"
+    name_col = (
+        "campaign_name"
+        if "campaign_name" in summary.columns
+        else ("campaign" if "campaign" in summary.columns else "campaign_id")
     )
     display_cols.append(name_col)
     rename[name_col] = "Campaign"
 
-    platform_col = "ad_platform" if "ad_platform" in summary.columns else (
-        "platform" if "platform" in summary.columns else None
+    platform_col = (
+        "ad_platform" if "ad_platform" in summary.columns else ("platform" if "platform" in summary.columns else None)
     )
     if platform_col:
         display_cols.append(platform_col)
@@ -299,12 +308,8 @@ def _campaign_table(summary: pd.DataFrame):
 
     sub = summary[display_cols].rename(columns=rename)
 
-    header_style = ParagraphStyle(
-        "th", fontName="Helvetica-Bold", fontSize=7, textColor=_hex("#ffffff")
-    )
-    cell_style = ParagraphStyle(
-        "td", fontName="Helvetica", fontSize=7, textColor=_hex("#f1f5f9")
-    )
+    header_style = ParagraphStyle("th", fontName="Helvetica-Bold", fontSize=7, textColor=_hex("#ffffff"))
+    cell_style = ParagraphStyle("td", fontName="Helvetica", fontSize=7, textColor=_hex("#f1f5f9"))
 
     usable_pt = 17.6 * 72 / 2.54
     col_count = len(sub.columns)
@@ -369,6 +374,7 @@ def _footer_canvas(canvas, doc):
 # Public API
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def generate_executive_pdf(df: pd.DataFrame) -> bytes:
     """One-page executive summary with top KPI table only."""
     from reportlab.platypus import HRFlowable, Paragraph, Spacer
@@ -387,9 +393,7 @@ def generate_executive_pdf(df: pd.DataFrame) -> bytes:
     story = [
         Paragraph("CampaignCanvas", s["heading"]),
         Paragraph("Executive Summary Report", s["sub"]),
-        HRFlowable(
-            width="100%", thickness=0.75, color=_hex("#cbd5e1"), spaceAfter=10
-        ),
+        HRFlowable(width="100%", thickness=0.75, color=_hex("#cbd5e1"), spaceAfter=10),
         Paragraph("Headline KPIs", s["section"]),
         Spacer(1, 4),
         _kpi_table(kpis, cols=4),
@@ -397,9 +401,7 @@ def generate_executive_pdf(df: pd.DataFrame) -> bytes:
         HRFlowable(width="100%", thickness=0.75, color=_hex("#cbd5e1")),
         Spacer(1, 8),
         Paragraph(
-            f"Data covers <b>{len(df):,}</b> rows across "
-            f"<b>{camp_count}</b> campaigns. "
-            f"All monetary values in USD.",
+            f"Data covers <b>{len(df):,}</b> rows across <b>{camp_count}</b> campaigns. All monetary values in USD.",
             s["body"],
         ),
     ]
@@ -420,9 +422,7 @@ def generate_summary_pdf(df: pd.DataFrame) -> bytes:
     story = [
         Paragraph("CampaignCanvas", s["heading"]),
         Paragraph("Summary Analytics Report", s["sub"]),
-        HRFlowable(
-            width="100%", thickness=0.75, color=_hex("#cbd5e1"), spaceAfter=10
-        ),
+        HRFlowable(width="100%", thickness=0.75, color=_hex("#cbd5e1"), spaceAfter=10),
         Paragraph("Headline KPIs", s["section"]),
         Spacer(1, 4),
         _kpi_table(kpis, cols=4),
@@ -434,8 +434,7 @@ def generate_summary_pdf(df: pd.DataFrame) -> bytes:
         HRFlowable(width="100%", thickness=0.75, color=_hex("#cbd5e1")),
         Spacer(1, 6),
         Paragraph(
-            f"Showing top {len(summary)} campaigns by spend. "
-            f"Full dataset: <b>{len(df):,}</b> rows.",
+            f"Showing top {len(summary)} campaigns by spend. Full dataset: <b>{len(df):,}</b> rows.",
             s["body"],
         ),
     ]
@@ -456,9 +455,7 @@ def generate_detailed_pdf(df: pd.DataFrame) -> bytes:
     story = [
         Paragraph("CampaignCanvas", s["heading"]),
         Paragraph("Detailed Campaign Report", s["sub"]),
-        HRFlowable(
-            width="100%", thickness=0.75, color=_hex("#cbd5e1"), spaceAfter=10
-        ),
+        HRFlowable(width="100%", thickness=0.75, color=_hex("#cbd5e1"), spaceAfter=10),
         Paragraph("Headline KPIs", s["section"]),
         Spacer(1, 4),
         _kpi_table(kpis, cols=4),
@@ -474,8 +471,7 @@ def generate_detailed_pdf(df: pd.DataFrame) -> bytes:
         HRFlowable(width="100%", thickness=0.75, color=_hex("#cbd5e1")),
         Spacer(1, 6),
         Paragraph(
-            f"Full dataset: <b>{len(df):,}</b> rows  ·  "
-            f"Generated {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}",
+            f"Full dataset: <b>{len(df):,}</b> rows  ·  Generated {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}",
             s["body"],
         ),
     ]

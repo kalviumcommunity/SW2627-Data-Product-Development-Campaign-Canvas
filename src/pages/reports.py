@@ -92,7 +92,7 @@ def render_report_card(title: str, desc: str, key_id: str):
             # ── Download button (replaces Generate once file is ready) ───
             fn, mime, ext = _REPORT_MAP[key_id]
             filename = f"campaigncanvas_{key_id}_{datetime.now().strftime('%Y%m%d_%H%M')}.{ext}"
-            
+
             st.download_button(
                 label=f"Download {title}",
                 icon=":material/download:",
@@ -103,7 +103,7 @@ def render_report_card(title: str, desc: str, key_id: str):
                 use_container_width=True,
                 type="primary",
             )
-            
+
             st.markdown("<div style='margin-top: 0.35rem;'></div>", unsafe_allow_html=True)
             if st.button(
                 "Re-generate",
@@ -141,30 +141,20 @@ def main():
     row1_col1, row1_col2, row1_col3 = st.columns(3, gap="medium")
 
     with row1_col1:
-        render_report_card(
-            "Executive PDF", "One-page summary of headline KPIs.", "exec_pdf"
-        )
+        render_report_card("Executive PDF", "One-page summary of headline KPIs.", "exec_pdf")
     with row1_col2:
-        render_report_card(
-            "Summary PDF", "KPIs + top campaigns breakdown.", "sum_pdf"
-        )
+        render_report_card("Summary PDF", "KPIs + top campaigns breakdown.", "sum_pdf")
     with row1_col3:
-        render_report_card(
-            "Detailed PDF", "Full campaign table + KPIs.", "detail_pdf"
-        )
+        render_report_card("Detailed PDF", "Full campaign table + KPIs.", "detail_pdf")
 
     st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
 
     row2_col1, row2_col2, row2_col3 = st.columns(3, gap="medium")
 
     with row2_col1:
-        render_report_card(
-            "CSV Export", "Raw UTF-8 dataset for external tools.", "csv_export"
-        )
+        render_report_card("CSV Export", "Raw UTF-8 dataset for external tools.", "csv_export")
     with row2_col2:
-        render_report_card(
-            "Excel Workbook", "Data + aggregated KPI & Summary tabs.", "excel_wb"
-        )
+        render_report_card("Excel Workbook", "Data + aggregated KPI & Summary tabs.", "excel_wb")
     with row2_col3:
         # Structured Info Slot
         with st.container(border=True):

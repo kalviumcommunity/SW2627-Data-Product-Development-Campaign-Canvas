@@ -11,34 +11,45 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 from src.database.db_client import DB_PATH, get_connection, init_db
+from src.etl_pipeline import _format_datetime_series
+
+
+def test_format_datetime_series_preserves_nulls():
+    """Invalid timestamps should remain nulls rather than turning into string 'NaN'."""
+    raw = pd.Series(pd.to_datetime(["2026-06-01 10:23:00", None], errors="coerce"))
+
+    formatted = _format_datetime_series(raw)
+
+    assert formatted.iloc[0] == "2026-06-01 10:23:00"
+    assert formatted.iloc[1] is None
 
 
 def test_db_initialization():
     """Test that the database schema initialized correctly with the required tables and constraints."""
     # Run DB init to create tables in the database file
     init_db()
-    
+
     # Assert database path exists
     assert DB_PATH.exists()
-    
+
     conn = get_connection()
     cursor = conn.cursor()
-    
+
     # Check that required tables exist
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     tables = [row[0] for row in cursor.fetchall()]
-    
+
     assert "ad_campaign_metrics" in tables
     assert "hubspot_signups" in tables
     assert "product_activations" in tables
-    
+
     # Verify columns in ad_campaign_metrics
     cursor.execute("PRAGMA table_info(ad_campaign_metrics);")
     ad_cols = [row[1] for row in cursor.fetchall()]
     assert "campaign_id" in ad_cols
     assert "ad_platform" in ad_cols
     assert "spend_usd" in ad_cols
-    
+
     # Check constraint: spend_usd >= 0 by attempting to insert negative spend (should fail check constraint)
     # Note: Foreign key constraints are on, but CHECK constraints also block invalid ranges
     with pytest.raises(sqlite3.IntegrityError):
@@ -47,26 +58,24 @@ def test_db_initialization():
             "VALUES ('test_neg', 'google_ads', -10.0, 10, 100, '2026-06-01')"
         )
         conn.commit()
-        
+
     conn.close()
+
 
 def test_test_email_filtering():
     """Test that the ETL process successfully filters out test user emails."""
     # Create temp signups containing test emails
     test_emails = [
         "valid_user@gmail.com",
-        "test_account@gmail.com",     # Contains "test"
-        "tester@company.com",          # Ends with @company.com
-        "company_test@company.com"     # Contains both
+        "test_account@gmail.com",  # Contains "test"
+        "tester@company.com",  # Ends with @company.com
+        "company_test@company.com",  # Contains both
     ]
-    
+
     # Run simple check of filtering logic
     df = pd.DataFrame({"email": test_emails})
-    df_clean = df[
-        (~df["email"].str.endswith("@company.com")) & 
-        (~df["email"].str.contains("test", case=False))
-    ]
-    
+    df_clean = df[(~df["email"].str.endswith("@company.com")) & (~df["email"].str.contains("test", case=False))]
+
     cleaned_list = df_clean["email"].tolist()
     assert "valid_user@gmail.com" in cleaned_list
     assert "test_account@gmail.com" not in cleaned_list
