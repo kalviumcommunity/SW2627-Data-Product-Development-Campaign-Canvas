@@ -11,6 +11,17 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 from src.database.db_client import DB_PATH, get_connection, init_db
+from src.etl_pipeline import _format_datetime_series
+
+
+def test_format_datetime_series_preserves_nulls():
+    """Invalid timestamps should remain nulls rather than turning into string 'NaN'."""
+    raw = pd.Series(pd.to_datetime(["2026-06-01 10:23:00", None], errors="coerce"))
+
+    formatted = _format_datetime_series(raw)
+
+    assert formatted.iloc[0] == "2026-06-01 10:23:00"
+    assert formatted.iloc[1] is None
 
 
 def test_db_initialization():

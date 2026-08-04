@@ -20,6 +20,12 @@ if root_dir not in sys.path:
 
 
 from src.database.db_client import get_connection, init_db
+
+
+def _format_datetime_series(series: pd.Series) -> pd.Series:
+    """Formats datetime-like values to SQLite-safe strings while preserving nulls."""
+    formatted = pd.Series(pd.DatetimeIndex(series).strftime("%Y-%m-%d %H:%M:%S"), index=series.index, dtype="object")
+    return formatted.where(series.notna(), None)
 from src.database.queries import (
     DELETE_AD_CAMPAIGN_METRICS,
     DELETE_HUBSPOT_SIGNUPS,
@@ -260,7 +266,7 @@ def run_etl() -> None:
 
     # Handle attribution fallback: null utm_campaign -> None
     utm_col = pd.Series(df_signups_clean["utm_campaign"])
-    df_signups_clean["utm_campaign"] = utm_col.replace({np.nan: None})
+    df_signups_clean["utm_campaign"] = utm_col.mask(utm_col.isna(), None)
 
 
     # 2. Clean Activations: Filter out test activations
@@ -282,10 +288,9 @@ def run_etl() -> None:
     activation_ts.loc[invalid_mask] = None
 
 
-    # Format back to ISO strings for SQLite storage
-    df_activations_clean["signup_timestamp"] = pd.DatetimeIndex(signup_ts).strftime("%Y-%m-%d %H:%M:%S")
-    formatted_act = pd.Series(pd.DatetimeIndex(activation_ts).strftime("%Y-%m-%d %H:%M:%S"))
-    df_activations_clean["activation_timestamp"] = formatted_act.replace({np.nan: None})
+    # Format back to SQLite-safe timestamp strings while preserving invalid values as nulls.
+    df_activations_clean["signup_timestamp"] = _format_datetime_series(signup_ts)
+    df_activations_clean["activation_timestamp"] = _format_datetime_series(activation_ts)
 
 
     # 3. Clean Ad metrics: Aggregate by campaign_id to satisfy primary key constraint
