@@ -1,9 +1,11 @@
 import streamlit as st
 
+from src.utils.formatting import escape_html
+
 
 def render_navbar(page_title: str):
     """Render top navbar with title on the far left, and email + theme badge on the far right edge with working hover tooltip."""
-    user_email = st.session_state.get("email", "Signed in")
+    user_email = escape_html(st.session_state.get("email", "Signed in"))
     theme = st.session_state.get("theme", "dark")
     target_theme = "dark" if theme == "light" else "light"
     icon = ":material/dark_mode:" if theme == "light" else ":material/light_mode:"

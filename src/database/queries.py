@@ -131,6 +131,12 @@ CREATE_INDEX_PA_EMAIL: Final = """CREATE INDEX IF NOT EXISTS idx_pa_email
 CREATE_INDEX_PA_TIMESTAMPS: Final = """CREATE INDEX IF NOT EXISTS idx_pa_timestamps
     ON product_activations (signup_timestamp, activation_timestamp);"""
 
+CREATE_INDEX_HS_UTM_SIGNUP_TIME: Final = """CREATE INDEX IF NOT EXISTS idx_hs_utm_signup_time
+    ON hubspot_signups (utm_campaign, signup_timestamp);"""
+
+CREATE_INDEX_PA_EMAIL_SIGNUP: Final = """CREATE INDEX IF NOT EXISTS idx_pa_email_signup
+    ON product_activations (email, signup_timestamp);"""
+
 
 # ── Helper Functions for Dynamic Inspection ────────────────────────────────
 def count_rows_query(table_name: str) -> str:

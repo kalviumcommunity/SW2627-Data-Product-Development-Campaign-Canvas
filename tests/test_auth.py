@@ -4,9 +4,11 @@ from unittest.mock import MagicMock, patch
 import streamlit as st
 
 from src.utils.clerk_auth import (
+    build_clerk_authorization_url,
     get_clerk_credentials,
     get_clerk_endpoints,
     handle_clerk_callback,
+    validate_oauth_state,
 )
 
 
@@ -86,6 +88,26 @@ def test_get_clerk_credentials_secrets_missing():
         assert client_secret == "fallback_secret"
         assert domain == "fallback.clerk.accounts.dev"
         assert redirect_uri == "http://localhost:8501/"
+
+def test_build_clerk_authorization_url_uses_state_and_redirect():
+    url = build_clerk_authorization_url(
+        client_id="client123",
+        redirect_uri="http://localhost:8501/",
+        state="state123",
+        endpoints={"authorization_endpoint": "https://example.com/oauth/authorize"},
+    )
+
+    assert "https://example.com/oauth/authorize" in url
+    assert "client_id=client123" in url
+    assert "redirect_uri=http%3A%2F%2Flocalhost%3A8501%2F" in url
+    assert "state=state123" in url
+
+
+def test_validate_oauth_state_matches_expected_value():
+    assert validate_oauth_state("state123", "state123") is True
+    assert validate_oauth_state("state123", "state999") is False
+    assert validate_oauth_state(None, "state123") is False
+
 
 def test_get_clerk_endpoints_fallback():
     get_clerk_endpoints.clear()
