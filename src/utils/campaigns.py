@@ -392,13 +392,37 @@ def aggregate_by(frame: pd.DataFrame, key: str) -> pd.DataFrame:
     return grouped.sort_values(["spend_usd", "activations_7d"], ascending=[False, False]).reset_index(drop=True)
 
 
-def fmt_currency(value: float) -> str:
-    return f"${value:,.0f}" if abs(value) >= 1_000 else f"${value:,.2f}"
+def fmt_currency(value: float | None) -> str:
+    try:
+        numeric_value = float(value)
+    except (TypeError, ValueError):
+        numeric_value = 0.0
+
+    if pd.isna(numeric_value):
+        numeric_value = 0.0
+
+    return f"${numeric_value:,.0f}" if abs(numeric_value) >= 1_000 else f"${numeric_value:,.2f}"
 
 
-def fmt_num(value: float) -> str:
-    return f"{value:,.0f}"
+def fmt_num(value: float | None) -> str:
+    try:
+        numeric_value = float(value)
+    except (TypeError, ValueError):
+        numeric_value = 0.0
+
+    if pd.isna(numeric_value):
+        numeric_value = 0.0
+
+    return f"{numeric_value:,.0f}"
 
 
-def fmt_pct(value: float) -> str:
-    return f"{value * 100:.1f}%"
+def fmt_pct(value: float | None) -> str:
+    try:
+        numeric_value = float(value)
+    except (TypeError, ValueError):
+        numeric_value = 0.0
+
+    if pd.isna(numeric_value):
+        numeric_value = 0.0
+
+    return f"{numeric_value * 100:.1f}%"
