@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 import os
+import urllib.parse
+from typing import Any
 
 import requests
 import streamlit as st
@@ -34,8 +36,56 @@ def initialize_auth_state(session_state=None):
         session_state["name"] = ""
     if "theme" not in session_state:
         session_state["theme"] = "dark"
+    if "clerk_oauth_state" not in session_state:
+        session_state["clerk_oauth_state"] = ""
 
     return session_state
+
+
+def validate_oauth_state(expected_state: str | None, received_state: str | None) -> bool:
+    """Validate that the OAuth state value matches the one we generated earlier."""
+    if not expected_state:
+        return False
+    if not received_state:
+        return False
+    return str(expected_state) == str(received_state)
+
+
+def _get_query_param(query_params: Any, key: str) -> Any:
+    """Read a query parameter from dict-like or mock objects without assuming a specific interface."""
+    if query_params is None:
+        return None
+
+    try:
+        return query_params[key]
+    except Exception:
+        pass
+
+    if hasattr(query_params, "get"):
+        try:
+            return query_params.get(key)
+        except Exception:
+            return None
+
+    return None
+
+
+def build_clerk_authorization_url(client_id: str, redirect_uri: str, state: str, endpoints: dict[str, str]) -> str:
+    """Construct a Clerk authorization URL while safely encoding the redirect URI and state."""
+    if not client_id or not redirect_uri or not state:
+        raise ValueError("client_id, redirect_uri, and state are required")
+
+    authorization_endpoint = endpoints.get("authorization_endpoint", "https://clerk.example.com/oauth/authorize")
+    encoded_redirect_uri = urllib.parse.quote(redirect_uri, safe="")
+    encoded_state = urllib.parse.quote(state, safe="")
+    return (
+        f"{authorization_endpoint}"
+        f"?client_id={urllib.parse.quote(client_id, safe='')}"
+        f"&redirect_uri={encoded_redirect_uri}"
+        "&response_type=code"
+        "&scope=openid%20profile%20email"
+        f"&state={encoded_state}"
+    )
 
 
 def require_authentication(redirect_page: str = "pages/auth.py") -> bool:
@@ -175,18 +225,23 @@ def handle_clerk_callback():
 
     Exchanges it for user info, establishes the session, and redirects to the dashboard.
     """
+    initialize_auth_state()
     query_params = st.query_params
-    if "code" in query_params:
-        code = query_params["code"]
+    code = _get_query_param(query_params, "code")
+    received_state = _get_query_param(query_params, "state")
 
+    if code:
         client_id, client_secret, domain, redirect_uri = get_clerk_credentials()
+        expected_state = st.session_state.get("clerk_oauth_state")
+        if expected_state and not validate_oauth_state(expected_state, received_state):
+            st.error("Authentication failed: OAuth state validation failed.")
+            return
 
         if client_id and client_secret and domain:
             endpoints = get_clerk_endpoints(domain)
 
             with st.spinner("Completing Clerk Authentication..."):
                 try:
-                    # Exchange authorization code for token
                     token_url = endpoints["token_endpoint"]
                     token_data = {
                         "code": code,
@@ -200,7 +255,6 @@ def handle_clerk_callback():
                         tokens = res.json()
                         access_token = tokens.get("access_token")
 
-                        # Get user info
                         userinfo_url = endpoints["userinfo_endpoint"]
                         headers = {"Authorization": f"Bearer {access_token}"}
                         userinfo_res = requests.get(userinfo_url, headers=headers, timeout=10)
@@ -209,7 +263,6 @@ def handle_clerk_callback():
                             user_data = userinfo_res.json()
                             email = user_data.get("email") or user_data.get("email_address")
 
-                            # Sometimes OIDC payload returns email as first item in list or nested
                             if not email and "emails" in user_data and len(user_data["emails"]) > 0:
                                 email = user_data["emails"][0]
 

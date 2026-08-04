@@ -14,11 +14,13 @@ if root_dir not in sys.path:
 import streamlit as st
 
 from src.utils.clerk_auth import (
+    build_clerk_authorization_url,
     check_and_restore_session,
     get_clerk_credentials,
     get_clerk_endpoints,
     handle_clerk_callback,
 )
+from src.utils.formatting import escape_html
 from src.utils.load_css import load_css
 
 st.set_page_config(page_title="Sign in — CampaignCanvas", page_icon=":material/bar_chart:", layout="wide")
@@ -499,18 +501,20 @@ with col_form:
 
                 encoded_redirect_uri = urllib.parse.quote(redirect_uri, safe="")
 
-                auth_url = (
-                    f"{endpoints['authorization_endpoint']}"
-                    f"?client_id={client_id}"
-                    f"&redirect_uri={encoded_redirect_uri}"
-                    "&response_type=code"
-                    "&scope=openid%20profile%20email"
-                    f"&state={state}"
+                auth_url = build_clerk_authorization_url(
+                    client_id=client_id,
+                    redirect_uri=redirect_uri,
+                    state=state,
+                    endpoints=endpoints,
                 )
+
+                st.markdown(f'<a href="{escape_html(auth_url)}" target="_self" class="clerk-btn">Continue with Clerk</a>', unsafe_allow_html=True)
+
                 st.markdown(
                     f'<a href="{auth_url}" target="_self" class="clerk-btn">Continue with Clerk</a>',
                     unsafe_allow_html=True,
                 )
+
             else:
                 if st.button("Continue with Clerk", use_container_width=True, key="clerk_setup_trigger_btn"):
                     st.session_state["show_clerk_setup"] = True

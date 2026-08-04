@@ -4,14 +4,15 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
+import plotly.graph_objects as go
 
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
+from src.components.charts import build_revenue_spend_chart, build_signup_activation_chart
 from src.components.navbar import render_navbar
 from src.components.sidebar import render_sidebar
 from src.utils.campaigns import (
@@ -299,54 +300,7 @@ def main() -> None:
             if by_date.empty:
                 st.info("No trend data is available yet.")
             else:
-                fig = go.Figure()
-                fig.add_trace(
-                    go.Scatter(
-                        x=by_date["date"],
-                        y=by_date["revenue"],
-                        name="Revenue",
-                        mode="lines+markers",
-                        line=dict(color="#1d8cff", width=2.5),
-                        fill="tozeroy",
-                        fillcolor="rgba(29, 140, 255, 0.12)",
-                    )
-                )
-                fig.add_trace(
-                    go.Scatter(
-                        x=by_date["date"],
-                        y=by_date["spend"],
-                        name="Spend",
-                        mode="lines+markers",
-                        line=dict(color="#f59e0b", width=2.5),
-                        fill="tozeroy",
-                        fillcolor="rgba(245, 158, 11, 0.10)",
-                    )
-                )
-                layout_trend = base_layout.copy()
-                layout_trend.update(
-                    height=320,
-                    margin=dict(l=10, r=10, t=10, b=10),
-                    legend=dict(
-                        orientation="h",
-                        yanchor="bottom",
-                        y=1.02,
-                        xanchor="right",
-                        x=1,
-                        font=dict(color=text_color, size=11),
-                    ),
-                    xaxis=dict(
-                        showgrid=False,
-                        title=None,
-                        tickfont=dict(color=text_color, size=10),
-                    ),
-                    yaxis=dict(
-                        showgrid=True,
-                        gridcolor=grid_color,
-                        title=None,
-                        tickfont=dict(color=text_color, size=10),
-                    ),
-                )
-                fig.update_layout(layout_trend)
+                fig = build_revenue_spend_chart(by_date, base_layout, text_color, grid_color)
                 st.plotly_chart(
                     fig,
                     use_container_width=True,
@@ -387,13 +341,23 @@ def main() -> None:
             spend_col = (
                 "spend_usd"
                 if "spend_usd" in campaign_perf.columns
-                else ("totalSpend" if "totalSpend" in campaign_perf.columns else "spend")
+                else (
+                    "totalSpend" if "totalSpend" in campaign_perf.columns else "spend"
+                )
             )
-            revenue_col = "totalRevenue" if "totalRevenue" in campaign_perf.columns else "revenue"
+            revenue_col = (
+                "totalRevenue"
+                if "totalRevenue" in campaign_perf.columns
+                else "revenue"
+            )
             label_col = (
                 "display_name"
                 if "display_name" in campaign_perf.columns
-                else ("name" if "name" in campaign_perf.columns else campaign_col)
+                else (
+                    "name"
+                    if "name" in campaign_perf.columns
+                    else campaign_col
+                )
             )
 
             fig_perf = go.Figure()
@@ -516,53 +480,7 @@ def main() -> None:
             if by_date.empty:
                 st.info("No trend data is available yet.")
             else:
-                fig_stage_trend = go.Figure()
-                fig_stage_trend.add_trace(
-                    go.Scatter(
-                        x=by_date["date"],
-                        y=by_date["signups"],
-                        name="Signups",
-                        mode="lines+markers",
-                        line=dict(color="#38bdf8", width=2.5),
-                        marker=dict(size=5),
-                    )
-                )
-                fig_stage_trend.add_trace(
-                    go.Scatter(
-                        x=by_date["date"],
-                        y=by_date["activations_7d"],
-                        name="Activations",
-                        mode="lines+markers",
-                        line=dict(color="#10b981", width=2.5),
-                        marker=dict(size=5),
-                    )
-                )
-
-                layout_stage = base_layout.copy()
-                layout_stage.update(
-                    height=320,
-                    margin=dict(l=10, r=10, t=10, b=10),
-                    legend=dict(
-                        orientation="h",
-                        yanchor="bottom",
-                        y=1.02,
-                        xanchor="right",
-                        x=1,
-                        font=dict(color=text_color, size=10),
-                    ),
-                    xaxis=dict(
-                        showgrid=False,
-                        title=None,
-                        tickfont=dict(color=text_color, size=10),
-                    ),
-                    yaxis=dict(
-                        showgrid=True,
-                        gridcolor=grid_color,
-                        title=None,
-                        tickfont=dict(color=text_color, size=10),
-                    ),
-                )
-                fig_stage_trend.update_layout(layout_stage)
+                fig_stage_trend = build_signup_activation_chart(by_date, base_layout, text_color, grid_color)
                 st.plotly_chart(
                     fig_stage_trend,
                     use_container_width=True,
