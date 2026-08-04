@@ -5,13 +5,14 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
 
 # Add project root to sys.path
 root_dir = str(Path(__file__).resolve().parents[2])
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from src.components.charts import build_campaign_performance_chart, build_revenue_spend_chart, build_signup_activation_chart
+from src.components.charts import build_revenue_spend_chart, build_signup_activation_chart
 from src.components.navbar import render_navbar
 from src.components.sidebar import render_sidebar
 from src.utils.campaigns import (
