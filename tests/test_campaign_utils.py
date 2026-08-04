@@ -1,5 +1,3 @@
-import math
-
 import pandas as pd
 
 from src.utils.campaigns import fmt_currency, fmt_num, fmt_pct
